@@ -1,0 +1,14 @@
+.git
+.github
+.data
+.env
+coverage
+dist
+docs
+node_modules
+playwright-report
+review
+review-output
+test
+test-results
+*.log

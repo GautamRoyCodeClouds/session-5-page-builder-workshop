@@ -1,0 +1,52 @@
+name: session5-page-builder
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: session5
+      POSTGRES_PASSWORD: session5
+      POSTGRES_DB: session5
+    ports:
+      - "${POSTGRES_PORT:-54329}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/10-test-database.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U session5 -d session5"]
+      interval: 2s
+      timeout: 3s
+      retries: 20
+      start_period: 3s
+    restart: unless-stopped
+
+  app:
+    profiles: ["full"]
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      DATABASE_URL: postgresql://session5:session5@postgres:5432/session5?schema=public
+      DIRECT_URL: postgresql://session5:session5@postgres:5432/session5?schema=public
+      PORT: 3000
+      PUBLISH_DIR: /app/.data/published
+      SITE_LANGUAGE: en
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    volumes:
+      - published_sites:/app/.data/published
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["sh", "-c", "npm run prisma:deploy && node dist/main.js"]
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3000/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 10s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  published_sites:

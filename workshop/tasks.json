@@ -1,0 +1,1568 @@
+{
+  "version": 1,
+  "source": "Session 5 deck",
+  "tasks": [
+    {
+      "id": "BE-01",
+      "category": "backend",
+      "title": "Add a project rename endpoint",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add one rename route and service operation without changing the project persistence shape.",
+      "acceptance": [
+        "PATCH /api/projects/:id/name returns 200 for a valid nonblank name",
+        "Blank or whitespace-only names return 400",
+        "An unknown project returns the existing not-found envelope"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a project rename endpoint\": Add one rename route and service operation without changing the project persistence shape. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-02",
+      "category": "backend",
+      "title": "Add a duplicate-project endpoint",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Create a project copy with a new identity while reusing the existing create and validation paths.",
+      "acceptance": [
+        "POST /api/projects/:id/duplicate returns 201 with a new project ID",
+        "All source blocks are copied in their original order",
+        "The copy receives a nonconflicting slug and is not published",
+        "An unknown source project returns 404"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a duplicate-project endpoint\": Create a project copy with a new identity while reusing the existing create and validation paths. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-03",
+      "category": "backend",
+      "title": "Add a project-list endpoint with bounded pagination",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add a list route with deterministic ordering and capped page and page-size inputs.",
+      "acceptance": [
+        "GET /api/projects returns items plus page, pageSize, and total metadata",
+        "pageSize defaults to 20 and cannot exceed 50",
+        "Noninteger or nonpositive page values return 400",
+        "Items use a deterministic newest-first ordering"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a project-list endpoint with bounded pagination\": Add a list route with deterministic ordering and capped page and page-size inputs. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-04",
+      "category": "backend",
+      "title": "Add optional page-description metadata to published HTML",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Accept an optional page description and render it as escaped publish metadata.",
+      "acceptance": [
+        "Create and update requests accept an optional description within the documented limit",
+        "Published output includes one escaped meta description when a description is present",
+        "Published output omits the tag when the description is absent",
+        "A reversible nullable migration preserves existing projects, which still publish without a description"
+      ],
+      "allowedFiles": [
+        "prisma/schema.prisma",
+        "prisma/migrations/**",
+        "src/projects/**",
+        "src/publisher/**",
+        "test/projects/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add optional page-description metadata to published HTML\": Accept an optional page description and render it as escaped publish metadata. Change only files matching: prisma/schema.prisma, prisma/migrations/**, src/projects/**, src/publisher/**, test/projects/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-05",
+      "category": "backend",
+      "title": "Add a delete-project operation with an explicit confirmation contract",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add deletion that requires an explicit request confirmation and cleans up only the target project.",
+      "acceptance": [
+        "DELETE /api/projects/:id requires the documented confirmation value",
+        "Missing or false confirmation returns 400 without deleting data",
+        "Confirmed deletion returns 204 and the project can no longer be loaded",
+        "An unknown project returns 404"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a delete-project operation with an explicit confirmation contract\": Add deletion that requires an explicit request confirmation and cleans up only the target project. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-06",
+      "category": "backend",
+      "title": "Add a slug-availability endpoint",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Expose a read-only endpoint that validates a proposed slug and reports whether it is available.",
+      "acceptance": [
+        "GET /api/projects/slug-availability?slug=valid-name returns a boolean available field",
+        "A slug owned by an existing project reports available false",
+        "A malformed or missing slug returns 400",
+        "The check creates or updates no project records"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a slug-availability endpoint\": Expose a read-only endpoint that validates a proposed slug and reports whether it is available. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-07",
+      "category": "backend",
+      "title": "Record and return the last successful publish time",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Persist a publish timestamp only after output generation succeeds and expose it on project reads.",
+      "acceptance": [
+        "A successful publish stores lastSuccessfulPublishAt",
+        "Project responses return the timestamp as an ISO 8601 string or null",
+        "A failed publish does not change the previous timestamp",
+        "The persistence change includes a reversible migration"
+      ],
+      "allowedFiles": [
+        "prisma/schema.prisma",
+        "prisma/migrations/**",
+        "src/projects/**",
+        "src/publisher/**",
+        "test/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Record and return the last successful publish time\": Persist a publish timestamp only after output generation succeeds and expose it on project reads. Change only files matching: prisma/schema.prisma, prisma/migrations/**, src/projects/**, src/publisher/**, test/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-08",
+      "category": "backend",
+      "title": "Add an unpublish operation that removes generated output safely",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Add an idempotent unpublish path that removes only the generated file mapped to the target project.",
+      "acceptance": [
+        "POST /api/projects/:id/unpublish returns 204 for a published project",
+        "The generated page is no longer served after unpublish",
+        "A second unpublish is safe and leaves unrelated output untouched",
+        "Resolved output paths cannot escape the configured publish directory"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "src/publisher/**",
+        "test/projects/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an unpublish operation that removes generated output safely\": Add an idempotent unpublish path that removes only the generated file mapped to the target project. Change only files matching: src/projects/**, src/publisher/**, test/projects/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-09",
+      "category": "backend",
+      "title": "Add a read-only project-status endpoint",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Expose one project as draft or published without returning its block content or mutating state.",
+      "acceptance": [
+        "GET /api/projects/:id/status returns exactly id, status, and publishedAt",
+        "A project with no successful publish reports draft and a null publishedAt",
+        "A published project reports published with its current timestamp",
+        "An unknown project returns the existing 404 envelope"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a read-only project-status endpoint\": Expose one project as draft or published without returning its block content or mutating state. Change only files matching: src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-10",
+      "category": "backend",
+      "title": "Add a database-aware readiness endpoint",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add a readiness probe that checks database connectivity without exposing connection details.",
+      "acceptance": [
+        "GET /ready returns 200 with status ready when the database probe succeeds",
+        "A failed database probe returns 503 with status not-ready",
+        "Responses contain no credentials, hostnames, or raw driver errors",
+        "The existing liveness endpoint behavior is unchanged"
+      ],
+      "allowedFiles": [
+        "src/health/**",
+        "src/database/**",
+        "test/health/**"
+      ],
+      "verify": [
+        "npm run test:unit -- health",
+        "npm run test:api -- health"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a database-aware readiness endpoint\": Add a readiness probe that checks database connectivity without exposing connection details. Change only files matching: src/health/**, src/database/**, test/health/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- health; npm run test:api -- health. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-11",
+      "category": "backend",
+      "title": "Add optimistic concurrency with a project version field",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Require the current integer version on saves and increment it atomically on success.",
+      "acceptance": [
+        "Project responses include an integer version",
+        "A save with the current version succeeds and increments version by one",
+        "A stale version returns 409 without overwriting newer data",
+        "The schema change includes a reversible migration and a default for existing rows"
+      ],
+      "allowedFiles": [
+        "prisma/schema.prisma",
+        "prisma/migrations/**",
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add optimistic concurrency with a project version field\": Require the current integer version on saves and increment it atomically on success. Change only files matching: prisma/schema.prisma, prisma/migrations/**, src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "BE-12",
+      "category": "backend",
+      "title": "Make one endpoint use the common error envelope consistently",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Route validation and not-found failures from POST /api/projects/:id/publish through the shared error envelope.",
+      "acceptance": [
+        "Publish validation failures return statusCode, code, and message",
+        "Publish validation fields appear only under the optional details field",
+        "Publishing an unknown project returns 404 in the same envelope while successful publish behavior remains unchanged",
+        "Focused API tests assert the full validation and not-found response bodies"
+      ],
+      "allowedFiles": [
+        "src/common/errors/**",
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- errors",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Make one endpoint use the common error envelope consistently\": Route validation and not-found failures from POST /api/projects/:id/publish through the shared error envelope. Change only files matching: src/common/errors/**, src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- errors; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-01",
+      "category": "frontend",
+      "title": "Add a Spacer block with three fixed sizes",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add a nontext Spacer block whose inspector offers exactly three supported size choices.",
+      "acceptance": [
+        "The palette exposes one Spacer option",
+        "The inspector offers exactly small, medium, and large sizes",
+        "Saved and reloaded spacers retain their selected size",
+        "Preview and published output use the selected fixed size"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "src/projects/dto/**",
+        "src/publisher/**",
+        "test/browser/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a Spacer block with three fixed sizes\": Add a nontext Spacer block whose inspector offers exactly three supported size choices. Change only files matching: public/builder/**, src/projects/dto/**, src/publisher/**, test/browser/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-02",
+      "category": "frontend",
+      "title": "Add a Quote block with quote and attribution fields",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add a Quote block with separate editable quote and optional attribution values.",
+      "acceptance": [
+        "The palette can insert a Quote block",
+        "The inspector edits quote and attribution independently",
+        "Save and load preserve both values",
+        "Published output uses semantic blockquote and cite markup with escaped text"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "src/projects/dto/**",
+        "src/publisher/**",
+        "test/browser/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a Quote block with quote and attribution fields\": Add a Quote block with separate editable quote and optional attribution values. Change only files matching: public/builder/**, src/projects/dto/**, src/publisher/**, test/browser/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-03",
+      "category": "frontend",
+      "title": "Add an Image block with URL and required alt text",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add an Image block that requires accessible alternative text before save or publish.",
+      "acceptance": [
+        "The palette can insert an Image block",
+        "The inspector exposes URL and alt-text fields",
+        "An empty alt value produces a visible validation error and blocks save or publish",
+        "Preview and published image attributes are escaped"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "src/projects/dto/**",
+        "src/publisher/**",
+        "test/browser/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an Image block with URL and required alt text\": Add an Image block that requires accessible alternative text before save or publish. Change only files matching: public/builder/**, src/projects/dto/**, src/publisher/**, test/browser/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-04",
+      "category": "frontend",
+      "title": "Add primary and secondary styles to Button blocks",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add a two-option visual style field to existing Button blocks without changing link behavior.",
+      "acceptance": [
+        "The Button inspector offers exactly primary and secondary styles",
+        "New buttons default to primary",
+        "Save and load preserve the selected style",
+        "Preview and published output apply distinct classes for both styles"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "src/projects/dto/**",
+        "src/publisher/**",
+        "test/browser/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add primary and secondary styles to Button blocks\": Add a two-option visual style field to existing Button blocks without changing link behavior. Change only files matching: public/builder/**, src/projects/dto/**, src/publisher/**, test/browser/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-05",
+      "category": "frontend",
+      "title": "Add a duplicate-selected-block command",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Duplicate the selected block directly after its source with a fresh client-side identity.",
+      "acceptance": [
+        "The command is disabled when no block is selected",
+        "A duplicate is inserted immediately after the selected block",
+        "The copy preserves editable values but receives a distinct ID",
+        "The new copy becomes selected and marks the project unsaved"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a duplicate-selected-block command\": Duplicate the selected block directly after its source with a fresh client-side identity. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-06",
+      "category": "frontend",
+      "title": "Add a delete-selected-block keyboard command",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add a Delete-key command that removes the selected block immediately while protecting editable fields.",
+      "acceptance": [
+        "Pressing Delete removes the selected block without a confirmation step",
+        "Backspace does not trigger the command",
+        "Delete does not remove a block while focus is in an input, textarea, or editable field",
+        "Focus moves to the next block, previous block, or canvas after deletion"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- keyboard"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a delete-selected-block keyboard command\": Add a Delete-key command that removes the selected block immediately while protecting editable fields. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- keyboard. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-07",
+      "category": "frontend",
+      "title": "Add explicit Move Up and Move Down controls",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Add accessible reorder buttons for the selected block alongside existing drag behavior.",
+      "acceptance": [
+        "Move Up and Move Down controls have accessible names",
+        "The first block cannot move up and the last block cannot move down",
+        "A successful move updates visible and saved order",
+        "The moved block remains selected"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add explicit Move Up and Move Down controls\": Add accessible reorder buttons for the selected block alongside existing drag behavior. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-08",
+      "category": "frontend",
+      "title": "Add a useful empty-canvas state",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Replace the blank canvas with a concise empty state whose action moves focus to the block palette.",
+      "acceptance": [
+        "The empty state appears only when the page has zero blocks",
+        "Its action moves keyboard focus to the first enabled palette item without adding a block",
+        "Adding a block removes the empty state without a page reload",
+        "The state and its action have meaningful accessible names"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a useful empty-canvas state\": Replace the blank canvas with a concise empty state whose action moves focus to the block palette. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-09",
+      "category": "frontend",
+      "title": "Add desktop and mobile preview modes",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add a two-mode preview control that changes the preview viewport without altering project data.",
+      "acceptance": [
+        "A segmented control exposes exactly desktop and mobile modes",
+        "The selected mode changes preview width using stable CSS constraints",
+        "Switching modes does not mutate blocks or mark the project unsaved",
+        "The active mode is conveyed visually and with aria-pressed or equivalent state"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- preview"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add desktop and mobile preview modes\": Add a two-mode preview control that changes the preview viewport without altering project data. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- preview. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-10",
+      "category": "frontend",
+      "title": "Add an unsaved-changes indicator",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Track local edits against the last successful save and show a compact status in the builder header.",
+      "acceptance": [
+        "Editing project metadata or blocks changes the status to Unsaved",
+        "A successful save changes the status to Saved",
+        "A failed save leaves the status Unsaved",
+        "Loading a project starts in the Saved state"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- unsaved"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an unsaved-changes indicator\": Track local edits against the last successful save and show a compact status in the builder header. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- unsaved. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-11",
+      "category": "frontend",
+      "title": "Add a visible block count with the configured limit",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Show current block count against the existing configured maximum and disable additions at the limit.",
+      "acceptance": [
+        "The builder displays count in current/limit form",
+        "The count updates immediately after the baseline add and remove actions",
+        "Palette add controls are disabled at the configured limit",
+        "Removing a block below the limit re-enables additions"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a visible block count with the configured limit\": Show current block count against the existing configured maximum and disable additions at the limit. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-12",
+      "category": "frontend",
+      "title": "Allow the project title to be edited from the builder header",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Expose the existing title field in the builder header with the same validation as project saves.",
+      "acceptance": [
+        "The current title appears in an editable header control",
+        "A valid edit updates builder state and marks it unsaved",
+        "Blank titles show the existing validation message and are not saved",
+        "Reloading after save shows the edited title"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- builder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Allow the project title to be edited from the builder header\": Expose the existing title field in the builder header with the same validation as project saves. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- builder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-13",
+      "category": "frontend",
+      "title": "Add an edit/preview mode toggle",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add an explicit mode switch that hides editing chrome in preview while preserving in-memory state.",
+      "acceptance": [
+        "The control exposes exactly Edit and Preview modes",
+        "Preview hides palette, selection handles, and inspector controls",
+        "Returning to Edit restores the same selection and form values",
+        "Switching mode does not save or mutate project content"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- preview"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an edit/preview mode toggle\": Add an explicit mode switch that hides editing chrome in preview while preserving in-memory state. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- preview. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-14",
+      "category": "frontend",
+      "title": "Add keyboard navigation to the block palette",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Implement predictable arrow-key and activation behavior for palette items using an established composite-widget pattern.",
+      "acceptance": [
+        "Tab enters the palette at one active item",
+        "Arrow keys move focus among all palette items without leaving the palette",
+        "Enter and Space add the focused block",
+        "Visible focus and accessible names identify every item"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- keyboard"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add keyboard navigation to the block palette\": Implement predictable arrow-key and activation behavior for palette items using an established composite-widget pattern. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- keyboard. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "UI-15",
+      "category": "frontend",
+      "title": "Make the block inspector collapsible without losing form state",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add an accessible collapse control that changes inspector visibility without remounting or resetting its form.",
+      "acceptance": [
+        "The inspector control exposes expanded and collapsed state to assistive technology",
+        "Collapsing hides inspector fields from view and tab order",
+        "Expanding restores unsaved field values and the selected block",
+        "The canvas layout remains usable in both states"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- inspector"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Make the block inspector collapsible without losing form state\": Add an accessible collapse control that changes inspector visibility without remounting or resetting its form. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- inspector. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-01",
+      "category": "quality",
+      "title": "Reject unsafe or malformed slugs",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Centralize slug validation around one conservative ASCII format and existing error handling.",
+      "acceptance": [
+        "Lowercase letters, digits, and internal hyphens are accepted within the documented length",
+        "Traversal tokens, separators, whitespace, uppercase text, and empty slugs are rejected",
+        "Invalid slugs return 400 through the common error envelope",
+        "Create, update, and publish paths use the same validator"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "src/common/validation/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- slug",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Reject unsafe or malformed slugs\": Centralize slug validation around one conservative ASCII format and existing error handling. Change only files matching: src/projects/**, src/common/validation/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- slug; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-02",
+      "category": "quality",
+      "title": "Reject unsafe URL protocols in Button links",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Apply one allowlist-based URL protocol validator to the baseline Button block before persistence and publish.",
+      "acceptance": [
+        "HTTP and HTTPS URLs are accepted",
+        "javascript, data, file, and protocol-relative URLs are rejected",
+        "Protocol checks are case-insensitive and tolerate no leading control characters",
+        "Invalid URLs produce a field-specific 400 response"
+      ],
+      "allowedFiles": [
+        "src/projects/**",
+        "src/common/validation/**",
+        "src/publisher/**",
+        "test/**"
+      ],
+      "verify": [
+        "npm run test:unit -- url",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Reject unsafe URL protocols in Button links\": Apply one allowlist-based URL protocol validator to the baseline Button block before persistence and publish. Change only files matching: src/projects/**, src/common/validation/**, src/publisher/**, test/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- url; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-03",
+      "category": "quality",
+      "title": "Enforce a maximum number of page blocks",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Enforce the existing configured block limit at the backend trust boundary.",
+      "acceptance": [
+        "Projects at or below the configured limit save successfully",
+        "A request above the limit returns 400 before persistence",
+        "The response identifies the block limit without echoing page content",
+        "Create and update paths enforce the same value"
+      ],
+      "allowedFiles": [
+        "src/config/**",
+        "src/projects/**",
+        "test/projects/**"
+      ],
+      "verify": [
+        "npm run test:unit -- projects",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Enforce a maximum number of page blocks\": Enforce the existing configured block limit at the backend trust boundary. Change only files matching: src/config/**, src/projects/**, test/projects/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- projects; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-04",
+      "category": "quality",
+      "title": "Prevent duplicate saves while a request is in flight",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Guard the baseline manual Save action so repeated activation cannot create concurrent update requests.",
+      "acceptance": [
+        "Rapid repeated activation of Save produces one in-flight request",
+        "The Save control exposes a disabled or busy state until that request settles",
+        "Edits made during the request remain available for a later save and are not reported as persisted",
+        "Success and failure both restore an actionable Save control with the correct feedback"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- save"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Prevent duplicate saves while a request is in flight\": Guard the baseline manual Save action so repeated activation cannot create concurrent update requests. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- save. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-05",
+      "category": "quality",
+      "title": "Enforce a bounded request-body size",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Configure and document a finite JSON body limit for API requests before controller handling.",
+      "acceptance": [
+        "A request below the configured limit reaches its controller",
+        "A request above the limit returns 413",
+        "The 413 response uses the common error envelope",
+        "The limit is read from validated configuration with a bounded default"
+      ],
+      "allowedFiles": [
+        "src/main.ts",
+        "src/config/**",
+        "src/common/errors/**",
+        "test/api/**"
+      ],
+      "verify": [
+        "npm run test:unit -- config",
+        "npm run test:api -- body-limit"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Enforce a bounded request-body size\": Configure and document a finite JSON body limit for API requests before controller handling. Change only files matching: src/main.ts, src/config/**, src/common/errors/**, test/api/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- config; npm run test:api -- body-limit. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-06",
+      "category": "quality",
+      "title": "Add a clean-database migration smoke test",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Prove the committed migration history can create the baseline schema in a disposable empty PostgreSQL database.",
+      "acceptance": [
+        "The test creates an isolated empty database or schema",
+        "All committed migrations apply in order without editing migration files",
+        "The Prisma client can create and reload one baseline project after migration",
+        "The test removes its isolated database state and reports the migrated revision"
+      ],
+      "allowedFiles": [
+        "test/database/**",
+        "test/helpers/**",
+        "docs/database/**"
+      ],
+      "verify": [
+        "npm run test:api -- migrations",
+        "npm run policy"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a clean-database migration smoke test\": Prove the committed migration history can create the baseline schema in a disposable empty PostgreSQL database. Change only files matching: test/database/**, test/helpers/**, docs/database/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- migrations; npm run policy. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-07",
+      "category": "quality",
+      "title": "Add safe cache headers to published static pages",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Set an explicit conservative cache policy on published-page responses without changing API caching.",
+      "acceptance": [
+        "GET /sites/:slug returns the documented Cache-Control value",
+        "Unpublished or missing page responses are not cacheable",
+        "API project responses keep their existing cache behavior",
+        "An API test asserts the exact published-page header"
+      ],
+      "allowedFiles": [
+        "src/sites/**",
+        "src/publisher/**",
+        "test/sites/**"
+      ],
+      "verify": [
+        "npm run test:unit -- sites",
+        "npm run test:api -- sites"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add safe cache headers to published static pages\": Set an explicit conservative cache policy on published-page responses without changing API caching. Change only files matching: src/sites/**, src/publisher/**, test/sites/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- sites; npm run test:api -- sites. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-08",
+      "category": "quality",
+      "title": "Add structured logs for publish attempts without logging page content",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Emit structured start, success, and failure events around publishing with a strict metadata allowlist.",
+      "acceptance": [
+        "Each publish attempt emits a start event and exactly one outcome event",
+        "Events include project ID, slug, outcome, and duration",
+        "Events omit blocks, page text, request bodies, and generated HTML",
+        "Failure events retain a stable error code without raw stack output at info level"
+      ],
+      "allowedFiles": [
+        "src/publisher/**",
+        "src/common/logging/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add structured logs for publish attempts without logging page content\": Emit structured start, success, and failure events around publishing with a strict metadata allowlist. Change only files matching: src/publisher/**, src/common/logging/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-09",
+      "category": "quality",
+      "title": "Add a request correlation ID to errors and logs",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Accept or generate one validated correlation ID per request and carry it through response errors and structured logs.",
+      "acceptance": [
+        "A valid incoming correlation header is reused",
+        "A missing or invalid value results in a generated bounded ID",
+        "Error envelopes and response headers expose the same ID",
+        "All logs emitted for the request include that ID"
+      ],
+      "allowedFiles": [
+        "src/common/middleware/**",
+        "src/common/errors/**",
+        "src/common/logging/**",
+        "test/api/**"
+      ],
+      "verify": [
+        "npm run test:unit -- correlation",
+        "npm run test:api -- errors"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a request correlation ID to errors and logs\": Accept or generate one validated correlation ID per request and carry it through response errors and structured logs. Change only files matching: src/common/middleware/**, src/common/errors/**, src/common/logging/**, test/api/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- correlation; npm run test:api -- errors. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-10",
+      "category": "quality",
+      "title": "Skip regeneration when project content has not changed",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Compare a deterministic content fingerprint and avoid rewriting identical published output.",
+      "acceptance": [
+        "The first publish generates output and stores its deterministic fingerprint",
+        "Publishing unchanged content does not rewrite the output file",
+        "Changing publish-relevant content regenerates output",
+        "Metadata ordering does not cause false changes"
+      ],
+      "allowedFiles": [
+        "prisma/schema.prisma",
+        "prisma/migrations/**",
+        "src/publisher/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher",
+        "npm run test:api -- publish"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Skip regeneration when project content has not changed\": Compare a deterministic content fingerprint and avoid rewriting identical published output. Change only files matching: prisma/schema.prisma, prisma/migrations/**, src/publisher/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher; npm run test:api -- publish. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-11",
+      "category": "quality",
+      "title": "Improve accessible names and focus indicators in the builder",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Audit the builder's interactive controls and fix missing programmatic names and keyboard focus visibility.",
+      "acceptance": [
+        "Every icon-only builder control has a unique accessible name",
+        "All keyboard-focusable controls show a visible focus indicator",
+        "Focus styles meet a 3:1 contrast ratio against adjacent colors",
+        "A focused browser check covers palette, canvas, inspector, save, and publish controls"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- accessibility"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Improve accessible names and focus indicators in the builder\": Audit the builder's interactive controls and fix missing programmatic names and keyboard focus visibility. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- accessibility. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-12",
+      "category": "quality",
+      "title": "Preserve selection after drag-and-drop reordering",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Keep the moved block selected and its inspector context stable after the baseline drag-and-drop reorder flow.",
+      "acceptance": [
+        "Dragging a selected middle block to a valid new position keeps that block selected",
+        "The inspector still shows the same block and preserves its unsaved field values",
+        "The selected block remains visible after any required canvas scroll",
+        "An invalid or boundary drop leaves both order and selection unchanged"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- drag-reorder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Preserve selection after drag-and-drop reordering\": Keep the moved block selected and its inspector context stable after the baseline drag-and-drop reorder flow. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- drag-reorder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-13",
+      "category": "quality",
+      "title": "Replace one ad hoc error response with the common error envelope",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Route the PUT /api/projects/:id block-validation failure through existing shared error construction.",
+      "acceptance": [
+        "An invalid block payload returns 400 with statusCode, code, and message",
+        "Block field errors appear only under the optional details field",
+        "The successful PUT response and other endpoint errors remain unchanged",
+        "A regression test asserts the full block-validation error body"
+      ],
+      "allowedFiles": [
+        "src/common/errors/**",
+        "src/projects/**",
+        "src/publisher/**",
+        "test/api/**"
+      ],
+      "verify": [
+        "npm run test:unit -- errors",
+        "npm run test:api -- errors"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Replace one ad hoc error response with the common error envelope\": Route the PUT /api/projects/:id block-validation failure through existing shared error construction. Change only files matching: src/common/errors/**, src/projects/**, src/publisher/**, test/api/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- errors; npm run test:api -- errors. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-14",
+      "category": "quality",
+      "title": "Refactor publisher block rendering into a typed renderer map",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Replace conditional block dispatch with an exhaustive typed map while preserving byte-for-byte rendered behavior.",
+      "acceptance": [
+        "Every supported block type maps to one typed renderer",
+        "An unsupported type fails through the existing validation path",
+        "Existing publisher fixtures remain byte-for-byte unchanged",
+        "The compiler reports an omitted supported block type"
+      ],
+      "allowedFiles": [
+        "src/publisher/**",
+        "src/projects/types/**",
+        "test/publisher/**"
+      ],
+      "verify": [
+        "npm run build",
+        "npm run test:unit -- publisher"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Refactor publisher block rendering into a typed renderer map\": Replace conditional block dispatch with an exhaustive typed map while preserving byte-for-byte rendered behavior. Change only files matching: src/publisher/**, src/projects/types/**, test/publisher/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run build; npm run test:unit -- publisher. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "OP-15",
+      "category": "quality",
+      "title": "Validate configuration at application startup",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Validate required names and bounded numeric settings before the NestJS application starts listening.",
+      "acceptance": [
+        "Startup succeeds with the documented development configuration",
+        "A missing required variable name fails before listen with one actionable message",
+        "Invalid ports, body limits, and block limits are rejected",
+        "Messages name variables but never print their values"
+      ],
+      "allowedFiles": [
+        "src/config/**",
+        "src/main.ts",
+        ".env.example",
+        "test/config/**"
+      ],
+      "verify": [
+        "npm run test:unit -- config",
+        "npm run build"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Validate configuration at application startup\": Validate required names and bounded numeric settings before the NestJS application starts listening. Change only files matching: src/config/**, src/main.ts, .env.example, test/config/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- config; npm run build. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-01",
+      "category": "qa",
+      "title": "Test the create-save-load round trip",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add one deterministic API scenario that creates, updates, and reloads a project.",
+      "acceptance": [
+        "The test creates a project through the public API",
+        "It saves metadata and at least two ordered blocks",
+        "A subsequent load matches the saved fields and block order",
+        "The test isolates and cleans up its own database records"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:api -- create-save-load"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test the create-save-load round trip\": Add one deterministic API scenario that creates, updates, and reloads a project. Change only files matching: test/api/projects/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- create-save-load. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-02",
+      "category": "qa",
+      "title": "Test valid, invalid, and conflicting slug cases",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add a table-driven API suite for accepted, rejected, and already-owned slugs.",
+      "acceptance": [
+        "At least three documented valid slug boundaries are accepted",
+        "Traversal, whitespace, uppercase, and overlength cases return 400",
+        "An existing slug returns 409",
+        "Each error assertion checks the common envelope code"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:api -- slug"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test valid, invalid, and conflicting slug cases\": Add a table-driven API suite for accepted, rejected, and already-owned slugs. Change only files matching: test/api/projects/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- slug. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-03",
+      "category": "qa",
+      "title": "Test HTML text escaping during publish",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add publisher tests that prove user-controlled text is encoded in every existing text-bearing block.",
+      "acceptance": [
+        "Fixtures cover ampersand, less-than, greater-than, double-quote, and single-quote characters",
+        "Generated output contains the expected HTML entities",
+        "No fixture payload appears as executable markup",
+        "All existing text-bearing block types are covered"
+      ],
+      "allowedFiles": [
+        "test/publisher/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher-escaping"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test HTML text escaping during publish\": Add publisher tests that prove user-controlled text is encoded in every existing text-bearing block. Change only files matching: test/publisher/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher-escaping. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-04",
+      "category": "qa",
+      "title": "Test Button URL escaping during publish",
+      "difficulty": "starter",
+      "estimate": "15-20 min",
+      "scope": "Add publisher and API tests for preserving valid baseline Button URLs while escaping attribute-sensitive characters.",
+      "acceptance": [
+        "HTTP and HTTPS Button URLs survive save, load, and publish without semantic changes",
+        "Ampersands and quotes are encoded safely in the published href attribute",
+        "Button label text is escaped independently from its URL",
+        "Tests parse the generated anchor and prove no raw attribute breakout occurs"
+      ],
+      "allowedFiles": [
+        "test/publisher/**",
+        "test/api/projects/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:unit -- publisher-escaping",
+        "npm run test:api -- projects"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test Button URL escaping during publish\": Add publisher and API tests for preserving valid baseline Button URLs while escaping attribute-sensitive characters. Change only files matching: test/publisher/**, test/api/projects/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- publisher-escaping; npm run test:api -- projects. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-05",
+      "category": "qa",
+      "title": "Test publishing an unknown project",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Add an API regression test for a syntactically valid project ID that does not exist.",
+      "acceptance": [
+        "The publish request returns 404",
+        "The response matches statusCode, code, and message fields",
+        "No output file is created",
+        "The test does not depend on a fixed shared database ID"
+      ],
+      "allowedFiles": [
+        "test/api/publish/**",
+        "test/helpers/**"
+      ],
+      "verify": [
+        "npm run test:api -- publish-not-found"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test publishing an unknown project\": Add an API regression test for a syntactically valid project ID that does not exist. Change only files matching: test/api/publish/**, test/helpers/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- publish-not-found. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-06",
+      "category": "qa",
+      "title": "Test block-order persistence through save and load",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add an API scenario proving a reordered baseline block array survives update and reload unchanged.",
+      "acceptance": [
+        "The fixture uses at least three existing block types with stable test IDs",
+        "Updating with a new order succeeds without changing block values",
+        "Reloading returns exactly the submitted order",
+        "A second project retains its original independent order"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:api -- block-order"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test block-order persistence through save and load\": Add an API scenario proving a reordered baseline block array survives update and reload unchanged. Change only files matching: test/api/projects/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- block-order. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-07",
+      "category": "qa",
+      "title": "Test baseline project-validation boundaries",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add table-driven API tests for required metadata and the existing typed block boundary.",
+      "acceptance": [
+        "A minimal valid project request succeeds",
+        "Blank and overlength names return the documented 400 envelope",
+        "An unknown block type and a block missing required fields return 400",
+        "Rejected requests create or update no project record"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/helpers/**"
+      ],
+      "verify": [
+        "npm run test:api -- project-validation"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test baseline project-validation boundaries\": Add table-driven API tests for required metadata and the existing typed block boundary. Change only files matching: test/api/projects/**, test/helpers/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- project-validation. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-08",
+      "category": "qa",
+      "title": "Test repeat publishing of the same project",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Add an API regression proving a second publish replaces only the target project's static output.",
+      "acceptance": [
+        "The first publish creates one readable static page",
+        "After a project edit, the second publish contains the new content and not the old content",
+        "The stable public URL remains unchanged",
+        "No duplicate or temporary output file remains after success"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/api/publish/**",
+        "test/helpers/**"
+      ],
+      "verify": [
+        "npm run test:api -- publish-repeat"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test repeat publishing of the same project\": Add an API regression proving a second publish replaces only the target project's static output. Change only files matching: test/api/projects/**, test/api/publish/**, test/helpers/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- publish-repeat. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-09",
+      "category": "qa",
+      "title": "Test published-output isolation between projects",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add an API scenario proving publishing one baseline project never changes another project's output.",
+      "acceptance": [
+        "Two projects publish to distinct stable URLs",
+        "Republishing the first changes only its own generated page",
+        "The second page content and modification evidence remain unchanged",
+        "The test uses isolated slugs and removes both outputs"
+      ],
+      "allowedFiles": [
+        "test/api/projects/**",
+        "test/helpers/**"
+      ],
+      "verify": [
+        "npm run test:api -- publish-isolation"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test published-output isolation between projects\": Add an API scenario proving publishing one baseline project never changes another project's output. Change only files matching: test/api/projects/**, test/helpers/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:api -- publish-isolation. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-10",
+      "category": "qa",
+      "title": "Add an OpenAPI contract snapshot test for one endpoint",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Snapshot one stable project operation at the document-object level with nondeterministic fields removed.",
+      "acceptance": [
+        "The test extracts exactly one documented path and operation",
+        "The snapshot includes parameters, success schema, and documented error schemas",
+        "Server URLs and generated timestamps are excluded",
+        "An intentional response-schema change produces a readable snapshot diff"
+      ],
+      "allowedFiles": [
+        "test/contract/**",
+        "test/__snapshots__/**"
+      ],
+      "verify": [
+        "npm run test:unit -- openapi-contract"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an OpenAPI contract snapshot test for one endpoint\": Snapshot one stable project operation at the document-object level with nondeterministic fields removed. Change only files matching: test/contract/**, test/__snapshots__/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- openapi-contract. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-11",
+      "category": "qa",
+      "title": "Add a browser smoke test for save and publish",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Exercise the shortest real browser path from editing a project through viewing its published page.",
+      "acceptance": [
+        "The test edits one existing block and saves successfully",
+        "It publishes through the visible UI",
+        "The opened published page contains the edited text",
+        "The test uses isolated generated data and no external network requests"
+      ],
+      "allowedFiles": [
+        "test/browser/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:browser -- save-publish"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add a browser smoke test for save and publish\": Exercise the shortest real browser path from editing a project through viewing its published page. Change only files matching: test/browser/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:browser -- save-publish. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-12",
+      "category": "qa",
+      "title": "Test drag-and-drop block reordering",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Add a browser test for the baseline pointer reordering flow and its persisted result.",
+      "acceptance": [
+        "The test drags a middle block to a different valid position",
+        "The visible order changes exactly once",
+        "Saving and reloading preserves the new order",
+        "The test uses stable block identifiers rather than screen coordinates alone"
+      ],
+      "allowedFiles": [
+        "test/browser/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:browser -- drag-reorder"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test drag-and-drop block reordering\": Add a browser test for the baseline pointer reordering flow and its persisted result. Change only files matching: test/browser/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:browser -- drag-reorder. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-13",
+      "category": "qa",
+      "title": "Test save and reload in the builder",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Add a browser regression for editing existing baseline content, saving, and reloading it from the server.",
+      "acceptance": [
+        "The test loads an isolated project through the visible builder",
+        "Editing one text value and saving produces visible success feedback",
+        "A full reload shows the saved value",
+        "The test cleans up its project and does not rely on execution order"
+      ],
+      "allowedFiles": [
+        "test/browser/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:browser -- save-reload"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Test save and reload in the builder\": Add a browser regression for editing existing baseline content, saving, and reloading it from the server. Change only files matching: test/browser/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:browser -- save-reload. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-14",
+      "category": "qa",
+      "title": "Add an accessibility check for the palette and canvas",
+      "difficulty": "standard",
+      "estimate": "20-25 min",
+      "scope": "Add deterministic accessibility assertions for the existing baseline palette, inspector, and canvas controls.",
+      "acceptance": [
+        "The automated scan reports no serious or critical violations in palette, inspector, and canvas regions",
+        "Every existing palette control has an accessible name and is reachable by Tab",
+        "Enter activates a focused native palette button",
+        "Inspector labels are associated with their controls and canvas order is conveyed programmatically"
+      ],
+      "allowedFiles": [
+        "test/browser/**",
+        "test/helpers/accessibility/**"
+      ],
+      "verify": [
+        "npm run test:browser -- accessibility"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Add an accessibility check for the palette and canvas\": Add deterministic accessibility assertions for the existing baseline palette, inspector, and canvas controls. Change only files matching: test/browser/**, test/helpers/accessibility/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:browser -- accessibility. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "QA-15",
+      "category": "qa",
+      "title": "Verify published HTML document structure and block order",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Parse baseline published output and assert core document metadata plus the submitted block sequence.",
+      "acceptance": [
+        "The document has one nonempty title element",
+        "The root html element has the configured language",
+        "Each submitted baseline block produces its expected semantic element",
+        "Published elements appear in the same order as the saved block array"
+      ],
+      "allowedFiles": [
+        "test/publisher/**",
+        "test/fixtures/**"
+      ],
+      "verify": [
+        "npm run test:unit -- published-semantics"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Verify published HTML document structure and block order\": Parse baseline published output and assert core document metadata plus the submitted block sequence. Change only files matching: test/publisher/**, test/fixtures/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run test:unit -- published-semantics. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-01",
+      "category": "review",
+      "title": "Turn a builder feature into a user story with measurable acceptance criteria",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Rewrite one named builder feature as a user story and a compact Given-When-Then acceptance set.",
+      "acceptance": [
+        "The story names one user, one need, and one outcome",
+        "Three to five criteria each contain observable inputs and results",
+        "At least one criterion covers an error or boundary case",
+        "The specification names verification evidence without prescribing implementation"
+      ],
+      "allowedFiles": [
+        "docs/reviews/user-story.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Turn a builder feature into a user story with measurable acceptance criteria\": Rewrite one named builder feature as a user story and a compact Given-When-Then acceptance set. Change only files matching: docs/reviews/user-story.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-02",
+      "category": "review",
+      "title": "Create a risk-based test matrix for publishing",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Create a concise matrix that ranks publish-path risks and maps each to deterministic evidence.",
+      "acceptance": [
+        "The matrix covers validation, escaping, filesystem boundaries, persistence, and serving",
+        "Each row records likelihood, impact, priority, and test level",
+        "Every high-risk row names a concrete test scenario",
+        "The matrix identifies one explicitly deferred risk with rationale"
+      ],
+      "allowedFiles": [
+        "docs/reviews/publish-test-matrix.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Create a risk-based test matrix for publishing\": Create a concise matrix that ranks publish-path risks and maps each to deterministic evidence. Change only files matching: docs/reviews/publish-test-matrix.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-03",
+      "category": "review",
+      "title": "Review a PR for intent-versus-implementation gaps",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Review one assigned local PR diff against its task card and record evidence-based findings only.",
+      "acceptance": [
+        "The review maps every acceptance criterion to code or test evidence",
+        "Findings are ordered by severity and cite file and line",
+        "The review distinguishes blockers from optional suggestions",
+        "The review records verification commands actually run and their outcomes"
+      ],
+      "allowedFiles": [
+        "docs/reviews/intent-gap-review.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run test:unit"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Review a PR for intent-versus-implementation gaps\": Review one assigned local PR diff against its task card and record evidence-based findings only. Change only files matching: docs/reviews/intent-gap-review.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run test:unit. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-04",
+      "category": "review",
+      "title": "Improve one task specification without expanding its scope",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Clarify one assigned task card by replacing ambiguity with bounded inputs, outcomes, and evidence.",
+      "acceptance": [
+        "The revised title and scope describe the same feature boundary as the original",
+        "Acceptance criteria use observable pass or fail language",
+        "Allowed files and exact verification commands are present",
+        "A short change note identifies removed ambiguities and confirms no added behavior"
+      ],
+      "allowedFiles": [
+        "docs/reviews/task-specification.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Improve one task specification without expanding its scope\": Clarify one assigned task card by replacing ambiguity with bounded inputs, outcomes, and evidence. Change only files matching: docs/reviews/task-specification.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-05",
+      "category": "review",
+      "title": "Write a publish-path threat model with mitigations",
+      "difficulty": "stretch",
+      "estimate": "20-25 min",
+      "scope": "Model trust boundaries and the highest-value threats from project input through static-file serving.",
+      "acceptance": [
+        "The model identifies actors, assets, entry points, and trust boundaries",
+        "It covers injection, path traversal, unsafe URLs, unauthorized overwrite, and sensitive logging",
+        "Each threat has impact, existing control, proposed mitigation, and verification",
+        "Residual risk is stated for every high-severity threat"
+      ],
+      "allowedFiles": [
+        "docs/reviews/publish-threat-model.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Write a publish-path threat model with mitigations\": Model trust boundaries and the highest-value threats from project input through static-file serving. Change only files matching: docs/reviews/publish-threat-model.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-06",
+      "category": "review",
+      "title": "Write a rollback plan for a schema-changing PR",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Document rollback triggers and ordered recovery steps for one assigned migration without executing production operations.",
+      "acceptance": [
+        "The plan states preconditions, owner, and objective rollback triggers",
+        "Steps cover application compatibility, data preservation, and migration reversal",
+        "A validation query or test is listed after each state-changing phase",
+        "The plan identifies irreversible data risk and a backup requirement"
+      ],
+      "allowedFiles": [
+        "docs/reviews/schema-rollback-plan.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Write a rollback plan for a schema-changing PR\": Document rollback triggers and ordered recovery steps for one assigned migration without executing production operations. Change only files matching: docs/reviews/schema-rollback-plan.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-07",
+      "category": "review",
+      "title": "Assess whether one proposed API change is backward compatible",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Compare one assigned proposed API change with the current OpenAPI contract and classify compatibility.",
+      "acceptance": [
+        "The assessment identifies affected requests, responses, status codes, and consumers",
+        "Each difference is classified as compatible, conditionally compatible, or breaking",
+        "The conclusion cites contract evidence for every breaking claim",
+        "A bounded migration or versioning recommendation is included when needed"
+      ],
+      "allowedFiles": [
+        "docs/reviews/api-compatibility.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run test:unit -- openapi-contract"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Assess whether one proposed API change is backward compatible\": Compare one assigned proposed API change with the current OpenAPI contract and classify compatibility. Change only files matching: docs/reviews/api-compatibility.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run test:unit -- openapi-contract. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-08",
+      "category": "review",
+      "title": "Define an accessibility acceptance checklist for a new block",
+      "difficulty": "starter",
+      "estimate": "10-15 min",
+      "scope": "Define a reusable checklist for one new block across palette, canvas, inspector, preview, and published output.",
+      "acceptance": [
+        "The checklist covers names, labels, focus order, keyboard operation, errors, contrast, and semantics",
+        "Every item has a binary pass condition",
+        "Automated checks and manual keyboard checks are clearly separated",
+        "The checklist includes save-load and published-output states"
+      ],
+      "allowedFiles": [
+        "docs/reviews/block-accessibility-checklist.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Define an accessibility acceptance checklist for a new block\": Define a reusable checklist for one new block across palette, canvas, inspector, preview, and published output. Change only files matching: docs/reviews/block-accessibility-checklist.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-09",
+      "category": "review",
+      "title": "Define a small performance budget for save and publish operations",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Set locally reproducible latency and resource budgets for the workshop's save and publish paths.",
+      "acceptance": [
+        "The budget names p50 and p95 latency targets for save and publish",
+        "Payload size, block count, environment, warm-up, and sample count are fixed",
+        "The measurement command and pass or fail calculation are explicit",
+        "One investigation threshold and one hard release threshold are defined"
+      ],
+      "allowedFiles": [
+        "docs/reviews/performance-budget.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Define a small performance budget for save and publish operations\": Set locally reproducible latency and resource budgets for the workshop's save and publish paths. Change only files matching: docs/reviews/performance-budget.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
+      "id": "RV-10",
+      "category": "review",
+      "title": "Produce a release-readiness checklist for the workshop baseline",
+      "difficulty": "standard",
+      "estimate": "15-20 min",
+      "scope": "Create an evidence-oriented go or no-go checklist for the prepared local workshop baseline.",
+      "acceptance": [
+        "The checklist covers install, configuration names, migration, build, tests, browser flow, publish output, and rollback",
+        "Every item names an owner and evidence artifact",
+        "Blocking and nonblocking failures are distinguished",
+        "The final section records decision, timestamp, known issues, and fallback reference"
+      ],
+      "allowedFiles": [
+        "docs/reviews/release-readiness.md"
+      ],
+      "verify": [
+        "npm run policy",
+        "npm run lint",
+        "npm run build"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Produce a release-readiness checklist for the workshop baseline\": Create an evidence-oriented go or no-go checklist for the prepared local workshop baseline. Change only files matching: docs/reviews/release-readiness.md. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run policy; npm run lint; npm run build. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    }
+  ]
+}
