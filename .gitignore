@@ -1,0 +1,12 @@
+node_modules/
+dist/
+coverage/
+playwright-report/
+test-results/
+.data/
+.env
+.env.local
+.env.*.local
+src/generated/prisma/
+review-output/
+*.log

@@ -32,7 +32,7 @@ type Block =
   | { id: string; type: "section"; title: string };
 ```
 
-Users can add blocks by click or drag, remove the selected block, reorder with pointer drag-and-drop, edit labeled inspector fields, save, reload, publish, and open the static result. The builder supports at most 20 blocks and stores the last project ID locally for convenience. It does not include any attendee task feature such as Divider, Image, Duplicate, device preview, visible dirty state, or keyboard-reorder controls.
+Users can add blocks by click or drag, remove the selected block, reorder with pointer drag-and-drop, edit labeled inspector fields, save, reload, publish, and open the static result. The browser builder supports at most 20 blocks and stores the last project ID locally for convenience; enforcing that same limit at the backend trust boundary remains an attendee task. It does not include any attendee task feature such as Divider, Image, Duplicate, device preview, visible dirty state, or keyboard-reorder controls.
 
 ## Data Model
 
@@ -41,7 +41,7 @@ Project
   id          UUID primary key
   name        1..120 characters
   slug        unique lowercase ASCII slug, 1..80 characters
-  blocks      validated ordered JSON array, maximum 20
+  blocks      validated ordered JSON array
   publishedAt nullable timestamp
   createdAt   timestamp
   updatedAt   timestamp
@@ -85,7 +85,7 @@ Generated pages include a nonempty title, configured language, responsive metada
 
 The package exposes `build`, `lint`, `policy`, `test:unit`, `test:api`, and `test:browser`. Each test runner accepts a positional filter after `--`, runs at least one reserved `filter-contract` test for that filter, and exits nonzero for an unknown filter.
 
-Unit tests cover block validation and publisher escaping. API tests cover create/save/load, slug validation/conflict, error envelopes, publish/re-publish, and output isolation against the Docker database. Browser tests cover palette accessibility, add/edit/remove, pointer reorder, save/reload, and publish.
+Unit tests cover block validation and publisher escaping. API tests cover create/save/load, slug validation/conflict, error envelopes, publish/re-publish, and output isolation against the Docker database. Browser tests cover the baseline flow without consuming task-specific filter names. Explicit backend block limits, configurable request-body limits, and hardened startup configuration remain attendee tasks.
 
 ## Local Review Boundary
 

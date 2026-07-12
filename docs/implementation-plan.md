@@ -34,19 +34,19 @@
 
 **Files:** `src/common/config/*`, `src/common/errors/*`, `src/main.ts`, focused unit tests.
 
-**Produces:** `loadConfig()`, `ApiExceptionFilter`, global validation, Swagger bootstrap, JSON body limit, static asset delivery.
+**Produces:** small environment readers, `ApiExceptionFilter`, global DTO validation, Swagger bootstrap, and static asset delivery. Framework-default request limits remain unchanged for attendee task OP-05.
 
-- [ ] Write failing unit tests for defaults, invalid numeric settings, and normalized 400/404/409 envelopes.
-- [ ] Implement configuration parsing and the exception filter.
+- [ ] Write failing unit tests for normalized 400/404/409 envelopes.
+- [ ] Implement minimal environment defaults without hardened startup validation, plus the exception filter.
 - [ ] Start a minimal Nest app and verify `/health` plus `/api/docs`.
 
 ### Task 3: Typed Blocks and Publisher
 
 **Files:** `src/projects/types/*`, `src/projects/validation/*`, `src/publisher/*`, `test/unit/*`.
 
-**Produces:** `validateBlocks(value, limit): Block[]`, `renderProject(project): string`, atomic `PublisherService.publish()`.
+**Produces:** `validateBlocks(value): Block[]`, `renderProject(project): string`, atomic `PublisherService.publish()`.
 
-- [ ] Write failing cases for every valid block and invalid type/shape/limit/duplicate ID.
+- [ ] Write failing cases for every valid block and invalid type/shape/duplicate ID; do not add the attendee backend block-limit feature.
 - [ ] Implement the smallest exhaustive block validator.
 - [ ] Write failing publisher tests for HTML characters, attribute breakout, unsafe protocols, semantic order, title, and language.
 - [ ] Implement escaping, known renderers, output containment, and atomic rename.
