@@ -1,0 +1,13 @@
+import type { Block } from "./types/blocks";
+
+export type ProjectEntity = {
+  id: string;
+  name: string;
+  slug: string;
+  blocks: Block[];
+  publishedAt: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "blocks">;

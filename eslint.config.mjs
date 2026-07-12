@@ -1,4 +1,3 @@
-import eslint from "@eslint/js";
 import tseslint from "typescript-eslint";
 
 export default tseslint.config(
@@ -12,7 +11,6 @@ export default tseslint.config(
       "test-results/**"
     ]
   },
-  eslint.configs.recommended,
   ...tseslint.configs.recommendedTypeChecked,
   {
     files: ["**/*.ts"],
@@ -29,13 +27,22 @@ export default tseslint.config(
     }
   },
   {
+    ...tseslint.configs.disableTypeChecked,
     files: ["**/*.js", "**/*.mjs", "**/*.cjs"],
     languageOptions: {
+      ...tseslint.configs.disableTypeChecked.languageOptions,
       globals: {
         console: "readonly",
         process: "readonly",
-        Buffer: "readonly"
+        Buffer: "readonly",
+        module: "readonly",
+        require: "readonly"
       }
+    },
+    rules: {
+      ...tseslint.configs.disableTypeChecked.rules,
+      // CommonJS setup and config files (.cjs) use require() by design.
+      "@typescript-eslint/no-require-imports": "off"
     }
   }
 );

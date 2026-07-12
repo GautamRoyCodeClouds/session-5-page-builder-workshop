@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>Page builder</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar" aria-label="Project actions">
+        <h1 class="visually-hidden">Page builder</h1>
+        <p id="status" class="status" role="status" aria-live="polite">Ready</p>
+        <nav class="actions" aria-label="Project actions">
+          <button id="load-project" class="button button-secondary" type="button" disabled>Load project</button>
+          <button id="save-project" class="button button-secondary" type="button">Save project</button>
+          <button id="publish-project" class="button button-primary" type="button">Publish project</button>
+          <a id="open-published" class="button button-link" href="#" target="_blank" rel="noopener" hidden>Open published page</a>
+        </nav>
+      </header>
+
+      <div class="workbench">
+        <aside class="control-rail" aria-label="Project and block controls">
+          <section class="panel-section" aria-labelledby="project-title">
+            <div class="section-heading">
+              <span class="section-index" aria-hidden="true">01</span>
+              <h2 id="project-title">Project</h2>
+            </div>
+            <div class="field-stack">
+              <label for="project-name">Project name</label>
+              <input id="project-name" name="project-name" type="text" value="Untitled page" maxlength="120" required>
+            </div>
+            <div class="field-stack">
+              <label for="project-slug">Project slug</label>
+              <input id="project-slug" name="project-slug" type="text" value="untitled-page" maxlength="80" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required>
+            </div>
+          </section>
+
+          <section class="panel-section palette-section" aria-labelledby="palette-title">
+            <div class="section-heading">
+              <span class="section-index" aria-hidden="true">02</span>
+              <h2 id="palette-title">Palette</h2>
+            </div>
+            <div id="palette" class="palette">
+              <button type="button" draggable="true" data-palette-type="heading">Heading</button>
+              <button type="button" draggable="true" data-palette-type="text">Text</button>
+              <button type="button" draggable="true" data-palette-type="button">Button</button>
+              <button type="button" draggable="true" data-palette-type="section">Section</button>
+            </div>
+          </section>
+        </aside>
+
+        <main class="workspace" aria-labelledby="canvas-title">
+          <div class="workspace-heading">
+            <h2 id="canvas-title">Canvas</h2>
+          </div>
+          <div id="canvas" class="canvas" aria-describedby="canvas-help">
+            <p id="canvas-help" class="canvas-placeholder">No blocks yet.</p>
+          </div>
+        </main>
+
+        <aside class="inspector" aria-labelledby="inspector-title">
+          <div class="section-heading inspector-heading">
+            <span class="section-index" aria-hidden="true">03</span>
+            <h2 id="inspector-title">Inspector</h2>
+          </div>
+          <div id="inspector-fields" class="inspector-fields">
+            <p class="muted-copy">Select a block to edit its content.</p>
+          </div>
+          <button id="remove-selected" class="button button-danger remove-button" type="button" disabled>Remove selected</button>
+        </aside>
+      </div>
+    </div>
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>
