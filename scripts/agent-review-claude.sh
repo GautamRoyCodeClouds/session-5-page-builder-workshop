@@ -17,6 +17,9 @@ die() {
   exit 2
 }
 
+ROOT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
+SANITIZER="$ROOT_DIR/review/sanitize-evidence.mjs"
+
 if [[ ${1:-} == '-h' || ${1:-} == '--help' ]]; then
   usage
   exit 0
@@ -37,6 +40,18 @@ EVIDENCE_FILE=$1
 evidence_bytes=$(wc -c <"$EVIDENCE_FILE")
 [[ $evidence_bytes -gt 0 ]] || die 'evidence file is empty'
 [[ $evidence_bytes -le 16777216 ]] || die 'evidence file exceeds the 16 MiB review limit'
+
+# Refuse to send anything credential-shaped to the model, even if the caller
+# bypassed review-pr.sh's own sanitize_file() pass upstream.
+redaction_report=$(node "$SANITIZER" report "$EVIDENCE_FILE") || die 'evidence sanitizer failed to run'
+if node -e '
+  const report = JSON.parse(process.argv[1]);
+  process.exit(report.redactionsDetected ? 0 : 1);
+' "$redaction_report"; then
+  printf 'credential_redactions_detected: yes\n' >&2
+  die 'evidence contains credential-shaped values; sanitize it before requesting a Claude review'
+fi
+printf 'credential_redactions_detected: no\n' >&2
 
 SCRATCH_DIR=$(mktemp -d "${TMPDIR:-/tmp}/session5-claude-review.XXXXXXXX")
 cleanup() {

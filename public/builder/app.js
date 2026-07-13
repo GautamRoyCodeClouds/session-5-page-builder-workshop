@@ -211,7 +211,10 @@ function render() {
 
 function insertionIndex(targetBlock) {
   if (!targetBlock) return state.blocks.length;
-  return state.blocks.findIndex((block) => block.id === targetBlock.dataset.blockId);
+  // A target whose block id is no longer in state (stale DOM node) should
+  // append rather than insert at the start — match reorderBlock's fallback.
+  const index = state.blocks.findIndex((block) => block.id === targetBlock.dataset.blockId);
+  return index === -1 ? state.blocks.length : index;
 }
 
 function addBlock(type, index = state.blocks.length) {

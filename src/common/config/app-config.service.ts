@@ -4,7 +4,15 @@ import { resolve } from "node:path";
 @Injectable()
 export class AppConfigService {
   get port(): number {
-    return Number(process.env.PORT ?? "3000");
+    const raw = process.env.PORT;
+    if (raw === undefined || raw.trim() === "") {
+      return 3000;
+    }
+    const parsed = Number(raw);
+    // Guard a malformed PORT (non-numeric, negative, or out of range) so a bad
+    // env value falls back to the default instead of crashing app.listen() with
+    // an opaque RangeError at boot.
+    return Number.isInteger(parsed) && parsed > 0 && parsed < 65536 ? parsed : 3000;
   }
 
   get databaseUrl(): string {

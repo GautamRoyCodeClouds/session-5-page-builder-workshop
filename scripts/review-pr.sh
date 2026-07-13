@@ -4,6 +4,7 @@ umask 077
 
 TRUSTED_ROOT=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd -P)
 TRUSTED_CHECKER="$TRUSTED_ROOT/scripts/check-task-scope.mjs"
+EVIDENCE_SANITIZER="$TRUSTED_ROOT/review/sanitize-evidence.mjs"
 
 usage() {
   cat <<'EOF'
@@ -49,12 +50,14 @@ json_field() {
 
 sanitize_file() {
   local file=$1
-  node -e '
+  # Redact credential-shaped values (API keys, tokens, credentialed URLs, ...)
+  # before the untrusted diff/log content is embedded in review-input.txt.
+  node "$EVIDENCE_SANITIZER" sanitize "$file" | node -e '
     const fs = require("node:fs");
-    const text = fs.readFileSync(process.argv[1], "utf8").replace(/\r\n?/gu, "\n");
+    const text = fs.readFileSync(0, "utf8").replace(/\r\n?/gu, "\n");
     process.stdout.write(text.replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/gu,
       (character) => `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`));
-  ' "$file"
+  '
 }
 
 if [[ ${1:-} == '-h' || ${1:-} == '--help' ]]; then
@@ -130,6 +133,7 @@ trusted_files=(
   review/Dockerfile
   review/Dockerfile.dockerignore
   review/run-trusted-checks.sh
+  review/sanitize-evidence.mjs
   scripts/agent-review-claude.sh
   scripts/review-pr.sh
   scripts/check-task-scope.mjs

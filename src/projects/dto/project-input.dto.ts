@@ -25,6 +25,7 @@ export class ProjectInputDto {
   name!: string;
 
   @ApiProperty({ example: "workshop-page", minLength: 1, maxLength: 80 })
+  @Transform(trimString)
   @IsString()
   @Length(1, 80)
   @Matches(SLUG_PATTERN, { message: "slug must be a lowercase ASCII slug" })

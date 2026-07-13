@@ -32,12 +32,15 @@ function json(route: Route, status: number, value: unknown): Promise<void> {
   });
 }
 
+// Mirrors src/publisher/render-project.ts's escapeHtml so this mocked route
+// doesn't silently drift from the real publisher's escaping contract.
 function escapeHtml(value: string): string {
   return value
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;");
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
 function renderPublished(project: Project): string {
