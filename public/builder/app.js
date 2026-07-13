@@ -4,6 +4,15 @@ const MAX_BLOCKS = 20;
 const PROJECT_STORAGE_KEY = "page-builder.projectId";
 const PALETTE_DRAG_TYPE = "application/x-page-builder-block-type";
 const BLOCK_DRAG_TYPE = "application/x-page-builder-block-id";
+const DEFAULT_TEXT_COLOR = "#1f2933";
+const DEFAULT_BUTTON_COLOR = "#176b5b";
+
+function nameToSlug(name) {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
 
 const blockDefaults = {
   heading: () => ({ id: crypto.randomUUID(), type: "heading", text: "New heading", level: 2 }),
@@ -17,10 +26,13 @@ const elements = {
   canvasHelp: document.querySelector("#canvas-help"),
   inspectorFields: document.querySelector("#inspector-fields"),
   loadProject: document.querySelector("#load-project"),
+  newProject: document.querySelector("#new-project"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
   projectName: document.querySelector("#project-name"),
   projectSlug: document.querySelector("#project-slug"),
+  projectTextColor: document.querySelector("#project-text-color"),
+  projectButtonColor: document.querySelector("#project-button-color"),
   publishProject: document.querySelector("#publish-project"),
   removeSelected: document.querySelector("#remove-selected"),
   saveProject: document.querySelector("#save-project"),
@@ -33,8 +45,15 @@ const state = {
   selectedBlockId: null
 };
 
+let slugIsAutoFilled = true;
+
 function setStatus(message) {
   elements.status.textContent = message;
+}
+
+function updateCanvasColors() {
+  elements.canvas.style.setProperty("--project-text-color", elements.projectTextColor.value);
+  elements.canvas.style.setProperty("--project-button-color", elements.projectButtonColor.value);
 }
 
 function previewElement(block) {
@@ -278,9 +297,23 @@ function storedProjectId() {
   }
 }
 
+function forgetProjectId() {
+  try {
+    localStorage.removeItem(PROJECT_STORAGE_KEY);
+  } catch {
+    // Clearing still succeeds locally when persistent browser storage is unavailable.
+  }
+}
+
 function setProjectLocation(projectId) {
   const url = new URL(window.location.href);
   url.searchParams.set("project", projectId);
+  window.history.replaceState(null, "", url);
+}
+
+function clearProjectLocation() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("project");
   window.history.replaceState(null, "", url);
 }
 
@@ -306,6 +339,10 @@ function applyProject(project, preserveSelection = false) {
   state.selectedBlockId = state.blocks.some((block) => block.id === selectedId) ? selectedId : null;
   elements.projectName.value = project.name;
   elements.projectSlug.value = project.slug;
+  elements.projectTextColor.value = project.textColor || DEFAULT_TEXT_COLOR;
+  elements.projectButtonColor.value = project.buttonColor || DEFAULT_BUTTON_COLOR;
+  updateCanvasColors();
+  slugIsAutoFilled = false;
   elements.loadProject.disabled = false;
   if (project.publishedAt) showPublishedLink(`/sites/${project.slug}`);
   else hidePublishedLink();
@@ -350,13 +387,33 @@ function projectPayload() {
   return {
     name: elements.projectName.value,
     slug: elements.projectSlug.value,
-    blocks: state.blocks
+    blocks: state.blocks,
+    textColor: elements.projectTextColor.value,
+    buttonColor: elements.projectButtonColor.value
   };
 }
 
 function requestError(action, error) {
   const message = error instanceof Error ? error.message : "Unknown error";
   setStatus(`${action} failed: ${message}`);
+}
+
+function newProject() {
+  state.projectId = null;
+  state.blocks = [];
+  state.selectedBlockId = null;
+  elements.projectName.value = "Untitled page";
+  elements.projectSlug.value = "untitled-page";
+  elements.projectTextColor.value = DEFAULT_TEXT_COLOR;
+  elements.projectButtonColor.value = DEFAULT_BUTTON_COLOR;
+  updateCanvasColors();
+  slugIsAutoFilled = true;
+  elements.loadProject.disabled = true;
+  hidePublishedLink();
+  forgetProjectId();
+  clearProjectLocation();
+  render();
+  setStatus("New project started.");
 }
 
 async function saveProject() {
@@ -410,6 +467,18 @@ async function publishProject() {
     requestError("Publish", error);
   }
 }
+
+elements.projectName.addEventListener("input", () => {
+  if (!slugIsAutoFilled) return;
+  elements.projectSlug.value = nameToSlug(elements.projectName.value);
+});
+
+elements.projectSlug.addEventListener("input", () => {
+  slugIsAutoFilled = false;
+});
+
+elements.projectTextColor.addEventListener("input", updateCanvasColors);
+elements.projectButtonColor.addEventListener("input", updateCanvasColors);
 
 elements.palette.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-palette-type]");
@@ -481,6 +550,7 @@ elements.canvas.addEventListener("drop", (event) => {
 });
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
+elements.newProject.addEventListener("click", newProject);
 elements.saveProject.addEventListener("click", () => {
   void saveProject();
 });
@@ -491,6 +561,7 @@ elements.publishProject.addEventListener("click", () => {
   void publishProject();
 });
 
+updateCanvasColors();
 render();
 
 const queryProjectId = new URL(window.location.href).searchParams.get("project");

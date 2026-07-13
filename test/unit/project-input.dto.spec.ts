@@ -22,4 +22,26 @@ describe("ProjectInputDto", () => {
 
     await expect(validate(input)).resolves.not.toHaveLength(0);
   });
+
+  it("allows textColor and buttonColor to be omitted", async () => {
+    const input = plainToInstance(ProjectInputDto, validInput);
+
+    await expect(validate(input)).resolves.toHaveLength(0);
+  });
+
+  it("accepts valid hex textColor and buttonColor", async () => {
+    const input = plainToInstance(ProjectInputDto, {
+      ...validInput,
+      textColor: "#1f2933",
+      buttonColor: "#176B5B"
+    });
+
+    await expect(validate(input)).resolves.toHaveLength(0);
+  });
+
+  it.each(["textColor", "buttonColor"])("rejects an invalid %s", async (field) => {
+    const input = plainToInstance(ProjectInputDto, { ...validInput, [field]: "not-a-color" });
+
+    await expect(validate(input)).resolves.not.toHaveLength(0);
+  });
 });

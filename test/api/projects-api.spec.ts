@@ -13,6 +13,8 @@ type ProjectResponse = {
   name: string;
   slug: string;
   blocks: unknown[];
+  textColor: string | null;
+  buttonColor: string | null;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -76,6 +78,8 @@ describe("project API", () => {
       name: "Workshop page",
       slug: "workshop-page",
       blocks: baselineBlocks,
+      textColor: null,
+      buttonColor: null,
       publishedAt: null
     });
     expect(created.id).toMatch(/^[0-9a-f-]{36}$/);
@@ -86,6 +90,40 @@ describe("project API", () => {
       .expect(200)
       .expect(({ body }: { body: ProjectResponse }) => {
         expect(body).toEqual(created);
+      });
+  });
+
+  it("persists and returns custom text and button colors", async () => {
+    const created = await createProject({ textColor: "#112233", buttonColor: "#445566" });
+
+    expect(created).toMatchObject({ textColor: "#112233", buttonColor: "#445566" });
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({
+        name: created.name,
+        slug: created.slug,
+        blocks: baselineBlocks,
+        textColor: "#778899",
+        buttonColor: "#aabbcc"
+      })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body).toMatchObject({ textColor: "#778899", buttonColor: "#aabbcc" });
+      });
+  });
+
+  it.each([
+    ["a value missing the leading #", { textColor: "112233" }],
+    ["a short hex value", { buttonColor: "#123" }],
+    ["a named color", { textColor: "tomato" }]
+  ])("returns the common 400 envelope for %s", async (_description, override) => {
+    await request(app.getHttpServer())
+      .post("/api/projects")
+      .send({ name: "Workshop page", slug: "workshop-page", blocks: baselineBlocks, ...override })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
       });
   });
 

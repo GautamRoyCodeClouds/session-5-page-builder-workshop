@@ -80,7 +80,9 @@ export class ProjectsService {
       return {
         name: input.name,
         slug: input.slug,
-        blocks: validateBlocks(input.blocks)
+        blocks: validateBlocks(input.blocks),
+        textColor: input.textColor ?? null,
+        buttonColor: input.buttonColor ?? null
       };
     } catch (error) {
       if (error instanceof BlockValidationError) {

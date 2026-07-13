@@ -1,7 +1,8 @@
 import { Transform, type TransformFnParams } from "class-transformer";
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsString, Length, Matches } from "class-validator";
+import { IsArray, IsOptional, IsString, Length, Matches } from "class-validator";
 
+import { HEX_COLOR_PATTERN } from "../../common/validation/color";
 import { SLUG_PATTERN } from "../../common/validation/slug";
 import {
   blocksApiProperty,
@@ -33,4 +34,14 @@ export class ProjectInputDto {
   @ApiProperty(blocksApiProperty())
   @IsArray()
   blocks!: BlockDto[];
+
+  @ApiProperty({ example: "#1f2933", required: false, nullable: true })
+  @IsOptional()
+  @Matches(HEX_COLOR_PATTERN, { message: "textColor must be a #rrggbb hex color" })
+  textColor?: string;
+
+  @ApiProperty({ example: "#176b5b", required: false, nullable: true })
+  @IsOptional()
+  @Matches(HEX_COLOR_PATTERN, { message: "buttonColor must be a #rrggbb hex color" })
+  buttonColor?: string;
 }

@@ -5,4 +5,6 @@ export type ProjectDocument = {
   name: string;
   slug: string;
   blocks: Block[];
+  textColor: string | null;
+  buttonColor: string | null;
 };

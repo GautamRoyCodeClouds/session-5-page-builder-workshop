@@ -11,7 +11,9 @@ describe("renderProject", () => {
       { id: "t", type: "text", text: "Second & body" },
       { id: "b", type: "button", label: "Third \"link\"", url: "https://example.com/?q=\"value\"&x=1" },
       { id: "s", type: "section", title: "Fourth > section" }
-    ]
+    ],
+    textColor: null,
+    buttonColor: null
   };
 
   it("renders a complete script-free document with escaped content", () => {
@@ -67,4 +69,20 @@ describe("renderProject", () => {
       expect(html).toContain(`href="${url}"`);
     }
   );
+
+  it("falls back to the baseline text and button colors when unset", () => {
+    const html = renderProject(project);
+
+    expect(html).toContain("color: #1f2933;");
+    expect(html).toContain("background: #176b5b;");
+  });
+
+  it("uses the project's custom text and button colors when set", () => {
+    const html = renderProject({ ...project, textColor: "#112233", buttonColor: "#445566" });
+
+    expect(html).toContain("color: #112233;");
+    expect(html).toContain("background: #445566;");
+    expect(html).not.toContain("#1f2933");
+    expect(html).not.toContain("#176b5b");
+  });
 });

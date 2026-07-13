@@ -13,6 +13,7 @@
         <h1 class="visually-hidden">Page builder</h1>
         <p id="status" class="status" role="status" aria-live="polite">Ready</p>
         <nav class="actions" aria-label="Project actions">
+          <button id="new-project" class="button button-secondary" type="button">New project</button>
           <button id="load-project" class="button button-secondary" type="button" disabled>Load project</button>
           <button id="save-project" class="button button-secondary" type="button">Save project</button>
           <button id="publish-project" class="button button-primary" type="button">Publish project</button>
@@ -34,6 +35,14 @@
             <div class="field-stack">
               <label for="project-slug">Project slug</label>
               <input id="project-slug" name="project-slug" type="text" value="untitled-page" maxlength="80" pattern="[a-z0-9]+(?:-[a-z0-9]+)*" required>
+            </div>
+            <div class="field-stack">
+              <label for="project-text-color">Text color</label>
+              <input id="project-text-color" name="project-text-color" type="color" value="#1f2933">
+            </div>
+            <div class="field-stack">
+              <label for="project-button-color">Button color</label>
+              <input id="project-button-color" name="project-button-color" type="color" value="#176b5b">
             </div>
           </section>
 

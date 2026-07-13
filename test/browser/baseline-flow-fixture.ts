@@ -13,6 +13,8 @@ interface ProjectInput {
   name: string;
   slug: string;
   blocks: Block[];
+  textColor?: string | null;
+  buttonColor?: string | null;
 }
 
 interface Project extends ProjectInput {
@@ -89,6 +91,8 @@ export async function installBaselineRoutes(context: BrowserContext): Promise<vo
       const now = new Date().toISOString();
       const project: Project = {
         ...input,
+        textColor: input.textColor ?? null,
+        buttonColor: input.buttonColor ?? null,
         id: randomUUID(),
         publishedAt: null,
         createdAt: now,

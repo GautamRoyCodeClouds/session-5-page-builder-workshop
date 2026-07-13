@@ -329,6 +329,8 @@ textarea:focus-visible,
   background: var(--paper);
   border: 1px solid var(--line);
   box-shadow: 0 10px 30px rgb(29 43 37 / 7%);
+  --project-text-color: #1f2933;
+  --project-button-color: #176b5b;
 }
 
 .canvas-placeholder {
@@ -392,6 +394,7 @@ textarea:focus-visible,
 .canvas-block p {
   margin: 0;
   letter-spacing: 0;
+  color: var(--project-text-color);
 }
 
 .canvas-block h1,
@@ -404,7 +407,7 @@ textarea:focus-visible,
   display: inline-block;
   padding: 8px 12px;
   color: #ffffff;
-  background: var(--accent);
+  background: var(--project-button-color);
   border-radius: 4px;
   font-size: 0.86rem;
   font-weight: 700;

@@ -5,9 +5,11 @@ export type ProjectEntity = {
   name: string;
   slug: string;
   blocks: Block[];
+  textColor: string | null;
+  buttonColor: string | null;
   publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "blocks">;
+export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "blocks" | "textColor" | "buttonColor">;

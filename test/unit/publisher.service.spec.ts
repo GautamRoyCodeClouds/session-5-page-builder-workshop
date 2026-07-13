@@ -24,7 +24,9 @@ describe("PublisherService", () => {
       id: projectId,
       name: "Published page",
       slug: "published-page",
-      blocks: [{ id: "text-1", type: "text", text: "First version" }]
+      blocks: [{ id: "text-1", type: "text", text: "First version" }],
+      textColor: null,
+      buttonColor: null
     });
 
     expect(path).toBe(join(publishDir, `${projectId}.html`));
@@ -33,7 +35,13 @@ describe("PublisherService", () => {
   });
 
   it("atomically replaces a prior version without leaving temporary files", async () => {
-    const base = { id: projectId, name: "Published page", slug: "published-page" };
+    const base = {
+      id: projectId,
+      name: "Published page",
+      slug: "published-page",
+      textColor: null,
+      buttonColor: null
+    };
     await service.publish({
       ...base,
       blocks: [{ id: "text-1", type: "text", text: "First version" }]
@@ -54,7 +62,9 @@ describe("PublisherService", () => {
       id: "../unsafe",
       name: "Unsafe",
       slug: "safe-slug",
-      blocks: []
+      blocks: [],
+      textColor: null,
+      buttonColor: null
     })).rejects.toThrow("Invalid project ID");
   });
 });

@@ -12,6 +12,8 @@ test("baseline-flow: application shell", async ({ page }) => {
   const projectPanel = page.getByRole("region", { name: "Project" });
   await expect(projectPanel.getByLabel("Project name")).toHaveValue("Untitled page");
   await expect(projectPanel.getByLabel("Project slug")).toHaveValue("untitled-page");
+  await expect(projectPanel.getByLabel("Text color")).toHaveValue("#1f2933");
+  await expect(projectPanel.getByLabel("Button color")).toHaveValue("#176b5b");
   await expect(page.getByRole("banner").getByRole("textbox")).toHaveCount(0);
 
   const palette = page.getByRole("region", { name: "Palette" });
@@ -143,4 +145,37 @@ test("baseline-flow: project lifecycle", async ({ context, page }) => {
     `GET /api/projects/${projectId}`,
     `POST /api/projects/${projectId}/publish`
   ]);
+});
+
+test("baseline-flow: project text and button colors", async ({ page }) => {
+  const projectPanel = page.getByRole("region", { name: "Project" });
+  const textColorInput = projectPanel.getByLabel("Text color");
+  const buttonColorInput = projectPanel.getByLabel("Button color");
+  const palette = page.getByRole("region", { name: "Palette" });
+  const canvas = page.getByRole("main", { name: "Canvas" }).locator("#canvas");
+  const heading = canvas.locator("[data-block-type='heading'] h2");
+  const buttonPreview = canvas.locator("[data-block-type='button'] .preview-link");
+
+  await palette.getByRole("button", { name: "Heading" }).click();
+  await palette.getByRole("button", { name: "Button" }).click();
+  await expect(heading).toHaveCSS("color", "rgb(31, 41, 51)");
+  await expect(buttonPreview).toHaveCSS("background-color", "rgb(23, 107, 91)");
+
+  await textColorInput.fill("#112233");
+  await buttonColorInput.fill("#445566");
+  await expect(heading).toHaveCSS("color", "rgb(17, 34, 51)");
+  await expect(buttonPreview).toHaveCSS("background-color", "rgb(68, 85, 102)");
+
+  await page.getByRole("button", { name: "Save project" }).click();
+  await expect(page.getByRole("status")).toHaveText("Project saved.");
+
+  await page.goto("/");
+  await expect(page.getByRole("status")).toHaveText("Project loaded.");
+  await expect(textColorInput).toHaveValue("#112233");
+  await expect(buttonColorInput).toHaveValue("#445566");
+  await expect(heading).toHaveCSS("color", "rgb(17, 34, 51)");
+
+  await page.getByRole("button", { name: "New project" }).click();
+  await expect(textColorInput).toHaveValue("#1f2933");
+  await expect(buttonColorInput).toHaveValue("#176b5b");
 });
