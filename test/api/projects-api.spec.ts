@@ -163,6 +163,35 @@ describe("project API", () => {
       });
   });
 
+  it("reports slug availability and rejects malformed slugs", async () => {
+    // ensure a slug that is not present returns available: true
+    await prisma.project.deleteMany();
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .query({ slug: "some-free-slug" })
+      .expect(200)
+      .expect(({ body }: { body: { available: boolean } }) => {
+        expect(body.available).toBe(true);
+      });
+
+    // create a project and ensure availability reports false
+    await createProject({ slug: "taken-slug" });
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .query({ slug: "taken-slug" })
+      .expect(200)
+      .expect(({ body }: { body: { available: boolean } }) => {
+        expect(body.available).toBe(false);
+      });
+
+    // malformed or missing slug returns 400
+    await request(app.getHttpServer()).get("/api/projects/slug-availability").expect(400);
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .query({ slug: "Not-Lowercase" })
+      .expect(400);
+  });
+
   it("trims project names before persistence", async () => {
     const project = await createProject({ name: "  Workshop page  " });
 

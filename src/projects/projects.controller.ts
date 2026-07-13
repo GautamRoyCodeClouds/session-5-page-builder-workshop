@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -29,6 +29,13 @@ export class ProjectsController {
     return this.projects.create(input);
   }
 
+  @Get("slug-availability")
+  @ApiOkResponse({ description: "Slug availability", schema: { example: { available: true } } })
+  @ApiBadRequestResponse({ description: "Malformed or missing slug" })
+  slugAvailability(@Query("slug") slug: string): Promise<{ available: boolean }> {
+    return this.projects.checkSlugAvailability(slug);
+  }
+
   @Get(":id")
   @ApiOkResponse({ description: "Project loaded", type: ProjectResponseDto })
   @ApiBadRequestResponse({ description: "Malformed project ID" })
@@ -57,4 +64,5 @@ export class ProjectsController {
   publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
   }
+
 }

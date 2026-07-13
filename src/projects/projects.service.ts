@@ -6,6 +6,7 @@ import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
 import { BlockValidationError, validateBlocks } from "./validation/validate-blocks";
+import { isValidSlug } from "../common/validation/slug";
 
 export type PublishResult = {
   project: ProjectEntity;
@@ -73,6 +74,14 @@ export class ProjectsService {
     await this.publisher.publish(project);
     const published = await this.repository.markPublished(id, new Date());
     return { project: published, url: `/sites/${published.slug}` };
+  }
+
+  async checkSlugAvailability(slug: string): Promise<{ available: boolean }> {
+    if (typeof slug !== "string" || !isValidSlug(slug)) {
+      throw new ApiException(400, "BAD_REQUEST", "Malformed or missing slug");
+    }
+    const owner = await this.repository.findBySlug(slug);
+    return { available: owner === null };
   }
 
   private toEditableProject(input: ProjectInputDto): EditableProject {
