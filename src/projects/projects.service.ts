@@ -12,6 +12,11 @@ export type PublishResult = {
   url: string;
 };
 
+export type SlugAvailability = {
+  slug: string;
+  available: boolean;
+};
+
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
     && error !== null
@@ -66,6 +71,10 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async slugAvailability(slug: string): Promise<SlugAvailability> {
+    return { slug, available: await this.repository.findBySlug(slug) === null };
   }
 
   async publish(id: string): Promise<PublishResult> {
