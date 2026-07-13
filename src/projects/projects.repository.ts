@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "../database/prisma.service";
-import type { EditableProject, ProjectEntity } from "./project.entity";
+import type { EditableProject, ProjectEntity, ProjectSummaryEntity } from "./project.entity";
 import { validateBlocks } from "./validation/validate-blocks";
 
 // The Prisma 7 client is generated with `@ts-nocheck`, so its exported model and
@@ -34,6 +34,10 @@ type ProjectDelegate = {
   create(args: { data: ProjectData }): Promise<ProjectRow>;
   findUnique(args: { where: { id: string } | { slug: string } }): Promise<ProjectRow | null>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
+  findMany(args: {
+    select: { id: true; name: true; slug: true; publishedAt: true; updatedAt: true };
+    orderBy: { updatedAt: "desc" };
+  }): Promise<ProjectSummaryEntity[]>;
 };
 
 function toEntity(row: ProjectRow): ProjectEntity {
@@ -79,6 +83,13 @@ export class ProjectsRepository {
   async findBySlug(slug: string): Promise<ProjectEntity | null> {
     const row = await this.projects.findUnique({ where: { slug } });
     return row === null ? null : toEntity(row);
+  }
+
+  async findAll(): Promise<ProjectSummaryEntity[]> {
+    return this.projects.findMany({
+      select: { id: true, name: true, slug: true, publishedAt: true, updatedAt: true },
+      orderBy: { updatedAt: "desc" }
+    });
   }
 
   async update(id: string, input: EditableProject): Promise<ProjectEntity> {

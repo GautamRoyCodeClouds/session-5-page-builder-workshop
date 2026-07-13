@@ -15,6 +15,7 @@
         <nav class="actions" aria-label="Project actions">
           <button id="new-project" class="button button-secondary" type="button">New project</button>
           <button id="load-project" class="button button-secondary" type="button" disabled>Load project</button>
+          <button id="browse-projects" class="button button-secondary" type="button">All projects</button>
           <button id="save-project" class="button button-secondary" type="button">Save project</button>
           <button id="publish-project" class="button button-primary" type="button">Publish project</button>
           <a id="open-published" class="button button-link" href="#" target="_blank" rel="noopener" hidden>Open published page</a>
@@ -81,6 +82,17 @@
         </aside>
       </div>
     </div>
+
+    <dialog id="project-list-dialog" class="project-list-dialog" aria-labelledby="project-list-title">
+      <div class="dialog-content">
+        <div class="dialog-header">
+          <h2 id="project-list-title">All projects</h2>
+          <button id="close-project-list" class="button button-secondary" type="button">Close</button>
+        </div>
+        <p id="project-list-status" class="dialog-status" role="status" aria-live="polite"></p>
+        <ul id="project-list" class="project-list"></ul>
+      </div>
+    </dialog>
     <script type="module" src="./app.js"></script>
   </body>
 </html>

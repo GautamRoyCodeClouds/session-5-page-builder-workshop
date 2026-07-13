@@ -3,7 +3,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 import { ApiException } from "../common/errors/api-exception";
 import { PublisherService } from "../publisher/publisher.service";
 import type { ProjectInputDto } from "./dto/project-input.dto";
-import type { EditableProject, ProjectEntity } from "./project.entity";
+import type { EditableProject, ProjectEntity, ProjectSummaryEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
 import { BlockValidationError, validateBlocks } from "./validation/validate-blocks";
 
@@ -40,6 +40,10 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async list(): Promise<ProjectSummaryEntity[]> {
+    return this.repository.findAll();
   }
 
   async get(id: string): Promise<ProjectEntity> {

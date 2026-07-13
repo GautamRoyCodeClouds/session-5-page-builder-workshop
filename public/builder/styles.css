@@ -433,6 +433,85 @@ textarea:focus-visible,
   margin-top: 20px;
 }
 
+.project-list-dialog {
+  width: min(560px, calc(100vw - 48px));
+  padding: 0;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  box-shadow: 0 20px 50px rgb(29 43 37 / 18%);
+}
+
+.project-list-dialog::backdrop {
+  background: rgb(23 32 29 / 45%);
+}
+
+.dialog-content {
+  padding: 20px 22px 22px;
+}
+
+.dialog-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.dialog-header h2 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 750;
+}
+
+.dialog-status {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.project-list {
+  display: grid;
+  gap: 10px;
+  max-height: 50vh;
+  margin: 12px 0 0;
+  padding: 0;
+  overflow-y: auto;
+  list-style: none;
+}
+
+.project-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.project-list-summary {
+  min-width: 0;
+}
+
+.project-list-name {
+  margin: 0;
+  overflow: hidden;
+  font-weight: 650;
+  font-size: 0.88rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.project-list-meta {
+  margin: 4px 0 0;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: 0.76rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 @media (max-width: 960px) {
   :root {
     --left-rail: 220px;

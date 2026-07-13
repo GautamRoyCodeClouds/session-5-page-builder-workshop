@@ -179,3 +179,33 @@ test("baseline-flow: project text and button colors", async ({ page }) => {
   await expect(textColorInput).toHaveValue("#1f2933");
   await expect(buttonColorInput).toHaveValue("#176b5b");
 });
+
+test("baseline-flow: browse all projects", async ({ page }) => {
+  const dialog = page.getByRole("dialog", { name: "All projects" });
+
+  await page.getByRole("button", { name: "All projects" }).click();
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("No projects saved yet.")).toBeVisible();
+
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toBeHidden();
+
+  await page.getByLabel("Project name").fill("Launch kit");
+  await page.getByLabel("Project slug").fill("launch-kit");
+  await page.getByRole("button", { name: "Save project" }).click();
+  await expect(page.getByRole("status")).toHaveText("Project saved.");
+
+  await page.getByRole("button", { name: "All projects" }).click();
+  await expect(dialog.getByText("launch-kit")).toBeVisible();
+  await expect(dialog.getByText(/Draft/)).toBeVisible();
+
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "New project" }).click();
+  await expect(page.getByLabel("Project name")).toHaveValue("Untitled page");
+
+  await page.getByRole("button", { name: "All projects" }).click();
+  await dialog.getByRole("button", { name: "Open" }).click();
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("status")).toHaveText("Project loaded.");
+  await expect(page.getByLabel("Project name")).toHaveValue("Launch kit");
+});

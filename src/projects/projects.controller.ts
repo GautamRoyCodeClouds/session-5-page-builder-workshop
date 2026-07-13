@@ -11,14 +11,21 @@ import {
 
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
+import { ProjectSummaryDto } from "./dto/project-summary.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
-import type { ProjectEntity } from "./project.entity";
+import type { ProjectEntity, ProjectSummaryEntity } from "./project.entity";
 import { ProjectsService, type PublishResult } from "./projects.service";
 
 @ApiTags("projects")
 @Controller("api/projects")
 export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}
+
+  @Get()
+  @ApiOkResponse({ description: "All projects", type: [ProjectSummaryDto] })
+  list(): Promise<ProjectSummaryEntity[]> {
+    return this.projects.list();
+  }
 
   @Post()
   @ApiBody({ type: ProjectInputDto })

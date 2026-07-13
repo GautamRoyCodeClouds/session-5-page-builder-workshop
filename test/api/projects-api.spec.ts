@@ -185,6 +185,30 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("lists all projects, newest-updated first, without block or color payloads", async () => {
+    await request(app.getHttpServer()).get("/api/projects").expect(200, []);
+
+    const first = await createProject({ name: "First page", slug: "first-page" });
+    const second = await createProject({ name: "Second page", slug: "second-page" });
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${first.id}`)
+      .send({ name: first.name, slug: first.slug, blocks: first.blocks })
+      .expect(200);
+
+    const response = await request(app.getHttpServer()).get("/api/projects").expect(200);
+
+    expect(response.body).toEqual([
+      expect.objectContaining({ id: first.id, name: "First page", slug: "first-page" }),
+      expect.objectContaining({ id: second.id, name: "Second page", slug: "second-page" })
+    ]);
+    for (const item of response.body as Record<string, unknown>[]) {
+      expect(item).not.toHaveProperty("blocks");
+      expect(item).not.toHaveProperty("textColor");
+      expect(item).not.toHaveProperty("buttonColor");
+    }
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")

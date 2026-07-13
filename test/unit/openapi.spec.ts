@@ -24,6 +24,15 @@ describe("OpenAPI document", () => {
         }
       }
     });
+    expect(document.paths["/api/projects"]?.get?.responses).toMatchObject({
+      200: {
+        content: {
+          "application/json": {
+            schema: { type: "array", items: { $ref: "#/components/schemas/ProjectSummaryDto" } }
+          }
+        }
+      }
+    });
     expect(document.paths["/api/projects/{id}"]?.get?.responses).toMatchObject({
       200: { content: { "application/json": { schema: { $ref: "#/components/schemas/ProjectResponseDto" } } } }
     });

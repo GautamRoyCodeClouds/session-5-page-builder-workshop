@@ -13,3 +13,5 @@ export type ProjectEntity = {
 };
 
 export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "blocks" | "textColor" | "buttonColor">;
+
+export type ProjectSummaryEntity = Pick<ProjectEntity, "id" | "name" | "slug" | "publishedAt" | "updatedAt">;

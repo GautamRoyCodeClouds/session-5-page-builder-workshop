@@ -103,6 +103,20 @@ export async function installBaselineRoutes(context: BrowserContext): Promise<vo
       return;
     }
 
+    if (request.method() === "GET" && pathname === "/api/projects") {
+      const summaries = [...projects.values()]
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
+        .map((project) => ({
+          id: project.id,
+          name: project.name,
+          slug: project.slug,
+          publishedAt: project.publishedAt,
+          updatedAt: project.updatedAt
+        }));
+      await json(route, 200, summaries);
+      return;
+    }
+
     const publishMatch = pathname.match(/^\/api\/projects\/([^/]+)\/publish$/);
     if (publishMatch && request.method() === "POST") {
       const project = projects.get(publishMatch[1]);

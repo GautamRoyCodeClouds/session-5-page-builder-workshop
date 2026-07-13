@@ -22,13 +22,18 @@ const blockDefaults = {
 };
 
 const elements = {
+  browseProjects: document.querySelector("#browse-projects"),
   canvas: document.querySelector("#canvas"),
   canvasHelp: document.querySelector("#canvas-help"),
+  closeProjectList: document.querySelector("#close-project-list"),
   inspectorFields: document.querySelector("#inspector-fields"),
   loadProject: document.querySelector("#load-project"),
   newProject: document.querySelector("#new-project"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
+  projectList: document.querySelector("#project-list"),
+  projectListDialog: document.querySelector("#project-list-dialog"),
+  projectListStatus: document.querySelector("#project-list-status"),
   projectName: document.querySelector("#project-name"),
   projectSlug: document.querySelector("#project-slug"),
   projectTextColor: document.querySelector("#project-text-color"),
@@ -448,6 +453,74 @@ async function loadProject() {
   }
 }
 
+function formatUpdatedAt(value) {
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? "" : date.toLocaleString();
+}
+
+async function openProjectFromList(id) {
+  try {
+    const project = await requestJson(`/api/projects/${id}`);
+    applyProject(project);
+    elements.projectListDialog.close();
+    setStatus("Project loaded.");
+  } catch (error) {
+    requestError("Load", error);
+  }
+}
+
+function renderProjectList(items) {
+  elements.projectList.replaceChildren();
+
+  if (items.length === 0) {
+    elements.projectListStatus.textContent = "No projects saved yet.";
+    return;
+  }
+
+  elements.projectListStatus.textContent = `${items.length} project${items.length === 1 ? "" : "s"}.`;
+
+  for (const item of items) {
+    const entry = document.createElement("li");
+    entry.className = "project-list-item";
+
+    const summary = document.createElement("div");
+    summary.className = "project-list-summary";
+    const title = document.createElement("p");
+    title.className = "project-list-name";
+    title.textContent = item.name;
+    const meta = document.createElement("p");
+    meta.className = "project-list-meta";
+    const statusLabel = item.publishedAt ? "Published" : "Draft";
+    meta.textContent = `${item.slug} · ${statusLabel} · Updated ${formatUpdatedAt(item.updatedAt)}`;
+    summary.append(title, meta);
+
+    const openButton = document.createElement("button");
+    openButton.type = "button";
+    openButton.className = "button button-secondary";
+    openButton.textContent = "Open";
+    openButton.addEventListener("click", () => {
+      void openProjectFromList(item.id);
+    });
+
+    entry.append(summary, openButton);
+    elements.projectList.append(entry);
+  }
+}
+
+async function openProjectList() {
+  elements.projectList.replaceChildren();
+  elements.projectListStatus.textContent = "Loading projects…";
+  elements.projectListDialog.showModal();
+
+  try {
+    const items = await requestJson("/api/projects");
+    renderProjectList(items);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Unknown error";
+    elements.projectListStatus.textContent = `Could not load projects: ${message}`;
+  }
+}
+
 async function publishProject() {
   if (!state.projectId) {
     setStatus("Save the project before publishing.");
@@ -556,6 +629,12 @@ elements.saveProject.addEventListener("click", () => {
 });
 elements.loadProject.addEventListener("click", () => {
   void loadProject();
+});
+elements.browseProjects.addEventListener("click", () => {
+  void openProjectList();
+});
+elements.closeProjectList.addEventListener("click", () => {
+  elements.projectListDialog.close();
 });
 elements.publishProject.addEventListener("click", () => {
   void publishProject();
