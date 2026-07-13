@@ -9,7 +9,8 @@ const blockDefaults = {
   heading: () => ({ id: crypto.randomUUID(), type: "heading", text: "New heading", level: 2 }),
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
   button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
-  section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" })
+  section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
+  divider: () => ({ id: crypto.randomUUID(), type: "divider" })
 };
 
 const elements = {
@@ -55,6 +56,10 @@ function previewElement(block) {
     buttonPreview.className = "preview-link";
     buttonPreview.textContent = block.label;
     return buttonPreview;
+  }
+
+  if (block.type === "divider") {
+    return document.createElement("hr");
   }
 
   const section = document.createElement("section");

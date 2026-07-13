@@ -20,6 +20,7 @@
   --text-mark: #446b88;
   --button-mark: #a45d24;
   --section-mark: #39725c;
+  --divider-mark: #6a7570;
   --topbar-height: 58px;
   --left-rail: 248px;
   --right-rail: 288px;
@@ -304,6 +305,10 @@ textarea:focus-visible,
   --block-mark: var(--section-mark);
 }
 
+.palette button[data-palette-type="divider"] {
+  --block-mark: var(--divider-mark);
+}
+
 .palette button:not(:disabled):hover {
   background: var(--paper);
   border-color: var(--line-strong);
@@ -370,6 +375,10 @@ textarea:focus-visible,
 
 .canvas-block[data-block-type="section"] {
   --block-mark: var(--section-mark);
+}
+
+.canvas-block[data-block-type="divider"] {
+  --block-mark: var(--divider-mark);
 }
 
 .canvas-block[aria-current="true"] {
