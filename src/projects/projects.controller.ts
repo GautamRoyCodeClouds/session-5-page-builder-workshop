@@ -11,9 +11,10 @@ import {
 
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
+import { ProjectStatusDto } from "./dto/project-status.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
-import { ProjectsService, type PublishResult } from "./projects.service";
+import { ProjectsService, type ProjectStatus, type PublishResult } from "./projects.service";
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -35,6 +36,14 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: "Project not found" })
   get(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<ProjectEntity> {
     return this.projects.get(id);
+  }
+
+  @Get(":id/status")
+  @ApiOkResponse({ description: "Project status", type: ProjectStatusDto })
+  @ApiBadRequestResponse({ description: "Malformed project ID" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  getStatus(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<ProjectStatus> {
+    return this.projects.getStatus(id);
   }
 
   @Put(":id")
