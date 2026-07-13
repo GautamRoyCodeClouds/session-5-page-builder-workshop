@@ -169,6 +169,63 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("renames a project without touching slug, blocks, or publish state", async () => {
+    const created = await createProject();
+    await request(app.getHttpServer()).post(`/api/projects/${created.id}/publish`).expect(201);
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "Renamed page" })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body).toMatchObject({
+          id: created.id,
+          name: "Renamed page",
+          slug: created.slug,
+          blocks: created.blocks
+        });
+        expect(body.publishedAt).not.toBeNull();
+      });
+  });
+
+  it("trims a renamed project's name", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "  Renamed page  " })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed page");
+      });
+  });
+
+  it.each([
+    ["empty name", ""],
+    ["whitespace-only name", "   "]
+  ])("returns the common 400 envelope for a rename with %s", async (_description, name) => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("returns the common not-found envelope when renaming an unknown project", async () => {
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Renamed page" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")
