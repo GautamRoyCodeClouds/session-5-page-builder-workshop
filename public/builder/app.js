@@ -258,7 +258,7 @@ function reorderBlock(sourceId, targetId) {
 
   const after = state.blocks.map((block) => block.id).join(",");
   if (before === after) return;
-  state.selectedBlockId = sourceId;
+  state.selectedBlockId = null;
   render();
   setStatus("Block moved.");
 }
