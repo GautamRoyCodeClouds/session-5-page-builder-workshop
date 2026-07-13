@@ -37,6 +37,8 @@ function renderBlock(block: Block): string {
       return `<a class="button" href="${escapeHtml(block.url.trim())}">${escapeHtml(block.label)}</a>`;
     case "section":
       return `<section><h2>${escapeHtml(block.title)}</h2></section>`;
+    case "divider":
+      return "<hr>";
   }
 }
 

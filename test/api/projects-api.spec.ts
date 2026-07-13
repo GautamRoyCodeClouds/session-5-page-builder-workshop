@@ -89,6 +89,28 @@ describe("project API", () => {
       });
   });
 
+  it("persists a divider block and publishes it as a horizontal rule", async () => {
+    const created = await createProject({ blocks: [
+      { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
+      { id: "divider-1", type: "divider" },
+      { id: "text-1", type: "text", text: "After the divider" }
+    ] });
+
+    expect(created.blocks).toEqual([
+      { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
+      { id: "divider-1", type: "divider" },
+      { id: "text-1", type: "text", text: "After the divider" }
+    ]);
+
+    await request(app.getHttpServer()).post(`/api/projects/${created.id}/publish`).expect(201);
+    await request(app.getHttpServer())
+      .get("/sites/workshop-page")
+      .expect(200)
+      .expect((response) => {
+        expect(response.text).toContain("<hr>");
+      });
+  });
+
   it("replaces editable project fields and ordered blocks", async () => {
     const created = await createProject();
     const replacement = {
@@ -111,7 +133,7 @@ describe("project API", () => {
     ["empty name", { name: "" }],
     ["whitespace-only name", { name: "   " }],
     ["uppercase slug", { slug: "Not-Lowercase" }],
-    ["unknown block", { blocks: [{ id: "x", type: "divider" }] }],
+    ["unknown block", { blocks: [{ id: "x", type: "spacer" }] }],
     ["duplicate block ID", { blocks: [
       { id: "same", type: "text", text: "First" },
       { id: "same", type: "section", title: "Second" }

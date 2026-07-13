@@ -6,6 +6,7 @@ import { SLUG_PATTERN } from "../../common/validation/slug";
 import {
   blocksApiProperty,
   ButtonBlockDto,
+  DividerBlockDto,
   HeadingBlockDto,
   SectionBlockDto,
   TextBlockDto,
@@ -16,7 +17,7 @@ function trimString({ value }: TransformFnParams): unknown {
   return typeof value === "string" ? value.trim() : value;
 }
 
-@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto)
+@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto, DividerBlockDto)
 export class ProjectInputDto {
   @ApiProperty({ example: "Workshop page", minLength: 1, maxLength: 120 })
   @Transform(trimString)
