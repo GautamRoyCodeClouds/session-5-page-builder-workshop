@@ -10,7 +10,8 @@ const blockDefaults = {
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
   button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
-  divider: () => ({ id: crypto.randomUUID(), type: "divider" })
+  divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
+  quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" })
 };
 
 const elements = {
@@ -60,6 +61,19 @@ function previewElement(block) {
 
   if (block.type === "divider") {
     return document.createElement("hr");
+  }
+
+  if (block.type === "quote") {
+    const blockquote = document.createElement("blockquote");
+    const quoteText = document.createElement("p");
+    quoteText.textContent = block.quote;
+    blockquote.append(quoteText);
+    if (block.attribution.trim()) {
+      const cite = document.createElement("cite");
+      cite.textContent = block.attribution;
+      blockquote.append(cite);
+    }
+    return blockquote;
   }
 
   const section = document.createElement("section");
@@ -170,6 +184,27 @@ function appendSectionFields(block) {
   elements.inspectorFields.append(createField("Title", titleInput));
 }
 
+function appendQuoteFields(block) {
+  const quoteInput = document.createElement("textarea");
+  quoteInput.id = "block-quote";
+  quoteInput.value = block.quote;
+  quoteInput.addEventListener("input", () => {
+    block.quote = quoteInput.value;
+    updateBlockPreview(block);
+  });
+
+  const attributionInput = createTextInput("block-attribution", block.attribution);
+  attributionInput.addEventListener("input", () => {
+    block.attribution = attributionInput.value;
+    updateBlockPreview(block);
+  });
+
+  elements.inspectorFields.append(
+    createField("Quote", quoteInput),
+    createField("Attribution", attributionInput)
+  );
+}
+
 function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
@@ -187,6 +222,7 @@ function renderInspector() {
   if (block.type === "text") appendTextFields(block);
   if (block.type === "button") appendButtonFields(block);
   if (block.type === "section") appendSectionFields(block);
+  if (block.type === "quote") appendQuoteFields(block);
 }
 
 function renderCanvas() {

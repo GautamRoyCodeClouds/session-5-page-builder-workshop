@@ -29,4 +29,11 @@ export type DividerBlock = {
   type: "divider";
 };
 
-export type Block = HeadingBlock | TextBlock | ButtonBlock | SectionBlock | DividerBlock;
+export type QuoteBlock = {
+  id: string;
+  type: "quote";
+  quote: string;
+  attribution: string;
+};
+
+export type Block = HeadingBlock | TextBlock | ButtonBlock | SectionBlock | DividerBlock | QuoteBlock;
