@@ -30,6 +30,7 @@ type ProjectDelegate = {
   create(args: { data: ProjectData }): Promise<ProjectRow>;
   findUnique(args: { where: { id: string } | { slug: string } }): Promise<ProjectRow | null>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
+  delete(args: { where: { id: string } }): Promise<ProjectRow>;
 };
 
 function toEntity(row: ProjectRow): ProjectEntity {
@@ -83,5 +84,9 @@ export class ProjectsRepository {
       data: { publishedAt }
     });
     return toEntity(row);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.projects.delete({ where: { id } });
   }
 }

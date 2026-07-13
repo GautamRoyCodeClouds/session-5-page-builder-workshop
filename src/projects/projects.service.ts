@@ -68,6 +68,18 @@ export class ProjectsService {
     }
   }
 
+  async delete(id: string, confirm: boolean): Promise<void> {
+    if (confirm !== true) {
+      throw new ApiException(
+        HttpStatus.BAD_REQUEST,
+        "BAD_REQUEST",
+        "Deletion requires explicit confirmation: set confirm to true"
+      );
+    }
+    await this.get(id);
+    await this.repository.delete(id);
+  }
+
   async publish(id: string): Promise<PublishResult> {
     const project = await this.get(id);
     await this.publisher.publish(project);

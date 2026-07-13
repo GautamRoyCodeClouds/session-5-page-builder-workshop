@@ -1,14 +1,16 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags
 } from "@nestjs/swagger";
 
+import { DeleteProjectDto } from "./dto/delete-project.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
@@ -56,5 +58,23 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: "Project not found" })
   publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBody({
+    type: DeleteProjectDto,
+    description: "Confirmation payload. `confirm` must be `true` or the request is rejected with 400."
+  })
+  @ApiNoContentResponse({ description: "Project deleted successfully" })
+  @ApiBadRequestResponse({
+    description: "Confirmation missing or false — project is NOT deleted"
+  })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  async delete(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() body: DeleteProjectDto
+  ): Promise<void> {
+    await this.projects.delete(id, body.confirm);
   }
 }
