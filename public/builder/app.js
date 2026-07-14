@@ -20,6 +20,8 @@ const elements = {
   loadProject: document.querySelector("#load-project"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
+  previewModeDesktop: document.querySelector("#preview-mode-desktop"),
+  previewModeMobile: document.querySelector("#preview-mode-mobile"),
   projectName: document.querySelector("#project-name"),
   projectSlug: document.querySelector("#project-slug"),
   publishProject: document.querySelector("#publish-project"),
@@ -30,12 +32,32 @@ const elements = {
 
 const state = {
   blocks: [],
+  previewMode: "desktop",
   projectId: null,
   selectedBlockId: null
 };
 
 function setStatus(message) {
   elements.status.textContent = message;
+}
+
+function setPreviewMode(mode) {
+  const nextMode = mode === "mobile" ? "mobile" : "desktop";
+  state.previewMode = nextMode;
+  elements.canvas.classList.toggle("is-mobile-preview", nextMode === "mobile");
+  elements.canvas.classList.toggle("is-desktop-preview", nextMode === "desktop");
+  elements.canvas.dataset.previewMode = nextMode;
+
+  const desktopButton = elements.previewModeDesktop;
+  const mobileButton = elements.previewModeMobile;
+  if (desktopButton) {
+    desktopButton.classList.toggle("is-active", nextMode === "desktop");
+    desktopButton.setAttribute("aria-pressed", String(nextMode === "desktop"));
+  }
+  if (mobileButton) {
+    mobileButton.classList.toggle("is-active", nextMode === "mobile");
+    mobileButton.setAttribute("aria-pressed", String(nextMode === "mobile"));
+  }
 }
 
 function previewElement(block) {
@@ -73,6 +95,10 @@ function selectedBlock() {
   return state.blocks.find((block) => block.id === state.selectedBlockId) ?? null;
 }
 
+function closestElement(target, selector) {
+  return target instanceof Element ? target.closest(selector) : null;
+}
+
 function blockElement(blockId) {
   return [...elements.canvas.querySelectorAll(".canvas-block")]
     .find((candidate) => candidate.dataset.blockId === blockId) ?? null;
@@ -100,6 +126,33 @@ function createTextInput(id, value) {
   input.type = "text";
   input.value = value;
   return input;
+}
+
+function appendReorderControls(block) {
+  const controls = document.createElement("div");
+  controls.className = "reorder-controls";
+
+  const sourceIndex = state.blocks.findIndex((candidate) => candidate.id === block.id);
+  const moveUp = document.createElement("button");
+  moveUp.type = "button";
+  moveUp.className = "button button-secondary reorder-button";
+  moveUp.textContent = "Move up";
+  moveUp.disabled = sourceIndex <= 0;
+  moveUp.addEventListener("click", () => {
+    moveBlock(block.id, -1);
+  });
+
+  const moveDown = document.createElement("button");
+  moveDown.type = "button";
+  moveDown.className = "button button-secondary reorder-button";
+  moveDown.textContent = "Move down";
+  moveDown.disabled = sourceIndex < 0 || sourceIndex >= state.blocks.length - 1;
+  moveDown.addEventListener("click", () => {
+    moveBlock(block.id, 1);
+  });
+
+  controls.append(moveUp, moveDown);
+  elements.inspectorFields.append(controls);
 }
 
 function appendHeadingFields(block) {
@@ -183,6 +236,7 @@ function renderInspector() {
     return;
   }
 
+  appendReorderControls(block);
   if (block.type === "heading") appendHeadingFields(block);
   if (block.type === "text") appendTextFields(block);
   if (block.type === "button") appendButtonFields(block);
@@ -212,6 +266,7 @@ function renderCanvas() {
 function render() {
   renderCanvas();
   renderInspector();
+  setPreviewMode(state.previewMode);
 }
 
 function insertionIndex(targetBlock) {
@@ -240,6 +295,24 @@ function selectBlock(blockId) {
   render();
 }
 
+function moveBlock(blockId, direction) {
+  if (typeof blockId !== "string" || !Number.isInteger(direction)) return;
+
+  const sourceIndex = state.blocks.findIndex((block) => block.id === blockId);
+  if (sourceIndex < 0) return;
+
+  const targetIndex = sourceIndex + direction;
+  if (targetIndex < 0 || targetIndex >= state.blocks.length) return;
+
+  const [movedBlock] = state.blocks.splice(sourceIndex, 1);
+  if (!movedBlock) return;
+
+  state.blocks.splice(targetIndex, 0, movedBlock);
+  state.selectedBlockId = blockId;
+  render();
+  setStatus("Block moved.");
+}
+
 function reorderBlock(sourceId, targetId) {
   const before = state.blocks.map((block) => block.id).join(",");
   const sourceIndex = state.blocks.findIndex((block) => block.id === sourceId);
@@ -253,7 +326,7 @@ function reorderBlock(sourceId, targetId) {
 
   const after = state.blocks.map((block) => block.id).join(",");
   if (before === after) return;
-  state.selectedBlockId = null;
+  state.selectedBlockId = sourceId;
   render();
   setStatus("Block moved.");
 }
@@ -417,33 +490,33 @@ async function publishProject() {
 }
 
 elements.palette.addEventListener("click", (event) => {
-  const button = event.target.closest("button[data-palette-type]");
+  const button = closestElement(event.target, "button[data-palette-type]");
   if (!button) return;
   addBlock(button.dataset.paletteType);
 });
 
 elements.palette.addEventListener("dragstart", (event) => {
-  const button = event.target.closest("button[data-palette-type]");
+  const button = closestElement(event.target, "button[data-palette-type]");
   if (!button || !event.dataTransfer) return;
   event.dataTransfer.effectAllowed = "copy";
   event.dataTransfer.setData(PALETTE_DRAG_TYPE, button.dataset.paletteType);
 });
 
 elements.canvas.addEventListener("click", (event) => {
-  const block = event.target.closest(".canvas-block");
+  const block = closestElement(event.target, ".canvas-block");
   if (block) selectBlock(block.dataset.blockId);
 });
 
 elements.canvas.addEventListener("keydown", (event) => {
   if (event.key !== "Enter" && event.key !== " ") return;
-  const block = event.target.closest(".canvas-block");
+  const block = closestElement(event.target, ".canvas-block");
   if (!block) return;
   event.preventDefault();
   selectBlock(block.dataset.blockId);
 });
 
 elements.canvas.addEventListener("dragstart", (event) => {
-  const block = event.target.closest(".canvas-block");
+  const block = closestElement(event.target, ".canvas-block");
   if (!block || !event.dataTransfer) return;
   event.dataTransfer.effectAllowed = "move";
   event.dataTransfer.setData(BLOCK_DRAG_TYPE, block.dataset.blockId);
@@ -474,7 +547,7 @@ elements.canvas.addEventListener("dragleave", (event) => {
 
 elements.canvas.addEventListener("drop", (event) => {
   if (!event.dataTransfer) return;
-  const targetBlock = event.target.closest(".canvas-block");
+  const targetBlock = closestElement(event.target, ".canvas-block");
   const paletteType = event.dataTransfer.getData(PALETTE_DRAG_TYPE);
   const sourceId = event.dataTransfer.getData(BLOCK_DRAG_TYPE);
   if (!paletteType && !sourceId) return;
@@ -483,6 +556,13 @@ elements.canvas.addEventListener("drop", (event) => {
 
   if (paletteType) addBlock(paletteType, insertionIndex(targetBlock));
   if (sourceId) reorderBlock(sourceId, targetBlock ? targetBlock.dataset.blockId : null);
+});
+
+elements.previewModeDesktop?.addEventListener("click", () => {
+  setPreviewMode("desktop");
+});
+elements.previewModeMobile?.addEventListener("click", () => {
+  setPreviewMode("mobile");
 });
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);

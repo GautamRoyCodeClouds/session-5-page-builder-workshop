@@ -55,8 +55,12 @@
         <main class="workspace" aria-labelledby="canvas-title">
           <div class="workspace-heading">
             <h2 id="canvas-title">Canvas</h2>
+            <div class="preview-mode-toggle" role="group" aria-label="Preview mode">
+              <button id="preview-mode-desktop" class="button button-secondary preview-mode-button is-active" type="button" aria-pressed="true">Desktop</button>
+              <button id="preview-mode-mobile" class="button button-secondary preview-mode-button" type="button" aria-pressed="false">Mobile</button>
+            </div>
           </div>
-          <div id="canvas" class="canvas" aria-describedby="canvas-help">
+          <div id="canvas" class="canvas is-desktop-preview" aria-describedby="canvas-help" data-preview-mode="desktop">
             <p id="canvas-help" class="canvas-placeholder">No blocks yet.</p>
           </div>
         </main>

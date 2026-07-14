@@ -84,9 +84,75 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
   await expect(blocks).toHaveCount(20);
   await expect(page.getByRole("status")).toContainText("Block limit reached");
 
-  for (const excludedName of ["Image", "Spacer", "Duplicate", "Move up", "Move down", "Preview"]) {
+  for (const excludedName of ["Image", "Spacer", "Duplicate", "Preview"]) {
     await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
   }
+});
+
+test("baseline-flow: reorder controls move the selected block and persist the order", async ({ page }) => {
+  const palette = page.getByRole("region", { name: "Palette" });
+  const canvas = page.getByRole("main", { name: "Canvas" }).locator("#canvas");
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+
+  await palette.getByRole("button", { name: "Heading" }).click();
+  await palette.getByRole("button", { name: "Text" }).click();
+  await palette.getByRole("button", { name: "Button" }).click();
+
+  await canvas.locator("[data-block-type='heading']").click();
+  const moveUp = inspector.getByRole("button", { name: "Move up" });
+  const moveDown = inspector.getByRole("button", { name: "Move down" });
+  await expect(moveUp).toBeDisabled();
+  await expect(moveDown).toBeEnabled();
+
+  await canvas.locator("[data-block-type='text']").click();
+  await expect(moveUp).toBeEnabled();
+  await expect(moveDown).toBeEnabled();
+  await moveUp.click();
+
+  await expect.poll(async () => canvas.locator("[data-block-type]").evaluateAll((items) => (
+    items.map((item) => item.getAttribute("data-block-type"))
+  ))).toEqual(["text", "heading", "button"]);
+  await expect(canvas.locator("[data-block-type='text']"))
+    .toHaveAttribute("aria-current", "true");
+
+  await page.getByRole("button", { name: "Save project" }).click();
+  await expect(page.getByRole("status")).toHaveText("Project saved.");
+
+  await page.getByRole("button", { name: "Load project" }).click();
+  await expect(page.getByRole("status")).toHaveText("Project loaded.");
+  await expect.poll(async () => canvas.locator("[data-block-type]").evaluateAll((items) => (
+    items.map((item) => item.getAttribute("data-block-type"))
+  ))).toEqual(["text", "heading", "button"]);
+
+  await canvas.locator("[data-block-type='button']").click();
+  await expect(moveDown).toBeDisabled();
+});
+
+test("baseline-flow: preview modes switch the viewport without mutating blocks", async ({ page }) => {
+  const palette = page.getByRole("region", { name: "Palette" });
+  const canvas = page.getByRole("main", { name: "Canvas" }).locator("#canvas");
+
+  await palette.getByRole("button", { name: "Heading" }).click();
+  await expect(canvas.locator("[data-block-type='heading']")).toHaveCount(1);
+
+  const desktopMode = page.getByRole("button", { name: "Desktop" });
+  const mobileMode = page.getByRole("button", { name: "Mobile" });
+
+  await expect(desktopMode).toHaveAttribute("aria-pressed", "true");
+  await expect(mobileMode).toHaveAttribute("aria-pressed", "false");
+  await expect(canvas).toHaveAttribute("data-preview-mode", "desktop");
+  await expect(canvas).toHaveClass(/is-desktop-preview/);
+  await expect(canvas).not.toHaveClass(/is-mobile-preview/);
+
+  await mobileMode.click();
+  await expect(mobileMode).toHaveAttribute("aria-pressed", "true");
+  await expect(desktopMode).toHaveAttribute("aria-pressed", "false");
+  await expect(canvas).toHaveAttribute("data-preview-mode", "mobile");
+  await expect(canvas).toHaveClass(/is-mobile-preview/);
+  await expect(canvas).not.toHaveClass(/is-desktop-preview/);
+
+  await expect(canvas.locator("[data-block-type='heading']")).toHaveCount(1);
+  await expect(page.getByRole("status")).toContainText("Heading added");
 });
 
 test("baseline-flow: divider block renders a rule and has no inspector fields", async ({ page }) => {
