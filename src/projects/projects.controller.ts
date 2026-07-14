@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -10,6 +10,7 @@ import {
 } from "@nestjs/swagger";
 
 import { ProjectInputDto } from "./dto/project-input.dto";
+import { ProjectNameDto } from "./dto/project-name.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
@@ -48,6 +49,18 @@ export class ProjectsController {
     @Body() input: ProjectInputDto
   ): Promise<ProjectEntity> {
     return this.projects.update(id, input);
+  }
+
+  @Patch(":id/name")
+  @ApiBody({ type: ProjectNameDto })
+  @ApiOkResponse({ description: "Project renamed", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Invalid project name" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  rename(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: ProjectNameDto
+  ): Promise<ProjectEntity> {
+    return this.projects.rename(id, input);
   }
 
   @Post(":id/publish")

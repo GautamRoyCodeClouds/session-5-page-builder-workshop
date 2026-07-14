@@ -163,6 +163,37 @@ describe("project API", () => {
       });
   });
 
+  it("renames a project and rejects blank names", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name: "  Renamed page  " })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.id).toBe(project.id);
+        expect(body.name).toBe("Renamed page");
+        expect(body.slug).toBe(project.slug);
+      });
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name: "   " })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Ghost" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("trims project names before persistence", async () => {
     const project = await createProject({ name: "  Workshop page  " });
 
