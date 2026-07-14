@@ -193,6 +193,63 @@ describe("project API", () => {
       });
   });
 
+  it("requires explicit confirmation to delete a project", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({})
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: false })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(200);
+  });
+
+  it("deletes a project only when confirmation is true", async () => {
+    const project = await createProject();
+    const other = await createProject({ name: "Other page", slug: "other-page" });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: true })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${other.id}`)
+      .expect(200);
+  });
+
+  it("returns 404 when deleting an unknown project", async () => {
+    await request(app.getHttpServer())
+      .delete("/api/projects/123e4567-e89b-42d3-a456-426614174000")
+      .send({ confirm: true })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("keeps the 20 block limit in the builder instead of the API", async () => {
     const blocks = Array.from({ length: 21 }, (_, index) => ({
       id: `text-${index}`,

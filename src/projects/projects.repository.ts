@@ -34,6 +34,7 @@ type ProjectDelegate = {
   findMany(args: { orderBy: ProjectOrderBy; skip: number; take: number }): Promise<ProjectRow[]>;
   count(): Promise<number>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
+  delete(args: { where: { id: string } }): Promise<ProjectRow>;
 };
 
 function toEntity(row: ProjectRow): ProjectEntity {
@@ -91,6 +92,10 @@ export class ProjectsRepository {
       data: { name: input.name, slug: input.slug, blocks: input.blocks, publishedAt: null }
     });
     return toEntity(row);
+  }
+
+  async delete(id: string): Promise<void> {
+    await this.projects.delete({ where: { id } });
   }
 
   async markPublished(id: string, publishedAt: Date): Promise<ProjectEntity> {

@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags
@@ -16,6 +17,7 @@ import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
 import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
+import { DeleteProjectDto } from "./dto/delete-project.dto";
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -65,5 +67,18 @@ export class ProjectsController {
   @ApiNotFoundResponse({ description: "Project not found" })
   publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
+  }
+
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiBody({ type: DeleteProjectDto })
+  @ApiNoContentResponse({ description: "Project deleted" })
+  @ApiBadRequestResponse({ description: "Invalid delete confirmation" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  delete(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: DeleteProjectDto
+  ): Promise<void> {
+    return this.projects.delete(id, input);
   }
 }
