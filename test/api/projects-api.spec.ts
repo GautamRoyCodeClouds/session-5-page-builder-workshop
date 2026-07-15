@@ -129,6 +129,47 @@ describe("project API", () => {
       });
   });
 
+  it("renames a project without replacing its other fields", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "  Renamed page  " })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body).toMatchObject({
+          id: created.id,
+          name: "Renamed page",
+          slug: created.slug,
+          blocks: created.blocks,
+          publishedAt: created.publishedAt
+        });
+      });
+  });
+
+  it.each(["", "   "])("rejects a blank project rename", async (name) => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("returns the existing not-found envelope when renaming an unknown project", async () => {
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Renamed page" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it.each([
     ["empty name", { name: "" }],
     ["whitespace-only name", { name: "   " }],
