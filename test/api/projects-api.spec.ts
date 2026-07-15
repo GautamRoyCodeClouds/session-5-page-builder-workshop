@@ -18,6 +18,13 @@ type ProjectResponse = {
   updatedAt: string;
 };
 
+type ProjectListResponse = {
+  items: ProjectResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
 const baselineBlocks = [
   { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
   { id: "text-1", type: "text", text: "Original body" },
@@ -286,6 +293,66 @@ describe("project API", () => {
       .expect(404)
       .expect(({ body }: { body: Record<string, unknown> }) => {
         expect(body).toMatchObject({ statusCode: 404, code: "SITE_NOT_FOUND" });
+      });
+  });
+
+  it("lists projects with page, pageSize, and total metadata, defaulting to page 1 and pageSize 20", async () => {
+    const first = await createProject({ name: "First", slug: "first-page" });
+    const second = await createProject({ name: "Second", slug: "second-page" });
+    const third = await createProject({ name: "Third", slug: "third-page" });
+
+    await request(app.getHttpServer())
+      .get("/api/projects")
+      .expect(200)
+      .expect(({ body }: { body: ProjectListResponse }) => {
+        expect(body).toMatchObject({ page: 1, pageSize: 20, total: 3 });
+        expect(body.items.map((item) => item.id)).toEqual([third.id, second.id, first.id]);
+
+        const timestamps = body.items.map((item) => Date.parse(item.createdAt));
+        expect(timestamps).toEqual([...timestamps].sort((a, b) => b - a));
+      });
+  });
+
+  it("caps pageSize at 50 even when a larger value is requested", async () => {
+    await createProject();
+
+    await request(app.getHttpServer())
+      .get("/api/projects?pageSize=500")
+      .expect(200)
+      .expect(({ body }: { body: ProjectListResponse }) => {
+        expect(body).toMatchObject({ page: 1, pageSize: 50, total: 1 });
+      });
+  });
+
+  it("returns the requested page of results using the given pageSize", async () => {
+    await createProject({ name: "First", slug: "first-page" });
+    const second = await createProject({ name: "Second", slug: "second-page" });
+    await createProject({ name: "Third", slug: "third-page" });
+
+    await request(app.getHttpServer())
+      .get("/api/projects?page=2&pageSize=1")
+      .expect(200)
+      .expect(({ body }: { body: ProjectListResponse }) => {
+        expect(body).toMatchObject({ page: 2, pageSize: 1, total: 3 });
+        expect(body.items).toHaveLength(1);
+        expect(body.items[0].id).toBe(second.id);
+      });
+  });
+
+  it.each([
+    ["page", "0"],
+    ["page", "-1"],
+    ["page", "1.5"],
+    ["page", "abc"],
+    ["pageSize", "0"],
+    ["pageSize", "-1"],
+    ["pageSize", "abc"]
+  ])("returns the common 400 envelope for a bad %s value of %s", async (param, value) => {
+    await request(app.getHttpServer())
+      .get(`/api/projects?${param}=${value}`)
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
       });
   });
 });

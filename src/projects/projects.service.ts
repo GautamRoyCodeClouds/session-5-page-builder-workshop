@@ -12,6 +12,34 @@ export type PublishResult = {
   url: string;
 };
 
+export type ProjectListResult = {
+  items: ProjectEntity[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+const DEFAULT_PAGE_SIZE = 20;
+const MAX_PAGE_SIZE = 50;
+const POSITIVE_INTEGER_PATTERN = /^[0-9]+$/;
+
+function parsePositiveIntParam(value: string | undefined, paramName: string): number | undefined {
+  if (value === undefined) {
+    return undefined;
+  }
+
+  const parsed = Number(value);
+  if (!POSITIVE_INTEGER_PATTERN.test(value) || !Number.isInteger(parsed) || parsed < 1) {
+    throw new ApiException(
+      HttpStatus.BAD_REQUEST,
+      "BAD_REQUEST",
+      `${paramName} must be a positive integer`
+    );
+  }
+
+  return parsed;
+}
+
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
     && error !== null
@@ -66,6 +94,15 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async list(rawPage?: string, rawPageSize?: string): Promise<ProjectListResult> {
+    const page = parsePositiveIntParam(rawPage, "page") ?? 1;
+    const requestedPageSize = parsePositiveIntParam(rawPageSize, "pageSize") ?? DEFAULT_PAGE_SIZE;
+    const pageSize = Math.min(requestedPageSize, MAX_PAGE_SIZE);
+
+    const { items, total } = await this.repository.list(page, pageSize);
+    return { items, page, pageSize, total };
   }
 
   async publish(id: string): Promise<PublishResult> {

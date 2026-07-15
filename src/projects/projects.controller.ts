@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -6,14 +6,16 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags
 } from "@nestjs/swagger";
 
 import { ProjectInputDto } from "./dto/project-input.dto";
+import { ProjectListResponseDto } from "./dto/project-list-response.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
-import { ProjectsService, type PublishResult } from "./projects.service";
+import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -27,6 +29,18 @@ export class ProjectsController {
   @ApiConflictResponse({ description: "Slug already in use" })
   create(@Body() input: ProjectInputDto): Promise<ProjectEntity> {
     return this.projects.create(input);
+  }
+
+  @Get()
+  @ApiQuery({ name: "page", description: "1-based page number, defaults to 1", required: false })
+  @ApiQuery({ name: "pageSize", description: "Items per page, defaults to 20, capped at 50", required: false })
+  @ApiOkResponse({ description: "Paginated project list", type: ProjectListResponseDto })
+  @ApiBadRequestResponse({ description: "Noninteger or nonpositive page or pageSize" })
+  list(
+    @Query("page") page?: string,
+    @Query("pageSize") pageSize?: string
+  ): Promise<ProjectListResult> {
+    return this.projects.list(page, pageSize);
   }
 
   @Get(":id")
