@@ -68,6 +68,11 @@ export class ProjectsService {
     }
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    await this.get(id); // Ensure 404 if not found
+    return await this.repository.updateName(id, name);
+  }
+
   async publish(id: string): Promise<PublishResult> {
     const project = await this.get(id);
     await this.publisher.publish(project);
