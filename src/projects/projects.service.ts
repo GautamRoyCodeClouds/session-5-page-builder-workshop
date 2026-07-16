@@ -78,6 +78,11 @@ export class ProjectsService {
     }
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    await this.get(id);
+    return this.repository.rename(id, name);
+  }
+
   async list(query: ListProjectsQueryDto): Promise<ProjectListResult> {
     const { page, pageSize } = query;
     const offset = (page - 1) * pageSize;

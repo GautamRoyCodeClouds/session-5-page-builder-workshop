@@ -392,4 +392,50 @@ describe("project API", () => {
         });
     });
   });
+
+  it("renames a project and returns the updated name", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name: "Renamed Page" })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed Page");
+        expect(body.id).toBe(project.id);
+        expect(body.slug).toBe(project.slug);
+        expect(body.blocks).toEqual(project.blocks);
+      });
+  });
+
+  it("returns 400 for a blank or whitespace-only name on rename", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name: "" })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${project.id}/name`)
+      .send({ name: "   " })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("returns the not-found envelope when renaming an unknown project", async () => {
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Valid Name" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
 });
