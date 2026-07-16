@@ -8,7 +8,8 @@ import {
   Param,
   ParseUUIDPipe,
   Post,
-  Put
+  Put,
+  Query
 } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
@@ -23,6 +24,10 @@ import {
 
 import { DeleteProjectDto } from "./dto/delete-project.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
+import {
+  SlugAvailabilityQueryDto,
+  SlugAvailabilityResponseDto
+} from "./dto/slug-availability.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
@@ -40,6 +45,15 @@ export class ProjectsController {
   @ApiConflictResponse({ description: "Slug already in use" })
   create(@Body() input: ProjectInputDto): Promise<ProjectEntity> {
     return this.projects.create(input);
+  }
+
+  @Get("slug-availability")
+  @ApiOkResponse({ description: "Slug availability reported", type: SlugAvailabilityResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed or missing slug" })
+  async slugAvailability(
+    @Query() query: SlugAvailabilityQueryDto
+  ): Promise<SlugAvailabilityResponseDto> {
+    return { slug: query.slug, available: await this.projects.isSlugAvailable(query.slug) };
   }
 
   @Get(":id")

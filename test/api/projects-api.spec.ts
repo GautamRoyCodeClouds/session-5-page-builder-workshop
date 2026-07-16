@@ -451,6 +451,46 @@ describe("project API", () => {
       });
   });
 
+  it("reports an unused slug as available without creating records", async () => {
+    const before = await prisma.project.count();
+
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .query({ slug: "brand-new-slug" })
+      .expect(200)
+      .expect(({ body }: { body: { slug: string; available: boolean } }) => {
+        expect(body).toEqual({ slug: "brand-new-slug", available: true });
+      });
+
+    await expect(prisma.project.count()).resolves.toBe(before);
+  });
+
+  it("reports a slug owned by an existing project as unavailable", async () => {
+    await createProject();
+
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .query({ slug: "workshop-page" })
+      .expect(200)
+      .expect(({ body }: { body: { available: boolean } }) => {
+        expect(body.available).toBe(false);
+      });
+  });
+
+  it.each([
+    ["a missing slug", undefined],
+    ["an uppercase slug", "Not-Lowercase"],
+    ["an over-length slug", "a".repeat(81)]
+  ])("returns the common 400 envelope for %s", async (_description, slug) => {
+    const pending = request(app.getHttpServer()).get("/api/projects/slug-availability");
+
+    await (slug === undefined ? pending : pending.query({ slug }))
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
   it("returns 404 for a site that has not been published", async () => {
     await request(app.getHttpServer())
       .get("/sites/not-published")

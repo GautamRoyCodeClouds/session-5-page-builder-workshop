@@ -51,6 +51,10 @@ export class ProjectsService {
     }
   }
 
+  async isSlugAvailable(slug: string): Promise<boolean> {
+    return await this.repository.findBySlug(slug) === null;
+  }
+
   async get(id: string): Promise<ProjectEntity> {
     const project = await this.repository.findById(id);
     if (project === null) {
