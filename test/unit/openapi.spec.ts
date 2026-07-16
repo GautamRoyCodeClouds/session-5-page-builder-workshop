@@ -51,14 +51,18 @@ describe("OpenAPI document", () => {
             heading: "#/components/schemas/HeadingBlockDto",
             text: "#/components/schemas/TextBlockDto",
             button: "#/components/schemas/ButtonBlockDto",
-            section: "#/components/schemas/SectionBlockDto"
+            section: "#/components/schemas/SectionBlockDto",
+            divider: "#/components/schemas/DividerBlockDto",
+            quote: "#/components/schemas/QuoteBlockDto"
           }
         },
         oneOf: [
           { $ref: "#/components/schemas/HeadingBlockDto" },
           { $ref: "#/components/schemas/TextBlockDto" },
           { $ref: "#/components/schemas/ButtonBlockDto" },
-          { $ref: "#/components/schemas/SectionBlockDto" }
+          { $ref: "#/components/schemas/SectionBlockDto" },
+          { $ref: "#/components/schemas/DividerBlockDto" },
+          { $ref: "#/components/schemas/QuoteBlockDto" }
         ]
       }
     });

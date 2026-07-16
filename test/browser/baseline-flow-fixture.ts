@@ -7,7 +7,8 @@ type Block =
   | { id: string; type: "heading"; text: string; level: 1 | 2 | 3 }
   | { id: string; type: "text"; text: string }
   | { id: string; type: "button"; label: string; url: string }
-  | { id: string; type: "section"; title: string };
+  | { id: string; type: "section"; title: string }
+  | { id: string; type: "quote"; quote: string; attribution: string };
 
 interface ProjectInput {
   name: string;
@@ -48,6 +49,10 @@ function renderPublished(project: Project): string {
     if (block.type === "text") return `<p>${escapeHtml(block.text)}</p>`;
     if (block.type === "button") {
       return `<a href="${escapeHtml(block.url)}">${escapeHtml(block.label)}</a>`;
+    }
+    if (block.type === "quote") {
+      const cite = block.attribution.trim() ? `<cite>${escapeHtml(block.attribution)}</cite>` : "";
+      return `<blockquote><p>${escapeHtml(block.quote)}</p>${cite}</blockquote>`;
     }
     return `<section><h2>${escapeHtml(block.title)}</h2></section>`;
   }).join("");

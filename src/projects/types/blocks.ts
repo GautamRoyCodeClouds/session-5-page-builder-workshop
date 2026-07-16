@@ -24,4 +24,16 @@ export type SectionBlock = {
   title: string;
 };
 
-export type Block = HeadingBlock | TextBlock | ButtonBlock | SectionBlock;
+export type DividerBlock = {
+  id: string;
+  type: "divider";
+};
+
+export type QuoteBlock = {
+  id: string;
+  type: "quote";
+  quote: string;
+  attribution: string;
+};
+
+export type Block = HeadingBlock | TextBlock | ButtonBlock | SectionBlock | DividerBlock | QuoteBlock;

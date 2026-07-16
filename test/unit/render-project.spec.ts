@@ -10,7 +10,9 @@ describe("renderProject", () => {
       { id: "h", type: "heading", text: "First <heading>", level: 1 },
       { id: "t", type: "text", text: "Second & body" },
       { id: "b", type: "button", label: "Third \"link\"", url: "https://example.com/?q=\"value\"&x=1" },
-      { id: "s", type: "section", title: "Fourth > section" }
+      { id: "s", type: "section", title: "Fourth > section" },
+      { id: "d", type: "divider" },
+      { id: "q", type: "quote", quote: "Fifth <quote> & words", attribution: "Sixth \"author\"" }
     ]
   };
 
@@ -25,6 +27,10 @@ describe("renderProject", () => {
     expect(html).toContain("<p>Second &amp; body</p>");
     expect(html).toContain('<a class="button" href="https://example.com/?q=&quot;value&quot;&amp;x=1">Third &quot;link&quot;</a>');
     expect(html).toContain("<section><h2>Fourth &gt; section</h2></section>");
+    expect(html).toContain("<hr>");
+    expect(html).toContain("<blockquote>");
+    expect(html).toContain("<p>Fifth &lt;quote&gt; &amp; words</p>");
+    expect(html).toContain("<cite>Sixth &quot;author&quot;</cite>");
     expect(html).not.toContain("<script");
   });
 
@@ -34,6 +40,7 @@ describe("renderProject", () => {
     expect(html.indexOf("First")).toBeLessThan(html.indexOf("Second"));
     expect(html.indexOf("Second")).toBeLessThan(html.indexOf("Third"));
     expect(html.indexOf("Third")).toBeLessThan(html.indexOf("Fourth"));
+    expect(html.indexOf("Fourth")).toBeLessThan(html.indexOf("Fifth"));
   });
 
   it.each([

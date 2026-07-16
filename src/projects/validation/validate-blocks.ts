@@ -6,7 +6,9 @@ const allowedKeys: Record<Block["type"], readonly string[]> = {
   heading: ["id", "type", "text", "level"],
   text: ["id", "type", "text"],
   button: ["id", "type", "label", "url"],
-  section: ["id", "type", "title"]
+  section: ["id", "type", "title"],
+  divider: ["id", "type"],
+  quote: ["id", "type", "quote", "attribution"]
 };
 
 export class BlockValidationError extends Error {
@@ -63,6 +65,20 @@ function validateBlock(value: unknown, index: number): Block {
         throw new BlockValidationError(`blocks[${index}] is not a valid section block`);
       }
       return value as SectionBlockShape;
+    case "divider":
+      if (!hasExactKeys(value, allowedKeys.divider)) {
+        throw new BlockValidationError(`blocks[${index}] is not a valid divider block`);
+      }
+      return value as DividerBlockShape;
+    case "quote":
+      if (
+        !hasExactKeys(value, allowedKeys.quote)
+        || typeof value.quote !== "string"
+        || typeof value.attribution !== "string"
+      ) {
+        throw new BlockValidationError(`blocks[${index}] is not a valid quote block`);
+      }
+      return value as QuoteBlockShape;
     default:
       throw new BlockValidationError(`blocks[${index}] has an unknown block type`);
   }
@@ -72,6 +88,8 @@ type HeadingBlockShape = Extract<Block, { type: "heading" }>;
 type TextBlockShape = Extract<Block, { type: "text" }>;
 type ButtonBlockShape = Extract<Block, { type: "button" }>;
 type SectionBlockShape = Extract<Block, { type: "section" }>;
+type DividerBlockShape = Extract<Block, { type: "divider" }>;
+type QuoteBlockShape = Extract<Block, { type: "quote" }>;
 
 export function validateBlocks(value: unknown): Block[] {
   if (!Array.isArray(value)) {

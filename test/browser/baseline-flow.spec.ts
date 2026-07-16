@@ -16,8 +16,8 @@ test("baseline-flow: application shell", async ({ page }) => {
 
   const palette = page.getByRole("region", { name: "Palette" });
   const paletteButtons = palette.getByRole("button");
-  await expect(paletteButtons).toHaveText(["Heading", "Text", "Button", "Section"]);
-  await expect(paletteButtons).toHaveCount(4);
+  await expect(paletteButtons).toHaveText(["Heading", "Text", "Button", "Section", "Divider", "Quote"]);
+  await expect(paletteButtons).toHaveCount(6);
   for (const button of await paletteButtons.all()) {
     await expect(button).toHaveAttribute("draggable", "true");
   }
@@ -84,9 +84,24 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
   await expect(blocks).toHaveCount(20);
   await expect(page.getByRole("status")).toContainText("Block limit reached");
 
-  for (const excludedName of ["Divider", "Image", "Spacer", "Duplicate", "Move up", "Move down", "Preview"]) {
+  for (const excludedName of ["Image", "Spacer", "Duplicate", "Preview"]) {
     await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
   }
+});
+
+test("baseline-flow: divider block renders a rule and has no inspector fields", async ({ page }) => {
+  const palette = page.getByRole("region", { name: "Palette" });
+  const canvas = page.getByRole("main", { name: "Canvas" }).locator("#canvas");
+
+  await palette.getByRole("button", { name: "Divider", exact: true }).click();
+  const divider = canvas.locator("[data-block-type='divider']");
+  await expect(divider).toHaveCount(1);
+  await expect(divider.locator("hr")).toHaveCount(1);
+
+  await divider.click();
+  const inspector = page.getByRole("complementary", { name: "Inspector" });
+  await expect(inspector.getByRole("textbox")).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "Remove selected" })).toBeEnabled();
 });
 
 test("baseline-flow: project lifecycle", async ({ context, page }) => {

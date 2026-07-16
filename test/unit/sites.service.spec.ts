@@ -28,6 +28,7 @@ describe("SitesService", () => {
       slug: "old-slug",
       blocks: [{ id: "body", type: "text", text: "Published body" }],
       publishedAt: new Date(),
+      lastSuccessfulPublishAt: new Date(),
       createdAt: new Date(),
       updatedAt: new Date()
     };
