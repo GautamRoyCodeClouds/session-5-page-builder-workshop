@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Patch, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -12,6 +12,7 @@ import {
 import { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectListResponseDto } from "./dto/project-list-response.dto";
+import { RenameProjectDto } from "./dto/rename-project.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import { SlugAvailabilityQueryDto, SlugAvailabilityResponseDto } from "./dto/slug-availability.dto";
@@ -67,6 +68,18 @@ export class ProjectsController {
     @Body() input: ProjectInputDto
   ): Promise<ProjectEntity> {
     return this.projects.update(id, input);
+  }
+
+  @Patch(":id/name")
+  @ApiBody({ type: RenameProjectDto })
+  @ApiOkResponse({ description: "Project renamed", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Invalid name" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  rename(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: RenameProjectDto
+  ): Promise<ProjectEntity> {
+    return this.projects.rename(id, input.name);
   }
 
   @Post(":id/publish")

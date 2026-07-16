@@ -84,6 +84,11 @@ export class ProjectsService {
     }
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    await this.get(id);
+    return this.repository.updateName(id, name);
+  }
+
   async slugAvailability(slug: string): Promise<SlugAvailability> {
     return { slug, available: await this.repository.findBySlug(slug) === null };
   }
