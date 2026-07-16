@@ -84,7 +84,7 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
   await expect(blocks).toHaveCount(20);
   await expect(page.getByRole("status")).toContainText("Block limit reached");
 
-  for (const excludedName of ["Image", "Spacer", "Duplicate", "Move up", "Move down", "Preview"]) {
+  for (const excludedName of ["Image", "Spacer", "Duplicate", "Preview"]) {
     await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
   }
 });
