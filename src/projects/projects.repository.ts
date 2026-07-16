@@ -15,6 +15,7 @@ type ProjectRow = {
   slug: string;
   blocks: unknown;
   publishedAt: Date | null;
+  lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -24,6 +25,7 @@ type ProjectData = {
   slug: string;
   blocks: unknown;
   publishedAt?: Date | null;
+  lastSuccessfulPublishAt?: Date | null;
 };
 
 type ProjectOrderBy = Array<{ createdAt: "desc" } | { id: "desc" }>;
@@ -44,6 +46,7 @@ function toEntity(row: ProjectRow): ProjectEntity {
     slug: row.slug,
     blocks: validateBlocks(row.blocks),
     publishedAt: row.publishedAt,
+    lastSuccessfulPublishAt: row.lastSuccessfulPublishAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt
   };
@@ -109,7 +112,7 @@ export class ProjectsRepository {
   async markPublished(id: string, publishedAt: Date): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
-      data: { publishedAt }
+      data: { publishedAt, lastSuccessfulPublishAt: publishedAt }
     });
     return toEntity(row);
   }

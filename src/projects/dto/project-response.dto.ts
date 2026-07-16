@@ -27,6 +27,9 @@ export class ProjectResponseDto {
   @ApiProperty({ type: String, format: "date-time", nullable: true, example: null })
   publishedAt!: Date | null;
 
+  @ApiProperty({ type: String, format: "date-time", nullable: true, example: null })
+  lastSuccessfulPublishAt!: Date | null;
+
   @ApiProperty({ type: String, format: "date-time" })
   createdAt!: Date;
 

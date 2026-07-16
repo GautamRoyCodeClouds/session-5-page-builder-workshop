@@ -14,6 +14,7 @@ type ProjectResponse = {
   slug: string;
   blocks: unknown[];
   publishedAt: string | null;
+  lastSuccessfulPublishAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -509,5 +510,43 @@ describe("project API", () => {
           expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
         });
     });
+  });
+
+  it("returns lastSuccessfulPublishAt as null before publish and as an ISO 8601 string after", async () => {
+    const project = await createProject();
+
+    expect(project.lastSuccessfulPublishAt).toBeNull();
+
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${project.id}/publish`)
+      .expect(201);
+    const published = publishResponse.body as { project: ProjectResponse; url: string };
+
+    expect(published.project.lastSuccessfulPublishAt).not.toBeNull();
+    expect(Date.parse(published.project.lastSuccessfulPublishAt as string)).not.toBeNaN();
+
+    const loaded = await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(200);
+    expect((loaded.body as ProjectResponse).lastSuccessfulPublishAt).toBe(
+      published.project.lastSuccessfulPublishAt
+    );
+  });
+
+  it("preserves lastSuccessfulPublishAt after a project update while resetting publishedAt", async () => {
+    const project = await createProject();
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${project.id}/publish`)
+      .expect(201);
+    const lastPublishTime = (publishResponse.body as { project: ProjectResponse }).project.lastSuccessfulPublishAt;
+
+    const updateResponse = await request(app.getHttpServer())
+      .put(`/api/projects/${project.id}`)
+      .send({ name: project.name, slug: project.slug, blocks: project.blocks })
+      .expect(200);
+    const updated = updateResponse.body as ProjectResponse;
+
+    expect(updated.publishedAt).toBeNull();
+    expect(updated.lastSuccessfulPublishAt).toBe(lastPublishTime);
   });
 });

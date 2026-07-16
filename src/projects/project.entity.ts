@@ -6,6 +6,7 @@ export type ProjectEntity = {
   slug: string;
   blocks: Block[];
   publishedAt: Date | null;
+  lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
