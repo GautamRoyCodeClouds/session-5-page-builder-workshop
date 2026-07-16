@@ -16,7 +16,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -39,7 +41,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -62,7 +66,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -89,7 +95,9 @@
         "src/projects/**",
         "src/publisher/**",
         "test/projects/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -112,7 +120,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -135,7 +145,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -186,7 +198,9 @@
         "src/projects/**",
         "src/publisher/**",
         "test/projects/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -209,7 +223,9 @@
       ],
       "allowedFiles": [
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -233,7 +249,9 @@
       "allowedFiles": [
         "src/health/**",
         "src/database/**",
-        "test/health/**"
+        "test/health/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- health",
@@ -258,7 +276,9 @@
         "prisma/schema.prisma",
         "prisma/migrations/**",
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -282,7 +302,9 @@
       "allowedFiles": [
         "src/common/errors/**",
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- errors",
@@ -308,7 +330,8 @@
         "src/projects/dto/**",
         "src/publisher/**",
         "test/browser/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -334,7 +357,8 @@
         "src/projects/dto/**",
         "src/publisher/**",
         "test/browser/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -360,7 +384,8 @@
         "src/projects/dto/**",
         "src/publisher/**",
         "test/browser/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -386,7 +411,8 @@
         "src/projects/dto/**",
         "src/publisher/**",
         "test/browser/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -663,7 +689,9 @@
       "allowedFiles": [
         "src/projects/**",
         "src/common/validation/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- slug",
@@ -712,7 +740,9 @@
       "allowedFiles": [
         "src/config/**",
         "src/projects/**",
-        "test/projects/**"
+        "test/projects/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- projects",
@@ -760,7 +790,8 @@
         "src/main.ts",
         "src/config/**",
         "src/common/errors/**",
-        "test/api/**"
+        "test/api/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- config",
@@ -784,7 +815,8 @@
       "allowedFiles": [
         "test/database/**",
         "test/helpers/**",
-        "docs/database/**"
+        "docs/database/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:api -- migrations",
@@ -808,7 +840,9 @@
       "allowedFiles": [
         "src/sites/**",
         "src/publisher/**",
-        "test/sites/**"
+        "test/sites/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- sites",
@@ -832,7 +866,8 @@
       "allowedFiles": [
         "src/publisher/**",
         "src/common/logging/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -857,7 +892,8 @@
         "src/common/middleware/**",
         "src/common/errors/**",
         "src/common/logging/**",
-        "test/api/**"
+        "test/api/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- correlation",
@@ -882,7 +918,9 @@
         "prisma/schema.prisma",
         "prisma/migrations/**",
         "src/publisher/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**",
+        "test/api/**"
       ],
       "verify": [
         "npm run test:unit -- publisher",
@@ -953,7 +991,8 @@
         "src/common/errors/**",
         "src/projects/**",
         "src/publisher/**",
-        "test/api/**"
+        "test/api/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- errors",
@@ -977,7 +1016,8 @@
       "allowedFiles": [
         "src/publisher/**",
         "src/projects/types/**",
-        "test/publisher/**"
+        "test/publisher/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run build",
@@ -1002,7 +1042,8 @@
         "src/config/**",
         "src/main.ts",
         ".env.example",
-        "test/config/**"
+        "test/config/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- config",
@@ -1069,7 +1110,8 @@
       ],
       "allowedFiles": [
         "test/publisher/**",
-        "test/fixtures/**"
+        "test/fixtures/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher-escaping"
@@ -1092,7 +1134,8 @@
       "allowedFiles": [
         "test/publisher/**",
         "test/api/projects/**",
-        "test/fixtures/**"
+        "test/fixtures/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- publisher-escaping",
@@ -1226,7 +1269,8 @@
       ],
       "allowedFiles": [
         "test/contract/**",
-        "test/__snapshots__/**"
+        "test/__snapshots__/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- openapi-contract"
@@ -1336,7 +1380,8 @@
       ],
       "allowedFiles": [
         "test/publisher/**",
-        "test/fixtures/**"
+        "test/fixtures/**",
+        "test/unit/**"
       ],
       "verify": [
         "npm run test:unit -- published-semantics"
@@ -1401,7 +1446,8 @@
         "The review records verification commands actually run and their outcomes"
       ],
       "allowedFiles": [
-        "docs/reviews/intent-gap-review.md"
+        "docs/reviews/intent-gap-review.md",
+        "test/unit/**"
       ],
       "verify": [
         "npm run policy",
@@ -1489,7 +1535,8 @@
         "A bounded migration or versioning recommendation is included when needed"
       ],
       "allowedFiles": [
-        "docs/reviews/api-compatibility.md"
+        "docs/reviews/api-compatibility.md",
+        "test/unit/**"
       ],
       "verify": [
         "npm run policy",

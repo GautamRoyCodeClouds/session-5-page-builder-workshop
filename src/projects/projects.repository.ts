@@ -15,6 +15,7 @@ type ProjectRow = {
   slug: string;
   blocks: unknown;
   publishedAt: Date | null;
+  lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
@@ -24,12 +25,18 @@ type ProjectData = {
   slug: string;
   blocks: unknown;
   publishedAt?: Date | null;
+  lastSuccessfulPublishAt?: Date | null;
 };
+
+type ProjectOrderBy = Array<{ createdAt: "desc" } | { id: "desc" }>;
 
 type ProjectDelegate = {
   create(args: { data: ProjectData }): Promise<ProjectRow>;
   findUnique(args: { where: { id: string } | { slug: string } }): Promise<ProjectRow | null>;
+  findMany(args: { orderBy: ProjectOrderBy; skip: number; take: number }): Promise<ProjectRow[]>;
+  count(): Promise<number>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
+  delete(args: { where: { id: string } }): Promise<ProjectRow>;
 };
 
 function toEntity(row: ProjectRow): ProjectEntity {
@@ -39,6 +46,7 @@ function toEntity(row: ProjectRow): ProjectEntity {
     slug: row.slug,
     blocks: validateBlocks(row.blocks),
     publishedAt: row.publishedAt,
+    lastSuccessfulPublishAt: row.lastSuccessfulPublishAt,
     createdAt: row.createdAt,
     updatedAt: row.updatedAt
   };
@@ -69,6 +77,18 @@ export class ProjectsRepository {
     return row === null ? null : toEntity(row);
   }
 
+  async list(skip: number, take: number): Promise<{ rows: ProjectEntity[]; total: number }> {
+    const [rows, total] = await Promise.all([
+      this.projects.findMany({
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip,
+        take
+      }),
+      this.projects.count()
+    ]);
+    return { rows: rows.map(toEntity), total };
+  }
+
   async update(id: string, input: EditableProject): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
@@ -77,10 +97,22 @@ export class ProjectsRepository {
     return toEntity(row);
   }
 
+  async delete(id: string): Promise<void> {
+    await this.projects.delete({ where: { id } });
+  }
+
+  async updateName(id: string, name: string): Promise<ProjectEntity> {
+    const row = await this.projects.update({
+      where: { id },
+      data: { name }
+    });
+    return toEntity(row);
+  }
+
   async markPublished(id: string, publishedAt: Date): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
-      data: { publishedAt }
+      data: { publishedAt, lastSuccessfulPublishAt: publishedAt }
     });
     return toEntity(row);
   }

@@ -2,6 +2,8 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { ApiException } from "../common/errors/api-exception";
 import { PublisherService } from "../publisher/publisher.service";
+import type { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
+import type { DeleteProjectDto } from "./dto/delete-project.dto";
 import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
@@ -12,6 +14,27 @@ export type PublishResult = {
   project: ProjectEntity;
   url: string;
 };
+
+export type ProjectStatus = {
+  id: string;
+  status: "draft" | "published";
+  publishedAt: Date | null;
+};
+
+export type SlugAvailability = {
+  slug: string;
+  available: boolean;
+};
+
+export type ProjectListResult = {
+  items: ProjectEntity[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+const MAX_OFFSET = 10_000;
+
 
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
@@ -51,6 +74,15 @@ export class ProjectsService {
     return project;
   }
 
+  async getStatus(id: string): Promise<ProjectStatus> {
+    const project = await this.get(id);
+    return {
+      id: project.id,
+      status: project.publishedAt === null ? "draft" : "published",
+      publishedAt: project.publishedAt
+    };
+  }
+
   async update(id: string, input: ProjectInputDto): Promise<ProjectEntity> {
     await this.get(id);
     const project = this.toEditableProject(input);
@@ -69,6 +101,31 @@ export class ProjectsService {
     }
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    await this.get(id);
+    return this.repository.updateName(id, name);
+  }
+
+  async slugAvailability(slug: string): Promise<SlugAvailability> {
+    return { slug, available: await this.repository.findBySlug(slug) === null };
+  }
+
+  async list(query: ListProjectsQueryDto): Promise<ProjectListResult> {
+    const { page, pageSize } = query;
+    const offset = (page - 1) * pageSize;
+    if (offset > MAX_OFFSET) {
+      throw new ApiException(
+        HttpStatus.BAD_REQUEST,
+        "BAD_REQUEST",
+        "page exceeds the maximum supported offset",
+        { maxOffset: MAX_OFFSET }
+      );
+    }
+
+    const { rows, total } = await this.repository.list(offset, pageSize);
+    return { items: rows, page, pageSize, total };
+  }
+
   async publish(id: string): Promise<PublishResult> {
     const project = await this.get(id);
     await this.publisher.publish(project);
@@ -76,12 +133,13 @@ export class ProjectsService {
     return { project: published, url: `/sites/${published.slug}` };
   }
 
-  async checkSlugAvailability(slug: string): Promise<{ available: boolean }> {
-    if (typeof slug !== "string" || !isValidSlug(slug)) {
-      throw new ApiException(400, "BAD_REQUEST", "Malformed or missing slug");
+  async delete(id: string, input: DeleteProjectDto): Promise<void> {
+    if (input.confirm !== true) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Invalid delete confirmation");
     }
-    const owner = await this.repository.findBySlug(slug);
-    return { available: owner === null };
+
+    await this.get(id);
+    await this.repository.delete(id);
   }
 
   private toEditableProject(input: ProjectInputDto): EditableProject {

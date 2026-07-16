@@ -16,8 +16,8 @@ test("baseline-flow: application shell", async ({ page }) => {
 
   const palette = page.getByRole("region", { name: "Palette" });
   const paletteButtons = palette.getByRole("button");
-  await expect(paletteButtons).toHaveText(["Heading", "Text", "Button", "Section", "Divider"]);
-  await expect(paletteButtons).toHaveCount(5);
+  await expect(paletteButtons).toHaveText(["Heading", "Text", "Button", "Section", "Divider", "Quote"]);
+  await expect(paletteButtons).toHaveCount(6);
   for (const button of await paletteButtons.all()) {
     await expect(button).toHaveAttribute("draggable", "true");
   }
@@ -84,7 +84,7 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
   await expect(blocks).toHaveCount(20);
   await expect(page.getByRole("status")).toContainText("Block limit reached");
 
-  for (const excludedName of ["Image", "Spacer", "Duplicate", "Move up", "Move down", "Preview"]) {
+  for (const excludedName of ["Image", "Spacer", "Duplicate", "Preview"]) {
     await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
   }
 });

@@ -10,7 +10,8 @@ const blockDefaults = {
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
   button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
-  divider: () => ({ id: crypto.randomUUID(), type: "divider" })
+  divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
+  quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" })
 };
 
 const elements = {
@@ -18,6 +19,8 @@ const elements = {
   canvasHelp: document.querySelector("#canvas-help"),
   inspectorFields: document.querySelector("#inspector-fields"),
   loadProject: document.querySelector("#load-project"),
+  moveSelectedDown: document.querySelector("#move-selected-down"),
+  moveSelectedUp: document.querySelector("#move-selected-up"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
   projectName: document.querySelector("#project-name"),
@@ -60,6 +63,19 @@ function previewElement(block) {
 
   if (block.type === "divider") {
     return document.createElement("hr");
+  }
+
+  if (block.type === "quote") {
+    const blockquote = document.createElement("blockquote");
+    const quoteText = document.createElement("p");
+    quoteText.textContent = block.quote;
+    blockquote.append(quoteText);
+    if (block.attribution.trim()) {
+      const cite = document.createElement("cite");
+      cite.textContent = block.attribution;
+      blockquote.append(cite);
+    }
+    return blockquote;
   }
 
   const section = document.createElement("section");
@@ -170,10 +186,34 @@ function appendSectionFields(block) {
   elements.inspectorFields.append(createField("Title", titleInput));
 }
 
+function appendQuoteFields(block) {
+  const quoteInput = document.createElement("textarea");
+  quoteInput.id = "block-quote";
+  quoteInput.value = block.quote;
+  quoteInput.addEventListener("input", () => {
+    block.quote = quoteInput.value;
+    updateBlockPreview(block);
+  });
+
+  const attributionInput = createTextInput("block-attribution", block.attribution);
+  attributionInput.addEventListener("input", () => {
+    block.attribution = attributionInput.value;
+    updateBlockPreview(block);
+  });
+
+  elements.inspectorFields.append(
+    createField("Quote", quoteInput),
+    createField("Attribution", attributionInput)
+  );
+}
+
 function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
   elements.removeSelected.disabled = block === null;
+  const selectedIndex = state.blocks.findIndex((candidate) => candidate.id === state.selectedBlockId);
+  elements.moveSelectedUp.disabled = selectedIndex <= 0;
+  elements.moveSelectedDown.disabled = selectedIndex < 0 || selectedIndex === state.blocks.length - 1;
 
   if (!block) {
     const message = document.createElement("p");
@@ -187,6 +227,7 @@ function renderInspector() {
   if (block.type === "text") appendTextFields(block);
   if (block.type === "button") appendButtonFields(block);
   if (block.type === "section") appendSectionFields(block);
+  if (block.type === "quote") appendQuoteFields(block);
 }
 
 function renderCanvas() {
@@ -254,6 +295,19 @@ function reorderBlock(sourceId, targetId) {
   const after = state.blocks.map((block) => block.id).join(",");
   if (before === after) return;
   state.selectedBlockId = null;
+  render();
+  setStatus("Block moved.");
+}
+
+function moveSelectedBlock(offset) {
+  const sourceIndex = state.blocks.findIndex((block) => block.id === state.selectedBlockId);
+  const targetIndex = sourceIndex + offset;
+  if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= state.blocks.length) return;
+
+  [state.blocks[sourceIndex], state.blocks[targetIndex]] = [
+    state.blocks[targetIndex],
+    state.blocks[sourceIndex]
+  ];
   render();
   setStatus("Block moved.");
 }
@@ -486,6 +540,8 @@ elements.canvas.addEventListener("drop", (event) => {
 });
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
+elements.moveSelectedUp.addEventListener("click", () => moveSelectedBlock(-1));
+elements.moveSelectedDown.addEventListener("click", () => moveSelectedBlock(1));
 elements.saveProject.addEventListener("click", () => {
   void saveProject();
 });

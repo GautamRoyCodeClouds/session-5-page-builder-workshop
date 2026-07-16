@@ -14,8 +14,16 @@ type ProjectResponse = {
   slug: string;
   blocks: unknown[];
   publishedAt: string | null;
+  lastSuccessfulPublishAt: string | null;
   createdAt: string;
   updatedAt: string;
+};
+
+type ProjectListResponse = {
+  items: ProjectResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
 };
 
 const baselineBlocks = [
@@ -198,6 +206,54 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("reports draft then published status without exposing block content", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "draft", publishedAt: null });
+
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${created.id}/publish`)
+      .expect(201);
+    const published = (publishResponse.body as { project: ProjectResponse }).project;
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "published", publishedAt: published.publishedAt });
+  });
+
+  it("reports draft status again after a published project is edited", async () => {
+    const created = await createProject();
+    await request(app.getHttpServer()).post(`/api/projects/${created.id}/publish`).expect(201);
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({ name: created.name, slug: created.slug, blocks: created.blocks })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "draft", publishedAt: null });
+  });
+
+  it("returns common not-found and malformed-ID envelopes for status", async () => {
+    await request(app.getHttpServer())
+      .get("/api/projects/123e4567-e89b-42d3-a456-426614174000/status")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .get("/api/projects/not-a-uuid/status")
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")
@@ -212,6 +268,63 @@ describe("project API", () => {
       .expect(400)
       .expect(({ body }: { body: Record<string, unknown> }) => {
         expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("requires explicit confirmation to delete a project", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({})
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: false })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(200);
+  });
+
+  it("deletes a project only when confirmation is true", async () => {
+    const project = await createProject();
+    const other = await createProject({ name: "Other page", slug: "other-page" });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: true })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${other.id}`)
+      .expect(200);
+  });
+
+  it("returns 404 when deleting an unknown project", async () => {
+    await request(app.getHttpServer())
+      .delete("/api/projects/123e4567-e89b-42d3-a456-426614174000")
+      .send({ confirm: true })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
       });
   });
 
@@ -309,6 +422,67 @@ describe("project API", () => {
       });
   });
 
+  it("renames a project via PATCH without changing its other fields", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "Renamed page" })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.id).toBe(created.id);
+        expect(body.name).toBe("Renamed page");
+        expect(body.slug).toBe(created.slug);
+        expect(body.blocks).toEqual(created.blocks);
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}`)
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed page");
+      });
+  });
+
+  it("trims a renamed project name before persistence", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "  Renamed page  " })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed page");
+      });
+  });
+
+  it.each([
+    ["empty name", ""],
+    ["whitespace-only name", "   "]
+  ])("returns the common 400 envelope when renaming with an %s", async (_description, name) => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        expect(typeof body.message).toBe("string");
+      });
+  });
+
+  it("returns the common not-found envelope when renaming an unknown project", async () => {
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Renamed page" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("returns 404 for a site that has not been published", async () => {
     await request(app.getHttpServer())
       .get("/sites/not-published")
@@ -316,5 +490,140 @@ describe("project API", () => {
       .expect(({ body }: { body: Record<string, unknown> }) => {
         expect(body).toMatchObject({ statusCode: 404, code: "SITE_NOT_FOUND" });
       });
+  });
+
+  describe("GET /api/projects", () => {
+    it("returns empty items with default pagination metadata when no projects exist", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toEqual({ items: [], page: 1, pageSize: 20, total: 0 });
+        });
+    });
+
+    it("returns items in deterministic newest-first order with total metadata", async () => {
+      const first = await createProject({ name: "First", slug: "first-page" });
+      const second = await createProject({ name: "Second", slug: "second-page" });
+      const third = await createProject({ name: "Third", slug: "third-page" });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body.page).toBe(1);
+          expect(body.pageSize).toBe(20);
+          expect(body.total).toBe(3);
+          expect(body.items.map((item) => item.id)).toEqual([third.id, second.id, first.id]);
+        });
+    });
+
+    it("paginates with the requested page and pageSize", async () => {
+      await createProject({ name: "First", slug: "first-page" });
+      await createProject({ name: "Second", slug: "second-page" });
+      const third = await createProject({ name: "Third", slug: "third-page" });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 1, pageSize: 2 })
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+          expect(body.items).toHaveLength(2);
+          expect(body.items[0]?.id).toBe(third.id);
+        });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 2, pageSize: 2 })
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toMatchObject({ page: 2, pageSize: 2, total: 3 });
+          expect(body.items).toHaveLength(1);
+        });
+    });
+
+    it.each([
+      ["zero", "0"],
+      ["negative", "-1"],
+      ["non-integer", "1.5"],
+      ["non-numeric", "abc"]
+    ])("returns the common 400 envelope for a %s page value", async (_description, value) => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: value })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for a pageSize above the maximum", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ pageSize: 51 })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for an offset beyond the maximum supported window", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 100000, pageSize: 50 })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for an unsupported query parameter", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ search: "workshop" })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+  });
+
+  it("returns lastSuccessfulPublishAt as null before publish and as an ISO 8601 string after", async () => {
+    const project = await createProject();
+
+    expect(project.lastSuccessfulPublishAt).toBeNull();
+
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${project.id}/publish`)
+      .expect(201);
+    const published = publishResponse.body as { project: ProjectResponse; url: string };
+
+    expect(published.project.lastSuccessfulPublishAt).not.toBeNull();
+    expect(Date.parse(published.project.lastSuccessfulPublishAt as string)).not.toBeNaN();
+
+    const loaded = await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(200);
+    expect((loaded.body as ProjectResponse).lastSuccessfulPublishAt).toBe(
+      published.project.lastSuccessfulPublishAt
+    );
+  });
+
+  it("preserves lastSuccessfulPublishAt after a project update while resetting publishedAt", async () => {
+    const project = await createProject();
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${project.id}/publish`)
+      .expect(201);
+    const lastPublishTime = (publishResponse.body as { project: ProjectResponse }).project.lastSuccessfulPublishAt;
+
+    const updateResponse = await request(app.getHttpServer())
+      .put(`/api/projects/${project.id}`)
+      .send({ name: project.name, slug: project.slug, blocks: project.blocks })
+      .expect(200);
+    const updated = updateResponse.body as ProjectResponse;
+
+    expect(updated.publishedAt).toBeNull();
+    expect(updated.lastSuccessfulPublishAt).toBe(lastPublishTime);
   });
 });
