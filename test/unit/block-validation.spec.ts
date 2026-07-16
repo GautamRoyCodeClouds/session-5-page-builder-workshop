@@ -6,7 +6,8 @@ describe("validateBlocks", () => {
       { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
       { id: "text-1", type: "text", text: "Body copy" },
       { id: "button-1", type: "button", label: "Visit", url: "https://example.com" },
-      { id: "section-1", type: "section", title: "Details" }
+      { id: "section-1", type: "section", title: "Details" },
+      { id: "divider-1", type: "divider" }
     ];
 
     expect(validateBlocks(value)).toEqual(value);
@@ -14,7 +15,8 @@ describe("validateBlocks", () => {
 
   it.each([
     ["a non-array value", { id: "text-1", type: "text", text: "Body" }],
-    ["an unknown block type", [{ id: "x", type: "divider" }]],
+    ["an unknown block type", [{ id: "x", type: "spacer" }]],
+    ["a divider with an unexpected field", [{ id: "x", type: "divider", height: 4 }]],
     ["a missing field", [{ id: "x", type: "button", label: "Missing URL" }]],
     ["an unexpected field", [{ id: "x", type: "text", text: "Body", html: "<b>Body</b>" }]],
     ["an invalid heading level", [{ id: "x", type: "heading", text: "Title", level: 4 }]],

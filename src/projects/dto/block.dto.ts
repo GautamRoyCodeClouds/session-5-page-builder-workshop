@@ -52,12 +52,20 @@ export class SectionBlockDto {
   title!: string;
 }
 
+export class DividerBlockDto {
+  @ApiProperty({ example: "divider-1" })
+  id!: string;
+
+  @ApiProperty({ enum: ["divider"] })
+  type!: "divider";
+}
+
 export type BlockDto = Block;
 
 export function blocksApiProperty(): ApiPropertyOptions {
   return {
     type: "array",
-    description: "Ordered heading, text, button, and section blocks",
+    description: "Ordered heading, text, button, section, and divider blocks",
     items: {
       discriminator: {
         propertyName: "type",
@@ -65,14 +73,16 @@ export function blocksApiProperty(): ApiPropertyOptions {
           heading: getSchemaPath(HeadingBlockDto),
           text: getSchemaPath(TextBlockDto),
           button: getSchemaPath(ButtonBlockDto),
-          section: getSchemaPath(SectionBlockDto)
+          section: getSchemaPath(SectionBlockDto),
+          divider: getSchemaPath(DividerBlockDto)
         }
       },
       oneOf: [
         { $ref: getSchemaPath(HeadingBlockDto) },
         { $ref: getSchemaPath(TextBlockDto) },
         { $ref: getSchemaPath(ButtonBlockDto) },
-        { $ref: getSchemaPath(SectionBlockDto) }
+        { $ref: getSchemaPath(SectionBlockDto) },
+        { $ref: getSchemaPath(DividerBlockDto) }
       ]
     }
   };

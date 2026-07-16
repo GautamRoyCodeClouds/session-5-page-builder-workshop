@@ -9,7 +9,8 @@ const blockDefaults = {
   heading: () => ({ id: crypto.randomUUID(), type: "heading", text: "New heading", level: 2 }),
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
   button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
-  section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" })
+  section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
+  divider: () => ({ id: crypto.randomUUID(), type: "divider" })
 };
 
 const elements = {
@@ -17,6 +18,8 @@ const elements = {
   canvasHelp: document.querySelector("#canvas-help"),
   inspectorFields: document.querySelector("#inspector-fields"),
   loadProject: document.querySelector("#load-project"),
+  moveSelectedDown: document.querySelector("#move-selected-down"),
+  moveSelectedUp: document.querySelector("#move-selected-up"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
   projectName: document.querySelector("#project-name"),
@@ -55,6 +58,10 @@ function previewElement(block) {
     buttonPreview.className = "preview-link";
     buttonPreview.textContent = block.label;
     return buttonPreview;
+  }
+
+  if (block.type === "divider") {
+    return document.createElement("hr");
   }
 
   const section = document.createElement("section");
@@ -169,6 +176,9 @@ function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
   elements.removeSelected.disabled = block === null;
+  const selectedIndex = state.blocks.findIndex((candidate) => candidate.id === state.selectedBlockId);
+  elements.moveSelectedUp.disabled = selectedIndex <= 0;
+  elements.moveSelectedDown.disabled = selectedIndex < 0 || selectedIndex === state.blocks.length - 1;
 
   if (!block) {
     const message = document.createElement("p");
@@ -249,6 +259,19 @@ function reorderBlock(sourceId, targetId) {
   const after = state.blocks.map((block) => block.id).join(",");
   if (before === after) return;
   state.selectedBlockId = null;
+  render();
+  setStatus("Block moved.");
+}
+
+function moveSelectedBlock(offset) {
+  const sourceIndex = state.blocks.findIndex((block) => block.id === state.selectedBlockId);
+  const targetIndex = sourceIndex + offset;
+  if (sourceIndex < 0 || targetIndex < 0 || targetIndex >= state.blocks.length) return;
+
+  [state.blocks[sourceIndex], state.blocks[targetIndex]] = [
+    state.blocks[targetIndex],
+    state.blocks[sourceIndex]
+  ];
   render();
   setStatus("Block moved.");
 }
@@ -481,6 +504,8 @@ elements.canvas.addEventListener("drop", (event) => {
 });
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
+elements.moveSelectedUp.addEventListener("click", () => moveSelectedBlock(-1));
+elements.moveSelectedDown.addEventListener("click", () => moveSelectedBlock(1));
 elements.saveProject.addEventListener("click", () => {
   void saveProject();
 });

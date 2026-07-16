@@ -10,7 +10,8 @@ describe("renderProject", () => {
       { id: "h", type: "heading", text: "First <heading>", level: 1 },
       { id: "t", type: "text", text: "Second & body" },
       { id: "b", type: "button", label: "Third \"link\"", url: "https://example.com/?q=\"value\"&x=1" },
-      { id: "s", type: "section", title: "Fourth > section" }
+      { id: "s", type: "section", title: "Fourth > section" },
+      { id: "d", type: "divider" }
     ]
   };
 
@@ -25,6 +26,7 @@ describe("renderProject", () => {
     expect(html).toContain("<p>Second &amp; body</p>");
     expect(html).toContain('<a class="button" href="https://example.com/?q=&quot;value&quot;&amp;x=1">Third &quot;link&quot;</a>');
     expect(html).toContain("<section><h2>Fourth &gt; section</h2></section>");
+    expect(html).toContain("<hr>");
     expect(html).not.toContain("<script");
   });
 
