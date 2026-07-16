@@ -169,6 +169,58 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("lists projects with newest-first, repeatable ordering and default pagination metadata", async () => {
+    const first = await createProject({ name: "First", slug: "first-page" });
+    const second = await createProject({ name: "Second", slug: "second-page" });
+
+    const firstResponse = await request(app.getHttpServer()).get("/api/projects").expect(200);
+    const secondResponse = await request(app.getHttpServer()).get("/api/projects").expect(200);
+    const body = firstResponse.body as {
+      items: ProjectResponse[];
+      page: number;
+      pageSize: number;
+      total: number;
+    };
+
+    expect(body).toMatchObject({ page: 1, pageSize: 20, total: 2 });
+    expect(body.items.map((item) => item.id).sort()).toEqual([first.id, second.id].sort());
+    const timestamps = body.items.map((item) => Date.parse(item.createdAt));
+    expect(timestamps).toEqual([...timestamps].sort((a, b) => b - a));
+    expect((secondResponse.body as typeof body).items.map((item) => item.id)).toEqual(
+      body.items.map((item) => item.id)
+    );
+  });
+
+  it("caps pageSize at 50 and page size at the requested value", async () => {
+    for (let index = 0; index < 3; index++) {
+      await createProject({ name: `Page ${index}`, slug: `page-${index}` });
+    }
+
+    await request(app.getHttpServer())
+      .get("/api/projects")
+      .query({ page: 1, pageSize: 2 })
+      .expect(200)
+      .expect(({ body }: { body: { items: ProjectResponse[]; page: number; pageSize: number; total: number } }) => {
+        expect(body).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+        expect(body.items).toHaveLength(2);
+      });
+  });
+
+  it.each([
+    ["a pageSize above 50", { pageSize: 51 }],
+    ["a noninteger page", { page: "abc" }],
+    ["a nonpositive page", { page: 0 }],
+    ["a nonpositive pageSize", { pageSize: -1 }]
+  ])("returns the common 400 envelope for %s", async (_description, query) => {
+    await request(app.getHttpServer())
+      .get("/api/projects")
+      .query(query)
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")

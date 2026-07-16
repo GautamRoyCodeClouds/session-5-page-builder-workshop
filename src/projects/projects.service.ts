@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { ApiException } from "../common/errors/api-exception";
 import { PublisherService } from "../publisher/publisher.service";
+import type { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
@@ -11,6 +12,15 @@ export type PublishResult = {
   project: ProjectEntity;
   url: string;
 };
+
+export type ProjectListResult = {
+  items: ProjectEntity[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+const DEFAULT_PAGE_SIZE = 20;
 
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
@@ -40,6 +50,13 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async list(query: ListProjectsQueryDto): Promise<ProjectListResult> {
+    const page = query.page ?? 1;
+    const pageSize = query.pageSize ?? DEFAULT_PAGE_SIZE;
+    const { items, total } = await this.repository.list(page, pageSize);
+    return { items, page, pageSize, total };
   }
 
   async get(id: string): Promise<ProjectEntity> {

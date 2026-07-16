@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -9,16 +9,25 @@ import {
   ApiTags
 } from "@nestjs/swagger";
 
+import { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
+import { ProjectListResponseDto } from "./dto/project-list-response.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import type { ProjectEntity } from "./project.entity";
-import { ProjectsService, type PublishResult } from "./projects.service";
+import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
 
 @ApiTags("projects")
 @Controller("api/projects")
 export class ProjectsController {
   constructor(private readonly projects: ProjectsService) {}
+
+  @Get()
+  @ApiOkResponse({ description: "Paginated projects", type: ProjectListResponseDto })
+  @ApiBadRequestResponse({ description: "Invalid page or pageSize" })
+  list(@Query() query: ListProjectsQueryDto): Promise<ProjectListResult> {
+    return this.projects.list(query);
+  }
 
   @Post()
   @ApiBody({ type: ProjectInputDto })

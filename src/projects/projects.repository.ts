@@ -29,6 +29,12 @@ type ProjectData = {
 type ProjectDelegate = {
   create(args: { data: ProjectData }): Promise<ProjectRow>;
   findUnique(args: { where: { id: string } | { slug: string } }): Promise<ProjectRow | null>;
+  findMany(args: {
+    orderBy: Array<Record<string, "asc" | "desc">>;
+    skip: number;
+    take: number;
+  }): Promise<ProjectRow[]>;
+  count(): Promise<number>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
 };
 
@@ -67,6 +73,18 @@ export class ProjectsRepository {
   async findBySlug(slug: string): Promise<ProjectEntity | null> {
     const row = await this.projects.findUnique({ where: { slug } });
     return row === null ? null : toEntity(row);
+  }
+
+  async list(page: number, pageSize: number): Promise<{ items: ProjectEntity[]; total: number }> {
+    const [rows, total] = await Promise.all([
+      this.projects.findMany({
+        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+        skip: (page - 1) * pageSize,
+        take: pageSize
+      }),
+      this.projects.count()
+    ]);
+    return { items: rows.map(toEntity), total };
   }
 
   async update(id: string, input: EditableProject): Promise<ProjectEntity> {
