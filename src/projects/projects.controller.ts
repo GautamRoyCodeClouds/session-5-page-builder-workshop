@@ -6,6 +6,7 @@ import {
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
+  ApiQuery,
   ApiTags
 } from "@nestjs/swagger";
 
@@ -14,6 +15,7 @@ import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectListResponseDto } from "./dto/project-list-response.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
+import { SlugAvailabilityResponseDto } from "./dto/slug-availability-response.dto";
 import type { ProjectEntity } from "./project.entity";
 import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
 
@@ -36,6 +38,14 @@ export class ProjectsController {
   @ApiBadRequestResponse({ description: "Invalid pagination parameters" })
   list(@Query() query: ListProjectsQueryDto): Promise<ProjectListResult> {
     return this.projects.list(query);
+  }
+
+  @Get("slug-availability")
+  @ApiQuery({ name: "slug", description: "Slug to check", required: true })
+  @ApiOkResponse({ description: "Slug availability status", type: SlugAvailabilityResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed or missing slug" })
+  checkSlugAvailability(@Query("slug") slug?: string): Promise<{ available: boolean }> {
+    return this.projects.checkSlugAvailability(slug);
   }
 
   @Get(":id")

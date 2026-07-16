@@ -392,4 +392,32 @@ describe("project API", () => {
         });
     });
   });
+
+  it("reports slug availability for a free and an occupied slug", async () => {
+    await createProject(); // occupies "workshop-page"
+
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability?slug=workshop-page")
+      .expect(200, { available: false });
+
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability?slug=free-slug")
+      .expect(200, { available: true });
+  });
+
+  it("returns 400 for a missing or malformed slug in the availability check", async () => {
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability")
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .get("/api/projects/slug-availability?slug=INVALID_SLUG!")
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
 });

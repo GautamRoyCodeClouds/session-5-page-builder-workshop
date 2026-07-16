@@ -1,6 +1,7 @@
 import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { ApiException } from "../common/errors/api-exception";
+import { isValidSlug } from "../common/validation/slug";
 import { PublisherService } from "../publisher/publisher.service";
 import type { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import type { ProjectInputDto } from "./dto/project-input.dto";
@@ -92,6 +93,14 @@ export class ProjectsService {
 
     const { rows, total } = await this.repository.list(offset, pageSize);
     return { items: rows, page, pageSize, total };
+  }
+
+  async checkSlugAvailability(slug: string | undefined): Promise<{ available: boolean }> {
+    if (!slug || !isValidSlug(slug)) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Invalid or missing slug");
+    }
+    const existing = await this.repository.findBySlug(slug);
+    return { available: existing === null };
   }
 
   async publish(id: string): Promise<PublishResult> {
