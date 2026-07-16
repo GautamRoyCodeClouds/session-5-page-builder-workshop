@@ -77,6 +77,11 @@ export class ProjectsRepository {
     return toEntity(row);
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    const row = await this.projects.update({ where: { id }, data: { name } });
+    return toEntity(row);
+  }
+
   async markPublished(id: string, publishedAt: Date): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
