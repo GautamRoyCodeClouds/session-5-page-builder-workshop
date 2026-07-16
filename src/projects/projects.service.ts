@@ -75,6 +75,20 @@ export class ProjectsService {
     return { project: published, url: `/sites/${published.slug}` };
   }
 
+  async duplicate(id: string): Promise<ProjectEntity> {
+    const source = await this.get(id);
+    const slug = await this.generateCopySlug(source.slug);
+    return this.repository.create({ name: source.name, slug, blocks: source.blocks });
+  }
+
+  private async generateCopySlug(baseSlug: string): Promise<string> {
+    let candidate = `${baseSlug}-copy`;
+    for (let suffix = 2; (await this.repository.findBySlug(candidate)) !== null; suffix++) {
+      candidate = `${baseSlug}-copy-${suffix}`;
+    }
+    return candidate;
+  }
+
   private toEditableProject(input: ProjectInputDto): EditableProject {
     try {
       return {

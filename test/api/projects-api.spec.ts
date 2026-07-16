@@ -169,6 +169,49 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("duplicates a project with a new identity and nonconflicting slug", async () => {
+    const source = await createProject();
+    await request(app.getHttpServer()).post(`/api/projects/${source.id}/publish`).expect(201);
+    const published = await request(app.getHttpServer())
+      .get(`/api/projects/${source.id}`)
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .post(`/api/projects/${source.id}/duplicate`)
+      .expect(201)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.id).not.toBe(source.id);
+        expect(body.slug).toBe("workshop-page-copy");
+        expect(body.name).toBe(source.name);
+        expect(body.blocks).toEqual(source.blocks);
+        expect(body.publishedAt).toBeNull();
+      });
+
+    expect((published.body as ProjectResponse).publishedAt).not.toBeNull();
+  });
+
+  it("assigns a further-suffixed slug when a copy slug is already taken", async () => {
+    const source = await createProject();
+    await createProject({ name: "Existing copy", slug: "workshop-page-copy" });
+
+    await request(app.getHttpServer())
+      .post(`/api/projects/${source.id}/duplicate`)
+      .expect(201)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.slug).toBe("workshop-page-copy-2");
+      });
+  });
+
+  it("returns the common not-found envelope when duplicating an unknown project", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/123e4567-e89b-42d3-a456-426614174000/duplicate")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")

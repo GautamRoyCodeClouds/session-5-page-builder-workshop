@@ -57,4 +57,12 @@ export class ProjectsController {
   publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
   }
+
+  @Post(":id/duplicate")
+  @ApiCreatedResponse({ description: "Project duplicated", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed project ID" })
+  @ApiNotFoundResponse({ description: "Source project not found" })
+  duplicate(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<ProjectEntity> {
+    return this.projects.duplicate(id);
+  }
 }
