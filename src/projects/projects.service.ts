@@ -13,6 +13,11 @@ export type PublishResult = {
   url: string;
 };
 
+export type SlugAvailability = {
+  slug: string;
+  available: boolean;
+};
+
 export type ProjectListResult = {
   items: ProjectEntity[];
   page: number;
@@ -21,6 +26,7 @@ export type ProjectListResult = {
 };
 
 const MAX_OFFSET = 10_000;
+
 
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
@@ -76,6 +82,10 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async slugAvailability(slug: string): Promise<SlugAvailability> {
+    return { slug, available: await this.repository.findBySlug(slug) === null };
   }
 
   async list(query: ListProjectsQueryDto): Promise<ProjectListResult> {

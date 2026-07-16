@@ -14,8 +14,9 @@ import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectListResponseDto } from "./dto/project-list-response.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
+import { SlugAvailabilityQueryDto, SlugAvailabilityResponseDto } from "./dto/slug-availability.dto";
 import type { ProjectEntity } from "./project.entity";
-import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
+import { ProjectsService, type ProjectListResult, type PublishResult, type SlugAvailability } from "./projects.service";
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -36,6 +37,15 @@ export class ProjectsController {
   @ApiBadRequestResponse({ description: "Invalid pagination parameters" })
   list(@Query() query: ListProjectsQueryDto): Promise<ProjectListResult> {
     return this.projects.list(query);
+  }
+
+  // Declared before the ":id" route so the literal path segment is not
+  // consumed by the UUID parameter matcher.
+  @Get("slug-availability")
+  @ApiOkResponse({ description: "Slug availability reported", type: SlugAvailabilityResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed or missing slug" })
+  slugAvailability(@Query() query: SlugAvailabilityQueryDto): Promise<SlugAvailability> {
+    return this.projects.slugAvailability(query.slug);
   }
 
   @Get(":id")
