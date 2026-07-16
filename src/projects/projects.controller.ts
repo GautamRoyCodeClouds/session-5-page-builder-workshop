@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -13,10 +13,12 @@ import {
 import { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectListResponseDto } from "./dto/project-list-response.dto";
+import { RenameProjectDto } from "./dto/rename-project.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
+import { SlugAvailabilityQueryDto, SlugAvailabilityResponseDto } from "./dto/slug-availability.dto";
 import type { ProjectEntity } from "./project.entity";
-import { ProjectsService, type ProjectListResult, type PublishResult } from "./projects.service";
+import { ProjectsService, type ProjectListResult, type PublishResult, type SlugAvailability } from "./projects.service";
 import { DeleteProjectDto } from "./dto/delete-project.dto";
 
 @ApiTags("projects")
@@ -40,6 +42,15 @@ export class ProjectsController {
     return this.projects.list(query);
   }
 
+  // Declared before the ":id" route so the literal path segment is not
+  // consumed by the UUID parameter matcher.
+  @Get("slug-availability")
+  @ApiOkResponse({ description: "Slug availability reported", type: SlugAvailabilityResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed or missing slug" })
+  slugAvailability(@Query() query: SlugAvailabilityQueryDto): Promise<SlugAvailability> {
+    return this.projects.slugAvailability(query.slug);
+  }
+
   @Get(":id")
   @ApiOkResponse({ description: "Project loaded", type: ProjectResponseDto })
   @ApiBadRequestResponse({ description: "Malformed project ID" })
@@ -59,6 +70,18 @@ export class ProjectsController {
     @Body() input: ProjectInputDto
   ): Promise<ProjectEntity> {
     return this.projects.update(id, input);
+  }
+
+  @Patch(":id/name")
+  @ApiBody({ type: RenameProjectDto })
+  @ApiOkResponse({ description: "Project renamed", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Invalid name" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  rename(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: RenameProjectDto
+  ): Promise<ProjectEntity> {
+    return this.projects.rename(id, input.name);
   }
 
   @Post(":id/publish")

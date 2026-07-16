@@ -98,6 +98,14 @@ export class ProjectsRepository {
     await this.projects.delete({ where: { id } });
   }
 
+  async updateName(id: string, name: string): Promise<ProjectEntity> {
+    const row = await this.projects.update({
+      where: { id },
+      data: { name }
+    });
+    return toEntity(row);
+  }
+
   async markPublished(id: string, publishedAt: Date): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
