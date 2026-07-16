@@ -38,6 +38,7 @@ describe("ProjectsService", () => {
       slug: "page",
       blocks: [],
       publishedAt: null,
+      lastSuccessfulPublishAt: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
@@ -71,6 +72,7 @@ describe("ProjectsService.rename", () => {
       slug: "original-slug",
       blocks: [{ id: "body", type: "text", text: "Body" }],
       publishedAt: new Date(),
+      lastSuccessfulPublishAt: null,
       createdAt: new Date(),
       updatedAt: new Date()
     };
