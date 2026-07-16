@@ -2,6 +2,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 
 import { ApiException } from "../common/errors/api-exception";
 import { PublisherService } from "../publisher/publisher.service";
+import type { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
@@ -11,6 +12,15 @@ export type PublishResult = {
   project: ProjectEntity;
   url: string;
 };
+
+export type ProjectListResult = {
+  items: ProjectEntity[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
+const MAX_OFFSET = 10_000;
 
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
@@ -66,6 +76,22 @@ export class ProjectsService {
       }
       throw error;
     }
+  }
+
+  async list(query: ListProjectsQueryDto): Promise<ProjectListResult> {
+    const { page, pageSize } = query;
+    const offset = (page - 1) * pageSize;
+    if (offset > MAX_OFFSET) {
+      throw new ApiException(
+        HttpStatus.BAD_REQUEST,
+        "BAD_REQUEST",
+        "page exceeds the maximum supported offset",
+        { maxOffset: MAX_OFFSET }
+      );
+    }
+
+    const { rows, total } = await this.repository.list(offset, pageSize);
+    return { items: rows, page, pageSize, total };
   }
 
   async publish(id: string): Promise<PublishResult> {

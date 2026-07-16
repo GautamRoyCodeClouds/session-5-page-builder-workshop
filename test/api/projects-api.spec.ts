@@ -18,6 +18,13 @@ type ProjectResponse = {
   updatedAt: string;
 };
 
+type ProjectListResponse = {
+  items: ProjectResponse[];
+  page: number;
+  pageSize: number;
+  total: number;
+};
+
 const baselineBlocks = [
   { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
   { id: "text-1", type: "text", text: "Original body" },
@@ -287,5 +294,102 @@ describe("project API", () => {
       .expect(({ body }: { body: Record<string, unknown> }) => {
         expect(body).toMatchObject({ statusCode: 404, code: "SITE_NOT_FOUND" });
       });
+  });
+
+  describe("GET /api/projects", () => {
+    it("returns empty items with default pagination metadata when no projects exist", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toEqual({ items: [], page: 1, pageSize: 20, total: 0 });
+        });
+    });
+
+    it("returns items in deterministic newest-first order with total metadata", async () => {
+      const first = await createProject({ name: "First", slug: "first-page" });
+      const second = await createProject({ name: "Second", slug: "second-page" });
+      const third = await createProject({ name: "Third", slug: "third-page" });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body.page).toBe(1);
+          expect(body.pageSize).toBe(20);
+          expect(body.total).toBe(3);
+          expect(body.items.map((item) => item.id)).toEqual([third.id, second.id, first.id]);
+        });
+    });
+
+    it("paginates with the requested page and pageSize", async () => {
+      await createProject({ name: "First", slug: "first-page" });
+      await createProject({ name: "Second", slug: "second-page" });
+      const third = await createProject({ name: "Third", slug: "third-page" });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 1, pageSize: 2 })
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toMatchObject({ page: 1, pageSize: 2, total: 3 });
+          expect(body.items).toHaveLength(2);
+          expect(body.items[0]?.id).toBe(third.id);
+        });
+
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 2, pageSize: 2 })
+        .expect(200)
+        .expect(({ body }: { body: ProjectListResponse }) => {
+          expect(body).toMatchObject({ page: 2, pageSize: 2, total: 3 });
+          expect(body.items).toHaveLength(1);
+        });
+    });
+
+    it.each([
+      ["zero", "0"],
+      ["negative", "-1"],
+      ["non-integer", "1.5"],
+      ["non-numeric", "abc"]
+    ])("returns the common 400 envelope for a %s page value", async (_description, value) => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: value })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for a pageSize above the maximum", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ pageSize: 51 })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for an offset beyond the maximum supported window", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ page: 100000, pageSize: 50 })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
+
+    it("returns the common 400 envelope for an unsupported query parameter", async () => {
+      await request(app.getHttpServer())
+        .get("/api/projects")
+        .query({ search: "workshop" })
+        .expect(400)
+        .expect(({ body }: { body: Record<string, unknown> }) => {
+          expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        });
+    });
   });
 });
