@@ -194,6 +194,63 @@ describe("project API", () => {
       });
   });
 
+  it("requires explicit confirmation to delete a project", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({})
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: false })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(200);
+  });
+
+  it("deletes a project only when confirmation is true", async () => {
+    const project = await createProject();
+    const other = await createProject({ name: "Other page", slug: "other-page" });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: true })
+      .expect(204);
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${project.id}`)
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${other.id}`)
+      .expect(200);
+  });
+
+  it("returns 404 when deleting an unknown project", async () => {
+    await request(app.getHttpServer())
+      .delete("/api/projects/123e4567-e89b-42d3-a456-426614174000")
+      .send({ confirm: true })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("keeps the 20 block limit in the builder instead of the API", async () => {
     const blocks = Array.from({ length: 21 }, (_, index) => ({
       id: `text-${index}`,
@@ -285,6 +342,67 @@ describe("project API", () => {
       .expect((response) => {
         expect(response.text).toContain('aria-disabled="true"');
         expect(response.text).not.toContain("javascript:");
+      });
+  });
+
+  it("renames a project via PATCH without changing its other fields", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "Renamed page" })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.id).toBe(created.id);
+        expect(body.name).toBe("Renamed page");
+        expect(body.slug).toBe(created.slug);
+        expect(body.blocks).toEqual(created.blocks);
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}`)
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed page");
+      });
+  });
+
+  it("trims a renamed project name before persistence", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name: "  Renamed page  " })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Renamed page");
+      });
+  });
+
+  it.each([
+    ["empty name", ""],
+    ["whitespace-only name", "   "]
+  ])("returns the common 400 envelope when renaming with an %s", async (_description, name) => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .patch(`/api/projects/${created.id}/name`)
+      .send({ name })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+        expect(typeof body.message).toBe("string");
+      });
+  });
+
+  it("returns the common not-found envelope when renaming an unknown project", async () => {
+    await request(app.getHttpServer())
+      .patch("/api/projects/123e4567-e89b-42d3-a456-426614174000/name")
+      .send({ name: "Renamed page" })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
       });
   });
 

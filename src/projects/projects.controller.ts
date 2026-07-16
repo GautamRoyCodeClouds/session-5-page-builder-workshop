@@ -1,9 +1,10 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags
@@ -12,11 +13,13 @@ import {
 import { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectListResponseDto } from "./dto/project-list-response.dto";
+import { RenameProjectDto } from "./dto/rename-project.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
 import { SlugAvailabilityQueryDto, SlugAvailabilityResponseDto } from "./dto/slug-availability.dto";
 import type { ProjectEntity } from "./project.entity";
 import { ProjectsService, type ProjectListResult, type PublishResult, type SlugAvailability } from "./projects.service";
+import { DeleteProjectDto } from "./dto/delete-project.dto";
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -69,11 +72,36 @@ export class ProjectsController {
     return this.projects.update(id, input);
   }
 
+  @Patch(":id/name")
+  @ApiBody({ type: RenameProjectDto })
+  @ApiOkResponse({ description: "Project renamed", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Invalid name" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  rename(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: RenameProjectDto
+  ): Promise<ProjectEntity> {
+    return this.projects.rename(id, input.name);
+  }
+
   @Post(":id/publish")
   @ApiCreatedResponse({ description: "Project published", type: PublishResponseDto })
   @ApiBadRequestResponse({ description: "Malformed project ID" })
   @ApiNotFoundResponse({ description: "Project not found" })
   publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
+  }
+
+  @Delete(":id")
+  @HttpCode(204)
+  @ApiBody({ type: DeleteProjectDto })
+  @ApiNoContentResponse({ description: "Project deleted" })
+  @ApiBadRequestResponse({ description: "Invalid delete confirmation" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  delete(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() input: DeleteProjectDto
+  ): Promise<void> {
+    return this.projects.delete(id, input);
   }
 }

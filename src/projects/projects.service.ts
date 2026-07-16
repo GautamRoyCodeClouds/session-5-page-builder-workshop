@@ -3,6 +3,7 @@ import { HttpStatus, Injectable } from "@nestjs/common";
 import { ApiException } from "../common/errors/api-exception";
 import { PublisherService } from "../publisher/publisher.service";
 import type { ListProjectsQueryDto } from "./dto/list-projects-query.dto";
+import type { DeleteProjectDto } from "./dto/delete-project.dto";
 import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
@@ -84,6 +85,11 @@ export class ProjectsService {
     }
   }
 
+  async rename(id: string, name: string): Promise<ProjectEntity> {
+    await this.get(id);
+    return this.repository.updateName(id, name);
+  }
+
   async slugAvailability(slug: string): Promise<SlugAvailability> {
     return { slug, available: await this.repository.findBySlug(slug) === null };
   }
@@ -109,6 +115,15 @@ export class ProjectsService {
     await this.publisher.publish(project);
     const published = await this.repository.markPublished(id, new Date());
     return { project: published, url: `/sites/${published.slug}` };
+  }
+
+  async delete(id: string, input: DeleteProjectDto): Promise<void> {
+    if (input.confirm !== true) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Invalid delete confirmation");
+    }
+
+    await this.get(id);
+    await this.repository.delete(id);
   }
 
   private toEditableProject(input: ProjectInputDto): EditableProject {
