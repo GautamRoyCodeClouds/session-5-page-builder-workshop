@@ -1,14 +1,27 @@
-import { Body, Controller, Get, Param, ParseUUIDPipe, Post, Put } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseUUIDPipe,
+  Post,
+  Put
+} from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiTags
 } from "@nestjs/swagger";
 
+import { DeleteProjectDto } from "./dto/delete-project.dto";
 import { ProjectInputDto } from "./dto/project-input.dto";
 import { ProjectResponseDto } from "./dto/project-response.dto";
 import { PublishResponseDto } from "./dto/publish-response.dto";
@@ -48,6 +61,27 @@ export class ProjectsController {
     @Body() input: ProjectInputDto
   ): Promise<ProjectEntity> {
     return this.projects.update(id, input);
+  }
+
+  @Delete(":id")
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiBody({ type: DeleteProjectDto })
+  @ApiNoContentResponse({ description: "Project deleted" })
+  @ApiBadRequestResponse({ description: "Malformed project ID or missing confirmation" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  async remove(
+    @Param("id", new ParseUUIDPipe({ version: "4" })) id: string,
+    @Body() confirmation: DeleteProjectDto
+  ): Promise<void> {
+    await this.projects.delete(id, confirmation.confirm);
+  }
+
+  @Post(":id/duplicate")
+  @ApiCreatedResponse({ description: "Project duplicated", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed project ID" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  duplicate(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<ProjectEntity> {
+    return this.projects.duplicate(id);
   }
 
   @Post(":id/publish")

@@ -4,10 +4,11 @@ export type ProjectEntity = {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   blocks: Block[];
   publishedAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "blocks">;
+export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "description" | "blocks">;

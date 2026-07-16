@@ -12,11 +12,20 @@ export type PublishResult = {
   url: string;
 };
 
+const SLUG_MAX_LENGTH = 80;
+
 function isUniqueConstraintError(error: unknown): boolean {
   return typeof error === "object"
     && error !== null
     && "code" in error
     && error.code === "P2002";
+}
+
+function withCopySuffix(baseSlug: string, suffix: string): string {
+  const available = SLUG_MAX_LENGTH - suffix.length;
+  const trimmed = baseSlug.slice(0, available).replace(/-+$/u, "");
+  const base = trimmed.length > 0 ? trimmed : "project";
+  return `${base}${suffix}`;
 }
 
 @Injectable()
@@ -68,6 +77,29 @@ export class ProjectsService {
     }
   }
 
+  async delete(id: string, confirmed: boolean): Promise<void> {
+    if (confirmed !== true) {
+      throw new ApiException(
+        HttpStatus.BAD_REQUEST,
+        "BAD_REQUEST",
+        "Deletion must be confirmed with confirm: true"
+      );
+    }
+    await this.get(id);
+    await this.repository.delete(id);
+  }
+
+  async duplicate(id: string): Promise<ProjectEntity> {
+    const source = await this.get(id);
+    const slug = await this.nextAvailableCopySlug(source.slug);
+    return this.create({
+      name: source.name,
+      slug,
+      description: source.description ?? undefined,
+      blocks: source.blocks
+    });
+  }
+
   async publish(id: string): Promise<PublishResult> {
     const project = await this.get(id);
     await this.publisher.publish(project);
@@ -75,11 +107,23 @@ export class ProjectsService {
     return { project: published, url: `/sites/${published.slug}` };
   }
 
+  private async nextAvailableCopySlug(sourceSlug: string): Promise<string> {
+    for (let attempt = 1; ; attempt += 1) {
+      const suffix = attempt === 1 ? "-copy" : `-copy-${attempt}`;
+      const candidate = withCopySuffix(sourceSlug, suffix);
+      if (await this.repository.findBySlug(candidate) === null) {
+        return candidate;
+      }
+    }
+  }
+
   private toEditableProject(input: ProjectInputDto): EditableProject {
     try {
+      const description = typeof input.description === "string" ? input.description.trim() : "";
       return {
         name: input.name,
         slug: input.slug,
+        description: description.length > 0 ? description : null,
         blocks: validateBlocks(input.blocks)
       };
     } catch (error) {

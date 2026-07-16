@@ -12,6 +12,7 @@ type ProjectResponse = {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   blocks: unknown[];
   publishedAt: string | null;
   createdAt: string;
@@ -277,6 +278,176 @@ describe("project API", () => {
       .expect((response) => {
         expect(response.text).toContain('aria-disabled="true"');
         expect(response.text).not.toContain("javascript:");
+      });
+  });
+
+  it("duplicates a project with copied blocks, a fresh identity, and an unpublished copy", async () => {
+    const source = await createProject();
+
+    const duplicate = await request(app.getHttpServer())
+      .post(`/api/projects/${source.id}/duplicate`)
+      .expect(201);
+    const copy = duplicate.body as ProjectResponse;
+
+    expect(copy.id).toMatch(/^[0-9a-f-]{36}$/);
+    expect(copy.id).not.toBe(source.id);
+    expect(copy.blocks).toEqual(baselineBlocks);
+    expect(copy.slug).not.toBe(source.slug);
+    expect(copy.publishedAt).toBeNull();
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${copy.id}`)
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body).toEqual(copy);
+      });
+    await request(app.getHttpServer()).get(`/api/projects/${source.id}`).expect(200);
+  });
+
+  it("keeps duplicating even when earlier copy slugs are taken", async () => {
+    const source = await createProject();
+
+    const first = (await request(app.getHttpServer())
+      .post(`/api/projects/${source.id}/duplicate`)
+      .expect(201)).body as ProjectResponse;
+    const second = (await request(app.getHttpServer())
+      .post(`/api/projects/${source.id}/duplicate`)
+      .expect(201)).body as ProjectResponse;
+
+    expect(first.slug).toBe("workshop-page-copy");
+    expect(second.slug).toBe("workshop-page-copy-2");
+  });
+
+  it("returns the common not-found envelope when duplicating an unknown project", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/123e4567-e89b-42d3-a456-426614174000/duplicate")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .post("/api/projects/not-a-uuid/duplicate")
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("accepts an optional description and publishes it as one escaped meta tag", async () => {
+    const project = await createProject({ description: 'Guided tours & "deals" <2026>' });
+    expect(project.description).toBe('Guided tours & "deals" <2026>');
+
+    await request(app.getHttpServer()).post(`/api/projects/${project.id}/publish`).expect(201);
+
+    await request(app.getHttpServer())
+      .get("/sites/workshop-page")
+      .expect(200)
+      .expect((response) => {
+        const matches = response.text.match(/<meta name="description"/g) ?? [];
+        expect(matches).toHaveLength(1);
+        expect(response.text).toContain(
+          '<meta name="description" content="Guided tours &amp; &quot;deals&quot; &lt;2026&gt;">'
+        );
+      });
+  });
+
+  it("omits the meta description when a project has none, including pre-existing projects", async () => {
+    const project = await createProject();
+    expect(project.description).toBeNull();
+
+    await request(app.getHttpServer()).post(`/api/projects/${project.id}/publish`).expect(201);
+
+    await request(app.getHttpServer())
+      .get("/sites/workshop-page")
+      .expect(200)
+      .expect((response) => {
+        expect(response.text).not.toContain('name="description"');
+      });
+  });
+
+  it("replaces the description through update", async () => {
+    const created = await createProject({ description: "First summary" });
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({ name: created.name, slug: created.slug, description: "Second summary", blocks: created.blocks })
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse & { description: string | null } }) => {
+        expect(body.description).toBe("Second summary");
+      });
+  });
+
+  it("rejects a description longer than the documented limit", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects")
+      .send({ name: "Workshop page", slug: "workshop-page", description: "x".repeat(301), blocks: baselineBlocks })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
+  it("deletes a confirmed project and stops loading it afterwards", async () => {
+    const project = await createProject();
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${project.id}`)
+      .send({ confirm: true })
+      .expect(204)
+      .expect((response) => {
+        expect(response.text).toBe("");
+      });
+
+    await request(app.getHttpServer()).get(`/api/projects/${project.id}`).expect(404);
+  });
+
+  it("removes only the targeted project", async () => {
+    const target = await createProject();
+    const survivor = await createProject({ slug: "other-page" });
+
+    await request(app.getHttpServer())
+      .delete(`/api/projects/${target.id}`)
+      .send({ confirm: true })
+      .expect(204);
+
+    await request(app.getHttpServer()).get(`/api/projects/${target.id}`).expect(404);
+    await request(app.getHttpServer()).get(`/api/projects/${survivor.id}`).expect(200);
+  });
+
+  it.each([
+    ["a missing confirmation", undefined],
+    ["a false confirmation", { confirm: false }]
+  ])("rejects deletion with %s and keeps the project", async (_description, body) => {
+    const project = await createProject();
+
+    const pending = request(app.getHttpServer()).delete(`/api/projects/${project.id}`);
+    await (body === undefined ? pending : pending.send(body))
+      .expect(400)
+      .expect(({ body: envelope }: { body: Record<string, unknown> }) => {
+        expect(envelope).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+
+    await request(app.getHttpServer()).get(`/api/projects/${project.id}`).expect(200);
+  });
+
+  it("returns the common not-found and malformed-ID envelopes when deleting", async () => {
+    await request(app.getHttpServer())
+      .delete("/api/projects/123e4567-e89b-42d3-a456-426614174000")
+      .send({ confirm: true })
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .delete("/api/projects/not-a-uuid")
+      .send({ confirm: true })
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
       });
   });
 

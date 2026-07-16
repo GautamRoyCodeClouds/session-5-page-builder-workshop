@@ -26,6 +26,7 @@ describe("SitesService", () => {
       id: projectId,
       name: "Published page",
       slug: "old-slug",
+      description: null,
       blocks: [{ id: "body", type: "text", text: "Published body" }],
       publishedAt: new Date(),
       createdAt: new Date(),

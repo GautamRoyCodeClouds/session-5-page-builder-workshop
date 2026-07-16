@@ -44,12 +44,16 @@ function renderBlock(block: Block): string {
 
 export function renderProject(project: ProjectDocument, language = "en"): string {
   const content = project.blocks.map(renderBlock).join("\n");
+  const description = typeof project.description === "string" ? project.description.trim() : "";
+  const descriptionMeta = description.length > 0
+    ? `\n  <meta name="description" content="${escapeHtml(description)}">`
+    : "";
 
   return `<!doctype html>
 <html lang="${escapeHtml(language)}">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1">${descriptionMeta}
   <title>${escapeHtml(project.name)}</title>
   <style>
     body { box-sizing: border-box; color: #1f2933; font-family: system-ui, sans-serif; line-height: 1.6; margin: 0 auto; max-width: 72rem; padding: 3rem 1.25rem; }
