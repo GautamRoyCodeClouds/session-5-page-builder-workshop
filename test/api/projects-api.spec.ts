@@ -12,6 +12,7 @@ type ProjectResponse = {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   blocks: unknown[];
   publishedAt: string | null;
   createdAt: string;
@@ -277,6 +278,36 @@ describe("project API", () => {
       .expect((response) => {
         expect(response.text).toContain('aria-disabled="true"');
         expect(response.text).not.toContain("javascript:");
+      });
+  });
+
+  it("accepts an optional description and returns it as null when absent", async () => {
+    const withDescription = await createProject({ description: "A short summary" });
+    expect(withDescription.description).toBe("A short summary");
+
+    const withoutDescription = await createProject({ name: "Other page", slug: "other-page" });
+    expect(withoutDescription.description).toBeNull();
+  });
+
+  it("publishes an escaped meta description when present and omits it when absent", async () => {
+    const withDescription = await createProject({ description: 'A "great" page & more' });
+    await request(app.getHttpServer()).post(`/api/projects/${withDescription.id}/publish`).expect(201);
+    await request(app.getHttpServer())
+      .get(`/sites/${withDescription.slug}`)
+      .expect(200)
+      .expect((response) => {
+        expect(response.text).toContain(
+          '<meta name="description" content="A &quot;great&quot; page &amp; more">'
+        );
+      });
+
+    const withoutDescription = await createProject({ name: "Other page", slug: "other-page" });
+    await request(app.getHttpServer()).post(`/api/projects/${withoutDescription.id}/publish`).expect(201);
+    await request(app.getHttpServer())
+      .get(`/sites/${withoutDescription.slug}`)
+      .expect(200)
+      .expect((response) => {
+        expect(response.text).not.toContain('name="description"');
       });
   });
 

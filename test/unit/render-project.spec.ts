@@ -69,4 +69,16 @@ describe("renderProject", () => {
       expect(html).toContain(`href="${url}"`);
     }
   );
+
+  it("renders an escaped meta description when one is present", () => {
+    const html = renderProject({ ...project, description: 'A "great" page & more' });
+
+    expect(html).toContain('<meta name="description" content="A &quot;great&quot; page &amp; more">');
+  });
+
+  it.each([undefined, null])("omits the meta description tag when it is %s", (description) => {
+    const html = renderProject({ ...project, description });
+
+    expect(html).not.toContain('name="description"');
+  });
 });

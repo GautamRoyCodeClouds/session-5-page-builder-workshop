@@ -13,6 +13,7 @@ type ProjectRow = {
   id: string;
   name: string;
   slug: string;
+  description: string | null;
   blocks: unknown;
   publishedAt: Date | null;
   createdAt: Date;
@@ -22,6 +23,7 @@ type ProjectRow = {
 type ProjectData = {
   name: string;
   slug: string;
+  description: string | null;
   blocks: unknown;
   publishedAt?: Date | null;
 };
@@ -37,6 +39,7 @@ function toEntity(row: ProjectRow): ProjectEntity {
     id: row.id,
     name: row.name,
     slug: row.slug,
+    description: row.description,
     blocks: validateBlocks(row.blocks),
     publishedAt: row.publishedAt,
     createdAt: row.createdAt,
@@ -54,7 +57,12 @@ export class ProjectsRepository {
 
   async create(input: EditableProject): Promise<ProjectEntity> {
     const row = await this.projects.create({
-      data: { name: input.name, slug: input.slug, blocks: input.blocks }
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        blocks: input.blocks
+      }
     });
     return toEntity(row);
   }
@@ -72,7 +80,13 @@ export class ProjectsRepository {
   async update(id: string, input: EditableProject): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
-      data: { name: input.name, slug: input.slug, blocks: input.blocks, publishedAt: null }
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        blocks: input.blocks,
+        publishedAt: null
+      }
     });
     return toEntity(row);
   }

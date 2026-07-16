@@ -80,6 +80,7 @@ export class ProjectsService {
       return {
         name: input.name,
         slug: input.slug,
+        description: input.description && input.description.length > 0 ? input.description : null,
         blocks: validateBlocks(input.blocks)
       };
     } catch (error) {

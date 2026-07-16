@@ -44,13 +44,16 @@ function renderBlock(block: Block): string {
 
 export function renderProject(project: ProjectDocument, language = "en"): string {
   const content = project.blocks.map(renderBlock).join("\n");
+  const description = project.description
+    ? `  <meta name="description" content="${escapeHtml(project.description)}">\n`
+    : "";
 
   return `<!doctype html>
 <html lang="${escapeHtml(language)}">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(project.name)}</title>
+${description}  <title>${escapeHtml(project.name)}</title>
   <style>
     body { box-sizing: border-box; color: #1f2933; font-family: system-ui, sans-serif; line-height: 1.6; margin: 0 auto; max-width: 72rem; padding: 3rem 1.25rem; }
     .button { background: #176b5b; color: #fff; display: inline-block; padding: .65rem 1rem; text-decoration: none; }
