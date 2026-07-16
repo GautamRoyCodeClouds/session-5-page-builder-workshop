@@ -93,6 +93,14 @@ export class ProjectsController {
     return this.projects.rename(id, input.name);
   }
 
+  @Post(":id/duplicate")
+  @ApiCreatedResponse({ description: "Project duplicated", type: ProjectResponseDto })
+  @ApiBadRequestResponse({ description: "Malformed project ID" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  duplicate(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<ProjectEntity> {
+    return this.projects.duplicate(id);
+  }
+
   @Post(":id/publish")
   @ApiCreatedResponse({ description: "Project published", type: PublishResponseDto })
   @ApiBadRequestResponse({ description: "Malformed project ID" })

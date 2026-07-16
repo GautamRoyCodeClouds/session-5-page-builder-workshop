@@ -112,6 +112,67 @@ describe("ProjectsService.rename", () => {
   });
 });
 
+describe("ProjectsService.duplicate", () => {
+  const projectId = "123e4567-e89b-42d3-a456-426614174000";
+  const source: ProjectEntity = {
+    id: projectId,
+    name: "Workshop page",
+    slug: "workshop-page",
+    blocks: [
+      { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
+      { id: "text-1", type: "text", text: "Body" }
+    ],
+    publishedAt: new Date(),
+    lastSuccessfulPublishAt: new Date(),
+    createdAt: new Date(),
+    updatedAt: new Date()
+  };
+
+  it("copies a project through create with a new available slug", async () => {
+    const copy = { ...source, id: "223e4567-e89b-42d3-a456-426614174000", slug: "workshop-page-copy", publishedAt: null };
+    const create = jest.fn().mockResolvedValue(copy);
+    const repository = {
+      findById: jest.fn().mockResolvedValue(source),
+      findBySlug: jest.fn().mockResolvedValue(null),
+      create
+    } as unknown as ProjectsRepository;
+    const service = new ProjectsService(repository, {} as PublisherService);
+
+    await expect(service.duplicate(projectId)).resolves.toBe(copy);
+    expect(create).toHaveBeenCalledWith({
+      name: source.name,
+      slug: "workshop-page-copy",
+      blocks: source.blocks
+    });
+  });
+
+  it("uses the next copy slug when the first candidate is occupied", async () => {
+    const create = jest.fn().mockResolvedValue(source);
+    const repository = {
+      findById: jest.fn().mockResolvedValue(source),
+      findBySlug: jest.fn((slug: string) => Promise.resolve(slug === "workshop-page-copy" ? source : null)),
+      create
+    } as unknown as ProjectsRepository;
+    const service = new ProjectsService(repository, {} as PublisherService);
+
+    await service.duplicate(projectId);
+
+    expect(create).toHaveBeenCalledWith(expect.objectContaining({ slug: "workshop-page-copy-2" }));
+  });
+
+  it("throws the common not-found error without creating a copy", async () => {
+    const create = jest.fn();
+    const repository = {
+      findById: jest.fn().mockResolvedValue(null),
+      create
+    } as unknown as ProjectsRepository;
+    const service = new ProjectsService(repository, {} as PublisherService);
+
+    await expect(service.duplicate(projectId)).rejects.toThrow(ApiException);
+    expect(create).not.toHaveBeenCalled();
+  });
+});
+
 describe("ProjectsService.getStatus", () => {
   const projectId = "123e4567-e89b-42d3-a456-426614174000";
 
