@@ -20,6 +20,7 @@
   --text-mark: #446b88;
   --button-mark: #a45d24;
   --section-mark: #39725c;
+  --divider-mark: #6a7570;
   --topbar-height: 58px;
   --left-rail: 248px;
   --right-rail: 288px;
@@ -304,6 +305,10 @@ textarea:focus-visible,
   --block-mark: var(--section-mark);
 }
 
+.palette button[data-palette-type="divider"] {
+  --block-mark: var(--divider-mark);
+}
+
 .palette button:not(:disabled):hover {
   background: var(--paper);
   border-color: var(--line-strong);
@@ -372,6 +377,10 @@ textarea:focus-visible,
   --block-mark: var(--section-mark);
 }
 
+.canvas-block[data-block-type="divider"] {
+  --block-mark: var(--divider-mark);
+}
+
 .canvas-block[aria-current="true"] {
   border-color: var(--accent);
   box-shadow: 0 0 0 1px var(--accent);
@@ -428,6 +437,17 @@ textarea:focus-visible,
 .remove-button {
   width: 100%;
   margin-top: 20px;
+}
+
+.reorder-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.reorder-actions .button {
+  min-width: 0;
 }
 
 @media (max-width: 960px) {
