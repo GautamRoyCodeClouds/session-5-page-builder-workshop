@@ -177,6 +177,54 @@ describe("project API", () => {
     expect(project.name).toBe("Workshop page");
   });
 
+  it("reports draft then published status without exposing block content", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "draft", publishedAt: null });
+
+    const publishResponse = await request(app.getHttpServer())
+      .post(`/api/projects/${created.id}/publish`)
+      .expect(201);
+    const published = (publishResponse.body as { project: ProjectResponse }).project;
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "published", publishedAt: published.publishedAt });
+  });
+
+  it("reports draft status again after a published project is edited", async () => {
+    const created = await createProject();
+    await request(app.getHttpServer()).post(`/api/projects/${created.id}/publish`).expect(201);
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({ name: created.name, slug: created.slug, blocks: created.blocks })
+      .expect(200);
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}/status`)
+      .expect(200, { id: created.id, status: "draft", publishedAt: null });
+  });
+
+  it("returns common not-found and malformed-ID envelopes for status", async () => {
+    await request(app.getHttpServer())
+      .get("/api/projects/123e4567-e89b-42d3-a456-426614174000/status")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+
+    await request(app.getHttpServer())
+      .get("/api/projects/not-a-uuid/status")
+      .expect(400)
+      .expect(({ body }: { body: Record<string, unknown> }) => {
+        expect(body).toMatchObject({ statusCode: 400, code: "BAD_REQUEST" });
+      });
+  });
+
   it("returns common not-found and malformed-ID envelopes", async () => {
     await request(app.getHttpServer())
       .get("/api/projects/123e4567-e89b-42d3-a456-426614174000")

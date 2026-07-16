@@ -14,6 +14,12 @@ export type PublishResult = {
   url: string;
 };
 
+export type ProjectStatus = {
+  id: string;
+  status: "draft" | "published";
+  publishedAt: Date | null;
+};
+
 export type SlugAvailability = {
   slug: string;
   available: boolean;
@@ -65,6 +71,15 @@ export class ProjectsService {
       throw new ApiException(HttpStatus.NOT_FOUND, "PROJECT_NOT_FOUND", "Project not found");
     }
     return project;
+  }
+
+  async getStatus(id: string): Promise<ProjectStatus> {
+    const project = await this.get(id);
+    return {
+      id: project.id,
+      status: project.publishedAt === null ? "draft" : "published",
+      publishedAt: project.publishedAt
+    };
   }
 
   async update(id: string, input: ProjectInputDto): Promise<ProjectEntity> {
