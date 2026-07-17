@@ -35,7 +35,8 @@ const elements = {
 const state = {
   blocks: [],
   projectId: null,
-  selectedBlockId: null
+  selectedBlockId: null,
+  savedName: null
 };
 
 function setStatus(message) {
@@ -362,6 +363,7 @@ function applyProject(project, preserveSelection = false) {
 
   const selectedId = preserveSelection ? state.selectedBlockId : null;
   state.projectId = project.id;
+  state.savedName = project.name;
   state.blocks = project.blocks.map((block) => ({ ...block }));
   state.selectedBlockId = state.blocks.some((block) => block.id === selectedId) ? selectedId : null;
   elements.projectName.value = project.name;
@@ -434,6 +436,33 @@ async function saveProject() {
     setStatus("Project saved.");
   } catch (error) {
     requestError("Save", error);
+  }
+}
+
+async function commitTitleRename() {
+  const name = elements.projectTitle.value.trim();
+  if (name === "") {
+    setStatus("Enter a valid project name and slug.");
+    return;
+  }
+  if (name === state.savedName) return;
+  // A never-saved project has no id to rename against; fall back to a full save.
+  if (!state.projectId) {
+    void saveProject();
+    return;
+  }
+
+  try {
+    const project = await requestJson(`/api/projects/${state.projectId}/name`, {
+      method: "PATCH",
+      body: JSON.stringify({ name })
+    });
+    state.savedName = project.name;
+    elements.projectName.value = project.name;
+    elements.projectTitle.value = project.name;
+    setStatus("Project renamed.");
+  } catch (error) {
+    requestError("Rename", error);
   }
 }
 
@@ -555,6 +584,14 @@ elements.projectTitle.addEventListener("input", () => {
 elements.projectName.addEventListener("input", () => {
   elements.projectTitle.value = elements.projectName.value;
 });
+elements.projectTitle.addEventListener("blur", () => {
+  void commitTitleRename();
+});
+elements.projectTitle.addEventListener("keydown", (event) => {
+  if (event.key !== "Enter") return;
+  event.preventDefault();
+  void commitTitleRename();
+});
 elements.saveProject.addEventListener("click", () => {
   void saveProject();
 });
@@ -566,6 +603,7 @@ elements.publishProject.addEventListener("click", () => {
 });
 
 render();
+state.savedName = elements.projectName.value;
 
 const queryProjectId = new URL(window.location.href).searchParams.get("project");
 const initialProjectId = queryProjectId || storedProjectId();
