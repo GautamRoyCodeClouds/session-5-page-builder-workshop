@@ -37,6 +37,8 @@ describe("ProjectsService", () => {
       name: "Page",
       slug: "page",
       description: null,
+      textColor: null,
+      buttonColor: null,
       blocks: [],
       publishedAt: null,
       lastSuccessfulPublishAt: null,
@@ -72,6 +74,8 @@ describe("ProjectsService.rename", () => {
       name: "Original name",
       slug: "original-slug",
       description: null,
+      textColor: null,
+      buttonColor: null,
       blocks: [{ id: "body", type: "text", text: "Body" }],
       publishedAt: new Date(),
       lastSuccessfulPublishAt: null,
@@ -121,6 +125,8 @@ describe("ProjectsService.duplicate", () => {
     name: "Workshop page",
     slug: "workshop-page",
     description: null,
+    textColor: null,
+    buttonColor: null,
     blocks: [
       { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
       { id: "text-1", type: "text", text: "Body" }
@@ -146,6 +152,8 @@ describe("ProjectsService.duplicate", () => {
       name: source.name,
       slug: "workshop-page-copy",
       description: null,
+      textColor: null,
+      buttonColor: null,
       blocks: source.blocks
     });
   });
@@ -194,6 +202,8 @@ describe("ProjectsService.getStatus", () => {
       name: "Workshop page",
       slug: "workshop-page",
       description: null,
+      textColor: null,
+      buttonColor: null,
       blocks: [],
       publishedAt,
       lastSuccessfulPublishAt: null,

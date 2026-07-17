@@ -27,6 +27,8 @@ describe("SitesService", () => {
       name: "Published page",
       slug: "old-slug",
       description: null,
+      textColor: null,
+      buttonColor: null,
       blocks: [{ id: "body", type: "text", text: "Published body" }],
       publishedAt: new Date(),
       lastSuccessfulPublishAt: new Date(),
