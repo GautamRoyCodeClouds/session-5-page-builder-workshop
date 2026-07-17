@@ -674,6 +674,31 @@
       "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Make the block inspector collapsible without losing form state\": Add an accessible collapse control that changes inspector visibility without remounting or resetting its form. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- inspector. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
     },
     {
+      "id": "UI-16",
+      "category": "frontend",
+      "title": "Rename a saved project inline via the dedicated rename endpoint",
+      "difficulty": "standard",
+      "estimate": "25-35 min",
+      "dependsOn": ["UI-12", "BE-01"],
+      "scope": "When a project is already saved, commit the header title control's edit through PATCH /api/projects/:id/name so the name persists immediately without a full project save.",
+      "acceptance": [
+        "Committing a header title edit with blur or Enter on a saved project sends PATCH /api/projects/:id/name with the trimmed name",
+        "A successful rename updates builder state and shows a confirmation status without re-saving blocks or republishing",
+        "Blank or whitespace-only names reuse the existing validation message and send no request",
+        "A never-saved project falls back to the normal save flow instead of calling the rename endpoint",
+        "A failed rename surfaces the common error message and keeps the title editable"
+      ],
+      "allowedFiles": [
+        "public/builder/**",
+        "test/browser/**"
+      ],
+      "verify": [
+        "npm run lint",
+        "npm run test:browser -- rename"
+      ],
+      "prompt": "Before editing, inspect AGENTS.md plus the relevant implementation, tests, and API or data contracts. Complete only \"Rename a saved project inline via the dedicated rename endpoint\": When a project is already saved, commit the header title control's edit through PATCH /api/projects/:id/name so the name persists immediately without a full project save. Change only files matching: public/builder/**, test/browser/**. Meet every listed acceptance criterion and add or update focused tests where the allowlist permits it. Keep existing behavior and public contracts unchanged unless an acceptance criterion explicitly requires a change. Do not add dependencies, unrelated refactors, generated artifacts, or secret values; document environment variable names only when relevant. Run these exact checks and report their results: npm run lint; npm run test:browser -- rename. If the work cannot be completed inside this scope, stop and explain the blocker instead of widening the change."
+    },
+    {
       "id": "OP-01",
       "category": "quality",
       "title": "Reject unsafe or malformed slugs",
