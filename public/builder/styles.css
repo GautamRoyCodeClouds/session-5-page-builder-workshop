@@ -445,6 +445,13 @@ textarea:focus-visible,
   font-weight: 700;
 }
 
+.preview-image {
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
 .inspector-heading {
   flex: 0 0 auto;
 }

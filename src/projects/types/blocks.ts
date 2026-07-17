@@ -36,4 +36,18 @@ export type QuoteBlock = {
   attribution: string;
 };
 
-export type Block = HeadingBlock | TextBlock | ButtonBlock | SectionBlock | DividerBlock | QuoteBlock;
+export type ImageBlock = {
+  id: string;
+  type: "image";
+  url: string;
+  alt: string;
+};
+
+export type Block =
+  | HeadingBlock
+  | TextBlock
+  | ButtonBlock
+  | SectionBlock
+  | DividerBlock
+  | QuoteBlock
+  | ImageBlock;

@@ -5,13 +5,14 @@ import {
   ButtonBlockDto,
   DividerBlockDto,
   HeadingBlockDto,
+  ImageBlockDto,
   QuoteBlockDto,
   SectionBlockDto,
   TextBlockDto,
   type BlockDto
 } from "./block.dto";
 
-@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto, DividerBlockDto, QuoteBlockDto)
+@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto, DividerBlockDto, QuoteBlockDto, ImageBlockDto)
 export class ProjectResponseDto {
   @ApiProperty({ format: "uuid", example: "123e4567-e89b-42d3-a456-426614174000" })
   id!: string;

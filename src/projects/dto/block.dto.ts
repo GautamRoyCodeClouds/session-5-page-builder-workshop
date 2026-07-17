@@ -74,12 +74,26 @@ export class QuoteBlockDto {
   attribution!: string;
 }
 
+export class ImageBlockDto {
+  @ApiProperty({ example: "image-1" })
+  id!: string;
+
+  @ApiProperty({ enum: ["image"] })
+  type!: "image";
+
+  @ApiProperty({ example: "https://example.com/photo.png" })
+  url!: string;
+
+  @ApiProperty({ example: "A field of tulips at sunrise" })
+  alt!: string;
+}
+
 export type BlockDto = Block;
 
 export function blocksApiProperty(): ApiPropertyOptions {
   return {
     type: "array",
-    description: "Ordered heading, text, button, section, divider, and quote blocks",
+    description: "Ordered heading, text, button, section, divider, quote, and image blocks",
     items: {
       discriminator: {
         propertyName: "type",
@@ -89,7 +103,8 @@ export function blocksApiProperty(): ApiPropertyOptions {
           button: getSchemaPath(ButtonBlockDto),
           section: getSchemaPath(SectionBlockDto),
           divider: getSchemaPath(DividerBlockDto),
-          quote: getSchemaPath(QuoteBlockDto)
+          quote: getSchemaPath(QuoteBlockDto),
+          image: getSchemaPath(ImageBlockDto)
         }
       },
       oneOf: [
@@ -98,7 +113,8 @@ export function blocksApiProperty(): ApiPropertyOptions {
         { $ref: getSchemaPath(ButtonBlockDto) },
         { $ref: getSchemaPath(SectionBlockDto) },
         { $ref: getSchemaPath(DividerBlockDto) },
-        { $ref: getSchemaPath(QuoteBlockDto) }
+        { $ref: getSchemaPath(QuoteBlockDto) },
+        { $ref: getSchemaPath(ImageBlockDto) }
       ]
     }
   };

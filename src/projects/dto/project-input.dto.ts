@@ -9,6 +9,7 @@ import {
   ButtonBlockDto,
   DividerBlockDto,
   HeadingBlockDto,
+  ImageBlockDto,
   QuoteBlockDto,
   SectionBlockDto,
   TextBlockDto,
@@ -19,7 +20,7 @@ function trimString({ value }: TransformFnParams): unknown {
   return typeof value === "string" ? value.trim() : value;
 }
 
-@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto, DividerBlockDto, QuoteBlockDto)
+@ApiExtraModels(HeadingBlockDto, TextBlockDto, ButtonBlockDto, SectionBlockDto, DividerBlockDto, QuoteBlockDto, ImageBlockDto)
 export class ProjectInputDto {
   @ApiProperty({ example: "Workshop page", minLength: 1, maxLength: 120 })
   @Transform(trimString)
