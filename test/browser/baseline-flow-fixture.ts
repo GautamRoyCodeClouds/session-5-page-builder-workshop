@@ -117,6 +117,25 @@ export async function installBaselineRoutes(context: BrowserContext): Promise<vo
       return;
     }
 
+    const nameMatch = pathname.match(/^\/api\/projects\/([^/]+)\/name$/);
+    if (nameMatch && request.method() === "PATCH") {
+      const project = projects.get(nameMatch[1]);
+      if (!project) {
+        await json(route, 404, { statusCode: 404, code: "PROJECT_NOT_FOUND", message: "Project not found" });
+        return;
+      }
+      const input = request.postDataJSON() as { name?: string };
+      const name = typeof input.name === "string" ? input.name.trim() : "";
+      if (name === "") {
+        await json(route, 400, { statusCode: 400, code: "BAD_REQUEST", message: "name must not be blank" });
+        return;
+      }
+      project.name = name;
+      project.updatedAt = new Date().toISOString();
+      await json(route, 200, structuredClone(project));
+      return;
+    }
+
     const projectMatch = pathname.match(/^\/api\/projects\/([^/]+)$/);
     if (projectMatch && request.method() === "GET") {
       const project = projects.get(projectMatch[1]);
