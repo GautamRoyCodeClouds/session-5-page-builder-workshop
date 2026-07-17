@@ -36,6 +36,7 @@ describe("ProjectsService", () => {
       id: "project-id",
       name: "Page",
       slug: "page",
+      description: null,
       blocks: [],
       publishedAt: null,
       lastSuccessfulPublishAt: null,
@@ -70,6 +71,7 @@ describe("ProjectsService.rename", () => {
       id: projectId,
       name: "Original name",
       slug: "original-slug",
+      description: null,
       blocks: [{ id: "body", type: "text", text: "Body" }],
       publishedAt: new Date(),
       lastSuccessfulPublishAt: null,
@@ -118,6 +120,7 @@ describe("ProjectsService.duplicate", () => {
     id: projectId,
     name: "Workshop page",
     slug: "workshop-page",
+    description: null,
     blocks: [
       { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
       { id: "text-1", type: "text", text: "Body" }
@@ -142,6 +145,7 @@ describe("ProjectsService.duplicate", () => {
     expect(create).toHaveBeenCalledWith({
       name: source.name,
       slug: "workshop-page-copy",
+      description: null,
       blocks: source.blocks
     });
   });
@@ -189,6 +193,7 @@ describe("ProjectsService.getStatus", () => {
       id: projectId,
       name: "Workshop page",
       slug: "workshop-page",
+      description: null,
       blocks: [],
       publishedAt,
       lastSuccessfulPublishAt: null,
