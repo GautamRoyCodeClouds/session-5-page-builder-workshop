@@ -15,6 +15,8 @@ const baseProject: ProjectEntity = {
   name: "Test page",
   slug: "test-page",
   description: null,
+  textColor: null,
+  buttonColor: null,
   blocks: [],
   publishedAt: null,
   lastSuccessfulPublishAt: null,

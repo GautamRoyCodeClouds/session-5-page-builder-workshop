@@ -13,6 +13,8 @@ model Project {
   slug                    String    @unique @db.VarChar(80)
   description             String?   @db.VarChar(300)
   blocks                  Json
+  textColor               String?   @db.VarChar(7)
+  buttonColor             String?   @db.VarChar(7)
   publishedAt             DateTime?
   lastSuccessfulPublishAt DateTime?
   createdAt               DateTime  @default(now())

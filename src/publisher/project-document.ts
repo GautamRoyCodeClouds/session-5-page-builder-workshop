@@ -6,4 +6,6 @@ export type ProjectDocument = {
   slug: string;
   description?: string | null;
   blocks: Block[];
+  textColor?: string | null;
+  buttonColor?: string | null;
 };

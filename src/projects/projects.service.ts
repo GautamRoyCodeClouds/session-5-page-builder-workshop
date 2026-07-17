@@ -167,7 +167,9 @@ export class ProjectsService {
         name: input.name,
         slug: input.slug,
         description: description.length > 0 ? description : null,
-        blocks: validateBlocks(input.blocks)
+        blocks: validateBlocks(input.blocks),
+        textColor: input.textColor ?? null,
+        buttonColor: input.buttonColor ?? null
       };
     } catch (error) {
       if (error instanceof BlockValidationError) {

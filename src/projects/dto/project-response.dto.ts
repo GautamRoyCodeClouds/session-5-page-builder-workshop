@@ -28,6 +28,12 @@ export class ProjectResponseDto {
   @ApiProperty(blocksApiProperty())
   blocks!: BlockDto[];
 
+  @ApiProperty({ type: String, nullable: true, example: "#1f2933" })
+  textColor!: string | null;
+
+  @ApiProperty({ type: String, nullable: true, example: "#176b5b" })
+  buttonColor!: string | null;
+
   @ApiProperty({ type: String, format: "date-time", nullable: true, example: null })
   publishedAt!: Date | null;
 

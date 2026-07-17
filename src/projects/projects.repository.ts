@@ -15,6 +15,8 @@ type ProjectRow = {
   slug: string;
   description: string | null;
   blocks: unknown;
+  textColor: string | null;
+  buttonColor: string | null;
   publishedAt: Date | null;
   lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
@@ -26,6 +28,8 @@ type ProjectData = {
   slug: string;
   description?: string | null;
   blocks: unknown;
+  textColor?: string | null;
+  buttonColor?: string | null;
   publishedAt?: Date | null;
   lastSuccessfulPublishAt?: Date | null;
 };
@@ -48,6 +52,8 @@ function toEntity(row: ProjectRow): ProjectEntity {
     slug: row.slug,
     description: row.description,
     blocks: validateBlocks(row.blocks),
+    textColor: row.textColor,
+    buttonColor: row.buttonColor,
     publishedAt: row.publishedAt,
     lastSuccessfulPublishAt: row.lastSuccessfulPublishAt,
     createdAt: row.createdAt,
@@ -65,7 +71,14 @@ export class ProjectsRepository {
 
   async create(input: EditableProject): Promise<ProjectEntity> {
     const row = await this.projects.create({
-      data: { name: input.name, slug: input.slug, description: input.description, blocks: input.blocks }
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        blocks: input.blocks,
+        textColor: input.textColor,
+        buttonColor: input.buttonColor
+      }
     });
     return toEntity(row);
   }
@@ -95,7 +108,15 @@ export class ProjectsRepository {
   async update(id: string, input: EditableProject): Promise<ProjectEntity> {
     const row = await this.projects.update({
       where: { id },
-      data: { name: input.name, slug: input.slug, description: input.description, blocks: input.blocks, publishedAt: null }
+      data: {
+        name: input.name,
+        slug: input.slug,
+        description: input.description,
+        blocks: input.blocks,
+        textColor: input.textColor,
+        buttonColor: input.buttonColor,
+        publishedAt: null
+      }
     });
     return toEntity(row);
   }

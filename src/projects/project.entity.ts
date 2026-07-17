@@ -6,10 +6,12 @@ export type ProjectEntity = {
   slug: string;
   description: string | null;
   blocks: Block[];
+  textColor: string | null;
+  buttonColor: string | null;
   publishedAt: Date | null;
   lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
   updatedAt: Date;
 };
 
-export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "description" | "blocks">;
+export type EditableProject = Pick<ProjectEntity, "name" | "slug" | "description" | "blocks" | "textColor" | "buttonColor">;
