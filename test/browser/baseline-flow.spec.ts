@@ -12,7 +12,8 @@ test("baseline-flow: application shell", async ({ page }) => {
   const projectPanel = page.getByRole("region", { name: "Project" });
   await expect(projectPanel.getByLabel("Project name")).toHaveValue("Untitled page");
   await expect(projectPanel.getByLabel("Project slug")).toHaveValue("untitled-page");
-  await expect(page.getByRole("banner").getByRole("textbox")).toHaveCount(0);
+  await expect(page.getByRole("banner").getByRole("textbox")).toHaveCount(1);
+  await expect(page.getByRole("banner").getByLabel("Project title")).toHaveValue("Untitled page");
 
   const palette = page.getByRole("region", { name: "Palette" });
   const paletteButtons = palette.getByRole("button");

@@ -11,6 +11,10 @@
     <div class="app-shell">
       <header class="topbar" aria-label="Project actions">
         <h1 class="visually-hidden">Page builder</h1>
+        <div class="project-title-field">
+          <label for="project-title-input" class="visually-hidden">Project title</label>
+          <input id="project-title-input" class="project-title-input" type="text" value="Untitled page" maxlength="120" required aria-label="Project title">
+        </div>
         <p id="status" class="status" role="status" aria-live="polite">Ready</p>
         <nav class="actions" aria-label="Project actions">
           <button id="load-project" class="button button-secondary" type="button" disabled>Load project</button>
