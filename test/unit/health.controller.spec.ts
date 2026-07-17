@@ -12,7 +12,7 @@ describe("HealthController", () => {
     const response = {
       status: jest.fn()
     };
-    response.status.mockReturnValue(response as unknown as Response);
+    response.status.mockReturnValue(response);
     return response;
   }
 
