@@ -8,7 +8,6 @@ import type { ProjectInputDto } from "./dto/project-input.dto";
 import type { EditableProject, ProjectEntity } from "./project.entity";
 import { ProjectsRepository } from "./projects.repository";
 import { BlockValidationError, validateBlocks } from "./validation/validate-blocks";
-import { isValidSlug } from "../common/validation/slug";
 
 export type PublishResult = {
   project: ProjectEntity;
