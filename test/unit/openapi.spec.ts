@@ -38,6 +38,9 @@ describe("OpenAPI document", () => {
     expect(document.paths["/api/projects/{id}/publish"]?.post?.responses).toMatchObject({
       201: { content: { "application/json": { schema: { $ref: "#/components/schemas/PublishResponseDto" } } } }
     });
+    expect(document.paths["/api/projects/{id}/duplicate"]?.post?.responses).toMatchObject({
+      201: { content: { "application/json": { schema: { $ref: "#/components/schemas/ProjectResponseDto" } } } }
+    });
 
     const schemas = document.components?.schemas as Record<string, {
       properties?: Record<string, unknown>;

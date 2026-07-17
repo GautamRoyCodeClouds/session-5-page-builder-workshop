@@ -4,5 +4,6 @@ export type ProjectDocument = {
   id: string;
   name: string;
   slug: string;
+  description?: string | null;
   blocks: Block[];
 };

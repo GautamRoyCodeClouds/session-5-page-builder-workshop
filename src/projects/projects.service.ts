@@ -33,6 +33,7 @@ export type ProjectListResult = {
 };
 
 const MAX_OFFSET = 10_000;
+const MAX_SLUG_LENGTH = 80;
 
 
 function isUniqueConstraintError(error: unknown): boolean {
@@ -40,6 +41,11 @@ function isUniqueConstraintError(error: unknown): boolean {
     && error !== null
     && "code" in error
     && error.code === "P2002";
+}
+
+function copySlug(sourceSlug: string, copyNumber: number): string {
+  const suffix = copyNumber === 1 ? "-copy" : `-copy-${copyNumber}`;
+  return `${sourceSlug.slice(0, MAX_SLUG_LENGTH - suffix.length)}${suffix}`;
 }
 
 @Injectable()
@@ -105,6 +111,19 @@ export class ProjectsService {
     return this.repository.updateName(id, name);
   }
 
+  async duplicate(id: string): Promise<ProjectEntity> {
+    const source = await this.get(id);
+    let copyNumber = 1;
+    let slug = copySlug(source.slug, copyNumber);
+
+    while (await this.repository.findBySlug(slug) !== null) {
+      copyNumber += 1;
+      slug = copySlug(source.slug, copyNumber);
+    }
+
+    return this.create({ name: source.name, slug, blocks: source.blocks });
+  }
+
   async slugAvailability(slug: string): Promise<SlugAvailability> {
     return { slug, available: await this.repository.findBySlug(slug) === null };
   }
@@ -143,9 +162,11 @@ export class ProjectsService {
 
   private toEditableProject(input: ProjectInputDto): EditableProject {
     try {
+      const description = typeof input.description === "string" ? input.description.trim() : "";
       return {
         name: input.name,
         slug: input.slug,
+        description: description.length > 0 ? description : null,
         blocks: validateBlocks(input.blocks)
       };
     } catch (error) {

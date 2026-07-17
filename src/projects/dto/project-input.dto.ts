@@ -1,6 +1,6 @@
 import { Transform, type TransformFnParams } from "class-transformer";
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsString, Length, Matches } from "class-validator";
+import { IsArray, IsOptional, IsString, Length, Matches, MaxLength } from "class-validator";
 
 import { SLUG_PATTERN } from "../../common/validation/slug";
 import {
@@ -31,6 +31,18 @@ export class ProjectInputDto {
   @Length(1, 80)
   @Matches(SLUG_PATTERN, { message: "slug must be a lowercase ASCII slug" })
   slug!: string;
+
+  @ApiProperty({
+    required: false,
+    nullable: true,
+    maxLength: 300,
+    example: "A short summary of the page for search engines and previews."
+  })
+  @IsOptional()
+  @Transform(trimString)
+  @IsString()
+  @MaxLength(300)
+  description?: string;
 
   @ApiProperty(blocksApiProperty())
   @IsArray()

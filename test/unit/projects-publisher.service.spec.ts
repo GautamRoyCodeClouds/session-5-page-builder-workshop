@@ -14,6 +14,7 @@ const baseProject: ProjectEntity = {
   id: "123e4567-e89b-42d3-a456-426614174000",
   name: "Test page",
   slug: "test-page",
+  description: null,
   blocks: [],
   publishedAt: null,
   lastSuccessfulPublishAt: null,
