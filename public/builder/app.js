@@ -5,6 +5,13 @@ const PROJECT_STORAGE_KEY = "page-builder.projectId";
 const PALETTE_DRAG_TYPE = "application/x-page-builder-block-type";
 const BLOCK_DRAG_TYPE = "application/x-page-builder-block-id";
 
+const IMAGE_PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='600' height='300'>"
+  + "<rect width='100%' height='100%' fill='#e8ecea'/>"
+  + "<text x='50%' y='50%' fill='#63706a' font-family='sans-serif' font-size='22' "
+  + "text-anchor='middle' dominant-baseline='middle'>Image — paste a URL in the inspector</text></svg>"
+)}`;
+
 const blockDefaults = {
   heading: () => ({ id: crypto.randomUUID(), type: "heading", text: "New heading", level: 2 }),
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
@@ -12,7 +19,7 @@ const blockDefaults = {
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
   divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
   quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" }),
-  image: () => ({ id: crypto.randomUUID(), type: "image", url: "https://example.com/photo.png", alt: "" })
+  image: () => ({ id: crypto.randomUUID(), type: "image", url: IMAGE_PLACEHOLDER, alt: "" })
 };
 
 const elements = {
