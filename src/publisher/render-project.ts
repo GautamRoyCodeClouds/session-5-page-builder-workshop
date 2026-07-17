@@ -39,6 +39,8 @@ function renderBlock(block: Block): string {
       return `<section><h2>${escapeHtml(block.title)}</h2></section>`;
     case "divider":
       return "<hr>";
+    case "image":
+      return `<img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt)}">`;
     case "quote": {
       const attribution = block.attribution.trim();
       const cite = attribution ? `\n  <cite>${escapeHtml(attribution)}</cite>` : "";

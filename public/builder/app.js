@@ -11,7 +11,8 @@ const blockDefaults = {
   button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
   divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
-  quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" })
+  quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" }),
+  image: () => ({ id: crypto.randomUUID(), type: "image", url: "https://example.com/photo.png", alt: "" })
 };
 
 const elements = {
@@ -78,6 +79,14 @@ function previewElement(block) {
       blockquote.append(cite);
     }
     return blockquote;
+  }
+
+  if (block.type === "image") {
+    const image = document.createElement("img");
+    image.src = block.url;
+    image.alt = block.alt;
+    image.className = "preview-image";
+    return image;
   }
 
   const section = document.createElement("section");
@@ -209,6 +218,29 @@ function appendQuoteFields(block) {
   );
 }
 
+function appendImageFields(block) {
+  const urlInput = document.createElement("input");
+  urlInput.id = "block-image-url";
+  urlInput.type = "url";
+  urlInput.value = block.url;
+  urlInput.addEventListener("input", () => {
+    block.url = urlInput.value;
+    updateBlockPreview(block);
+  });
+
+  const altInput = createTextInput("block-image-alt", block.alt);
+  altInput.required = true;
+  altInput.addEventListener("input", () => {
+    block.alt = altInput.value;
+    updateBlockPreview(block);
+  });
+
+  elements.inspectorFields.append(
+    createField("Image URL", urlInput),
+    createField("Alt text", altInput)
+  );
+}
+
 function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
@@ -230,6 +262,7 @@ function renderInspector() {
   if (block.type === "button") appendButtonFields(block);
   if (block.type === "section") appendSectionFields(block);
   if (block.type === "quote") appendQuoteFields(block);
+  if (block.type === "image") appendImageFields(block);
 }
 
 function renderCanvas() {
@@ -422,7 +455,18 @@ function requestError(action, error) {
   setStatus(`${action} failed: ${message}`);
 }
 
+function firstImageMissingAlt() {
+  return state.blocks.find((block) => block.type === "image" && block.alt.trim() === "") ?? null;
+}
+
 async function saveProject() {
+  const missingAlt = firstImageMissingAlt();
+  if (missingAlt) {
+    selectBlock(missingAlt.id);
+    setStatus("Add alt text to every image before saving.");
+    return;
+  }
+
   const payload = projectPayload();
   if (!payload) return;
 
@@ -484,6 +528,13 @@ async function loadProject() {
 async function publishProject() {
   if (!state.projectId) {
     setStatus("Save the project before publishing.");
+    return;
+  }
+
+  const missingAlt = firstImageMissingAlt();
+  if (missingAlt) {
+    selectBlock(missingAlt.id);
+    setStatus("Add alt text to every image before publishing.");
     return;
   }
 

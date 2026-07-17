@@ -8,7 +8,8 @@ const allowedKeys: Record<Block["type"], readonly string[]> = {
   button: ["id", "type", "label", "url"],
   section: ["id", "type", "title"],
   divider: ["id", "type"],
-  quote: ["id", "type", "quote", "attribution"]
+  quote: ["id", "type", "quote", "attribution"],
+  image: ["id", "type", "url", "alt"]
 };
 
 export class BlockValidationError extends Error {
@@ -79,6 +80,16 @@ function validateBlock(value: unknown, index: number): Block {
         throw new BlockValidationError(`blocks[${index}] is not a valid quote block`);
       }
       return value as QuoteBlockShape;
+    case "image":
+      if (
+        !hasExactKeys(value, allowedKeys.image)
+        || typeof value.url !== "string"
+        || typeof value.alt !== "string"
+        || value.alt.trim().length === 0
+      ) {
+        throw new BlockValidationError(`blocks[${index}] is not a valid image block`);
+      }
+      return value as ImageBlockShape;
     default:
       throw new BlockValidationError(`blocks[${index}] has an unknown block type`);
   }
@@ -90,6 +101,7 @@ type ButtonBlockShape = Extract<Block, { type: "button" }>;
 type SectionBlockShape = Extract<Block, { type: "section" }>;
 type DividerBlockShape = Extract<Block, { type: "divider" }>;
 type QuoteBlockShape = Extract<Block, { type: "quote" }>;
+type ImageBlockShape = Extract<Block, { type: "image" }>;
 
 export function validateBlocks(value: unknown): Block[] {
   if (!Array.isArray(value)) {
