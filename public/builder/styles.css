@@ -104,6 +104,32 @@ textarea:focus-visible,
   border-bottom: 1px solid var(--line);
 }
 
+.project-title-field {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.project-title-input {
+  width: 100%;
+  min-height: 34px;
+  padding: 6px 9px;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.project-title-input:hover {
+  border-color: var(--line);
+}
+
+.project-title-input:focus-visible {
+  border-color: var(--line-strong);
+  background: var(--surface);
+}
+
 .status {
   min-width: 0;
   margin: 0;

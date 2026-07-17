@@ -24,6 +24,7 @@ const elements = {
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
   projectName: document.querySelector("#project-name"),
+  projectTitle: document.querySelector("#project-title-input"),
   projectSlug: document.querySelector("#project-slug"),
   publishProject: document.querySelector("#publish-project"),
   removeSelected: document.querySelector("#remove-selected"),
@@ -364,6 +365,7 @@ function applyProject(project, preserveSelection = false) {
   state.blocks = project.blocks.map((block) => ({ ...block }));
   state.selectedBlockId = state.blocks.some((block) => block.id === selectedId) ? selectedId : null;
   elements.projectName.value = project.name;
+  elements.projectTitle.value = project.name;
   elements.projectSlug.value = project.slug;
   elements.loadProject.disabled = false;
   if (project.publishedAt) showPublishedLink(`/sites/${project.slug}`);
@@ -542,6 +544,17 @@ elements.canvas.addEventListener("drop", (event) => {
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.moveSelectedUp.addEventListener("click", () => moveSelectedBlock(-1));
 elements.moveSelectedDown.addEventListener("click", () => moveSelectedBlock(1));
+elements.projectTitle.addEventListener("input", () => {
+  elements.projectName.value = elements.projectTitle.value;
+  if (elements.projectName.value.trim() === "") {
+    setStatus("Enter a valid project name and slug.");
+    return;
+  }
+  setStatus("Unsaved changes.");
+});
+elements.projectName.addEventListener("input", () => {
+  elements.projectTitle.value = elements.projectName.value;
+});
 elements.saveProject.addEventListener("click", () => {
   void saveProject();
 });
