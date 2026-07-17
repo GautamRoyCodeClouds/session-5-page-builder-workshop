@@ -162,9 +162,11 @@ export class ProjectsService {
 
   private toEditableProject(input: ProjectInputDto): EditableProject {
     try {
+      const description = typeof input.description === "string" ? input.description.trim() : "";
       return {
         name: input.name,
         slug: input.slug,
+        description: description.length > 0 ? description : null,
         blocks: validateBlocks(input.blocks)
       };
     } catch (error) {

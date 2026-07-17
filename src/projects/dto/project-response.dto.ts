@@ -22,6 +22,9 @@ export class ProjectResponseDto {
   @ApiProperty({ example: "workshop-page" })
   slug!: string;
 
+  @ApiProperty({ type: String, nullable: true, maxLength: 300, example: null })
+  description!: string | null;
+
   @ApiProperty(blocksApiProperty())
   blocks!: BlockDto[];
 
