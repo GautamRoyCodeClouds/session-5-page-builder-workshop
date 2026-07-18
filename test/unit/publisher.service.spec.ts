@@ -57,4 +57,29 @@ describe("PublisherService", () => {
       blocks: []
     })).rejects.toThrow("Invalid project ID");
   });
+
+  it("removes only the target project output and is safe to repeat", async () => {
+    const otherProjectId = "123e4567-e89b-42d3-a456-426614174001";
+    await service.publish({
+      id: projectId,
+      name: "First page",
+      slug: "first-page",
+      blocks: []
+    });
+    await service.publish({
+      id: otherProjectId,
+      name: "Second page",
+      slug: "second-page",
+      blocks: []
+    });
+
+    await service.unpublish(projectId);
+    await service.unpublish(projectId);
+
+    await expect(readdir(publishDir)).resolves.toEqual([`${otherProjectId}.html`]);
+  });
+
+  it("rejects an unsafe project ID when unpublishing", async () => {
+    await expect(service.unpublish("../unsafe")).rejects.toThrow("Invalid project ID");
+  });
 });

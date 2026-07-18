@@ -423,6 +423,21 @@ describe("project API", () => {
     await request(app.getHttpServer()).get("/sites/workshop-page").expect(404);
   });
 
+  it("unpublishes only the target output and can be repeated safely", async () => {
+    const first = await createProject();
+    const second = await createProject({ name: "Other page", slug: "other-page" });
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/publish`).expect(201);
+    await request(app.getHttpServer()).post(`/api/projects/${second.id}/publish`).expect(201);
+
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/unpublish`).expect(204);
+    await request(app.getHttpServer()).get("/sites/workshop-page").expect(404);
+    await request(app.getHttpServer()).get("/sites/other-page").expect(200);
+    await expect(readdir(config.publishDir)).resolves.toEqual([`${second.id}.html`]);
+
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/unpublish`).expect(204);
+    await expect(readdir(config.publishDir)).resolves.toEqual([`${second.id}.html`]);
+  });
+
   it("accepts unsafe URLs at save time and neutralizes them when publishing", async () => {
     const project = await createProject({ blocks: [
       { id: "unsafe", type: "button", label: "Unsafe", url: "javascript:alert(1)" }
