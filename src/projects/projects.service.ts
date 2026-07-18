@@ -90,6 +90,9 @@ export class ProjectsService {
 
   async update(id: string, input: ProjectInputDto): Promise<ProjectEntity> {
     await this.get(id);
+    if (input.version === undefined) {
+      throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Project version is required");
+    }
     const project = this.toEditableProject(input);
     const slugOwner = await this.repository.findBySlug(project.slug);
     if (slugOwner !== null && slugOwner.id !== id) {
@@ -97,7 +100,11 @@ export class ProjectsService {
     }
 
     try {
-      return await this.repository.update(id, project);
+      const updated = await this.repository.update(id, project, input.version);
+      if (updated === null) {
+        throw new ApiException(HttpStatus.CONFLICT, "PROJECT_VERSION_CONFLICT", "Project has been modified");
+      }
+      return updated;
     } catch (error) {
       if (isUniqueConstraintError(error)) {
         this.throwSlugConflict(project.slug);

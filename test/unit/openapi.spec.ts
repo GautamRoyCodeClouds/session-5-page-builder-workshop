@@ -45,6 +45,10 @@ describe("OpenAPI document", () => {
     const schemas = document.components?.schemas as Record<string, {
       properties?: Record<string, unknown>;
     }>;
+    expect(schemas.ProjectResponseDto.properties?.version).toMatchObject({
+      type: "number",
+      minimum: 1
+    });
     expect(schemas.ProjectInputDto.properties?.blocks).toMatchObject({
       type: "array",
       items: {

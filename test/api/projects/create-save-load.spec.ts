@@ -10,6 +10,7 @@ type ProjectResponse = {
   id: string;
   name: string;
   slug: string;
+  version: number;
   blocks: unknown[];
   publishedAt: string | null;
   createdAt: string;
@@ -67,7 +68,7 @@ describe("create-save-load round trip", () => {
 
     await request(app.getHttpServer())
       .put(`/api/projects/${projectId}`)
-      .send({ name: "Round trip page", slug: "round-trip-page", blocks: updatedBlocks })
+      .send({ name: "Round trip page", slug: "round-trip-page", blocks: updatedBlocks, version: createdBody.version })
       .expect(200)
       .expect(({ body }: { body: ProjectResponse }) => {
         expect(body.blocks).toEqual(updatedBlocks);
