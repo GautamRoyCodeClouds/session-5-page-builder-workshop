@@ -458,6 +458,27 @@ describe("project API", () => {
       });
   });
 
+  it("returns the common validation envelope when publishing with a malformed project ID", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/not-a-uuid/publish")
+      .expect(400, {
+        statusCode: 400,
+        code: "BAD_REQUEST",
+        message: "Request validation failed",
+        details: ["Validation failed (uuid v 4 is expected)"]
+      });
+  });
+
+  it("returns the common not-found envelope when publishing an unknown project", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/123e4567-e89b-42d3-a456-426614174000/publish")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("invalidates both old and new public slugs until a renamed project is republished", async () => {
     const project = await createProject();
     await request(app.getHttpServer()).post(`/api/projects/${project.id}/publish`).expect(201);
@@ -477,6 +498,21 @@ describe("project API", () => {
     await request(app.getHttpServer()).post(`/api/projects/${project.id}/publish`).expect(201);
     await request(app.getHttpServer()).get("/sites/renamed-page").expect(200);
     await request(app.getHttpServer()).get("/sites/workshop-page").expect(404);
+  });
+
+  it("unpublishes only the target output and can be repeated safely", async () => {
+    const first = await createProject();
+    const second = await createProject({ name: "Other page", slug: "other-page" });
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/publish`).expect(201);
+    await request(app.getHttpServer()).post(`/api/projects/${second.id}/publish`).expect(201);
+
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/unpublish`).expect(204);
+    await request(app.getHttpServer()).get("/sites/workshop-page").expect(404);
+    await request(app.getHttpServer()).get("/sites/other-page").expect(200);
+    await expect(readdir(config.publishDir)).resolves.toEqual([`${second.id}.html`]);
+
+    await request(app.getHttpServer()).post(`/api/projects/${first.id}/unpublish`).expect(204);
+    await expect(readdir(config.publishDir)).resolves.toEqual([`${second.id}.html`]);
   });
 
   it("accepts unsafe URLs at save time and neutralizes them when publishing", async () => {

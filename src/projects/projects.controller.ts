@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, ParseUUIDPipe, Patch, Post, Put, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Put, Query } from "@nestjs/common";
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -21,6 +21,17 @@ import { SlugAvailabilityQueryDto, SlugAvailabilityResponseDto } from "./dto/slu
 import type { ProjectEntity } from "./project.entity";
 import { ProjectsService, type ProjectListResult, type ProjectStatus, type PublishResult, type SlugAvailability } from "./projects.service";
 import { DeleteProjectDto } from "./dto/delete-project.dto";
+import { ApiException } from "../common/errors/api-exception";
+
+const publishProjectIdPipe = new ParseUUIDPipe({
+  version: "4",
+  exceptionFactory: (message) => new ApiException(
+    HttpStatus.BAD_REQUEST,
+    "BAD_REQUEST",
+    "Request validation failed",
+    [message]
+  )
+});
 
 @ApiTags("projects")
 @Controller("api/projects")
@@ -105,8 +116,17 @@ export class ProjectsController {
   @ApiCreatedResponse({ description: "Project published", type: PublishResponseDto })
   @ApiBadRequestResponse({ description: "Malformed project ID" })
   @ApiNotFoundResponse({ description: "Project not found" })
-  publish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<PublishResult> {
+  publish(@Param("id", publishProjectIdPipe) id: string): Promise<PublishResult> {
     return this.projects.publish(id);
+  }
+
+  @Post(":id/unpublish")
+  @HttpCode(204)
+  @ApiNoContentResponse({ description: "Project unpublished" })
+  @ApiBadRequestResponse({ description: "Malformed project ID" })
+  @ApiNotFoundResponse({ description: "Project not found" })
+  unpublish(@Param("id", new ParseUUIDPipe({ version: "4" })) id: string): Promise<void> {
+    return this.projects.unpublish(id);
   }
 
   @Delete(":id")

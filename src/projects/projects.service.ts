@@ -158,6 +158,11 @@ export class ProjectsService {
     return { project: published, url: `/sites/${published.slug}` };
   }
 
+  async unpublish(id: string): Promise<void> {
+    const project = await this.get(id);
+    await this.publisher.unpublish(project.id);
+  }
+
   async delete(id: string, input: DeleteProjectDto): Promise<void> {
     if (input.confirm !== true) {
       throw new ApiException(HttpStatus.BAD_REQUEST, "BAD_REQUEST", "Invalid delete confirmation");
