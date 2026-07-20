@@ -13,15 +13,7 @@ export class PublisherService {
   constructor(private readonly config: AppConfigService) {}
 
   async publish(project: ProjectDocument): Promise<string> {
-    if (!isValidProjectId(project.id)) {
-      throw new Error("Invalid project ID");
-    }
-
-    const root = resolve(this.config.publishDir);
-    const target = resolve(join(root, `${project.id}.html`));
-    if (dirname(target) !== root || basename(target) !== `${project.id}.html`) {
-      throw new Error("Published output must remain inside PUBLISH_DIR");
-    }
+    const { root, target } = this.outputPath(project.id);
 
     await mkdir(root, { recursive: true });
     const temporary = join(root, `.${project.id}.${randomUUID()}.tmp`);
@@ -38,5 +30,30 @@ export class PublisherService {
     }
 
     return target;
+  }
+
+  async unpublish(projectId: string): Promise<void> {
+    const { target } = this.outputPath(projectId);
+    try {
+      await unlink(target);
+    } catch (error) {
+      if (typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT") {
+        return;
+      }
+      throw error;
+    }
+  }
+
+  private outputPath(projectId: string): { root: string; target: string } {
+    if (!isValidProjectId(projectId)) {
+      throw new Error("Invalid project ID");
+    }
+
+    const root = resolve(this.config.publishDir);
+    const target = resolve(join(root, `${projectId}.html`));
+    if (dirname(target) !== root || basename(target) !== `${projectId}.html`) {
+      throw new Error("Published output must remain inside PUBLISH_DIR");
+    }
+    return { root, target };
   }
 }
