@@ -402,6 +402,27 @@ describe("project API", () => {
       });
   });
 
+  it("returns the common validation envelope when publishing with a malformed project ID", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/not-a-uuid/publish")
+      .expect(400, {
+        statusCode: 400,
+        code: "BAD_REQUEST",
+        message: "Request validation failed",
+        details: ["Validation failed (uuid v 4 is expected)"]
+      });
+  });
+
+  it("returns the common not-found envelope when publishing an unknown project", async () => {
+    await request(app.getHttpServer())
+      .post("/api/projects/123e4567-e89b-42d3-a456-426614174000/publish")
+      .expect(404, {
+        statusCode: 404,
+        code: "PROJECT_NOT_FOUND",
+        message: "Project not found"
+      });
+  });
+
   it("invalidates both old and new public slugs until a renamed project is republished", async () => {
     const project = await createProject();
     await request(app.getHttpServer()).post(`/api/projects/${project.id}/publish`).expect(201);
