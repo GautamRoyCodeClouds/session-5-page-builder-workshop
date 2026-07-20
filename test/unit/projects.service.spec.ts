@@ -39,6 +39,7 @@ describe("ProjectsService", () => {
       description: null,
       textColor: null,
       buttonColor: null,
+      version: 1,
       blocks: [],
       publishedAt: null,
       lastSuccessfulPublishAt: null,
@@ -76,6 +77,7 @@ describe("ProjectsService.rename", () => {
       description: null,
       textColor: null,
       buttonColor: null,
+      version: 1,
       blocks: [{ id: "body", type: "text", text: "Body" }],
       publishedAt: new Date(),
       lastSuccessfulPublishAt: null,
@@ -127,6 +129,7 @@ describe("ProjectsService.duplicate", () => {
     description: null,
     textColor: null,
     buttonColor: null,
+    version: 1,
     blocks: [
       { id: "heading-1", type: "heading", text: "Welcome", level: 1 },
       { id: "text-1", type: "text", text: "Body" }
@@ -204,6 +207,7 @@ describe("ProjectsService.getStatus", () => {
       description: null,
       textColor: null,
       buttonColor: null,
+      version: 1,
       blocks: [],
       publishedAt,
       lastSuccessfulPublishAt: null,

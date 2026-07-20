@@ -8,6 +8,7 @@ export type ProjectEntity = {
   blocks: Block[];
   textColor: string | null;
   buttonColor: string | null;
+  version: number;
   publishedAt: Date | null;
   lastSuccessfulPublishAt: Date | null;
   createdAt: Date;

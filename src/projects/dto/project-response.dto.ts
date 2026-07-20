@@ -35,6 +35,9 @@ export class ProjectResponseDto {
   @ApiProperty({ type: String, nullable: true, example: "#176b5b" })
   buttonColor!: string | null;
 
+  @ApiProperty({ example: 1, minimum: 1 })
+  version!: number;
+
   @ApiProperty({ type: String, format: "date-time", nullable: true, example: null })
   publishedAt!: Date | null;
 

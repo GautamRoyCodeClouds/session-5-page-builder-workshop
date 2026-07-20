@@ -36,6 +36,7 @@ describe("ProjectsService.slugAvailability", () => {
     description: null,
     textColor: null,
     buttonColor: null,
+    version: 1,
     blocks: [],
     publishedAt: null,
     lastSuccessfulPublishAt: null,

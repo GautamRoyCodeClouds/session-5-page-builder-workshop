@@ -1,6 +1,6 @@
 import { Transform, type TransformFnParams } from "class-transformer";
 import { ApiExtraModels, ApiProperty } from "@nestjs/swagger";
-import { IsArray, IsOptional, IsString, Length, Matches, MaxLength } from "class-validator";
+import { IsArray, IsInt, IsOptional, IsString, Length, Matches, Max, MaxLength, Min } from "class-validator";
 
 import { HEX_COLOR_PATTERN } from "../../common/validation/color";
 import { SLUG_PATTERN } from "../../common/validation/slug";
@@ -59,4 +59,11 @@ export class ProjectInputDto {
   @IsOptional()
   @Matches(HEX_COLOR_PATTERN, { message: "buttonColor must be a #rrggbb hex color" })
   buttonColor?: string;
+
+  @ApiProperty({ example: 1, required: false, minimum: 1, maximum: 2147483647 })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  @Max(2147483647)
+  version?: number;
 }

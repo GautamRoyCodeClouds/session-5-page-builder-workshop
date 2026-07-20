@@ -12,6 +12,7 @@ type ProjectResponse = {
   id: string;
   name: string;
   slug: string;
+  version: number;
   blocks: unknown[];
   publishedAt: string | null;
   lastSuccessfulPublishAt: string | null;
@@ -84,6 +85,7 @@ describe("project API", () => {
       name: "Workshop page",
       slug: "workshop-page",
       blocks: baselineBlocks,
+      version: 1,
       publishedAt: null
     });
     expect(created.id).toMatch(/^[0-9a-f-]{36}$/);
@@ -124,7 +126,8 @@ describe("project API", () => {
     const replacement = {
       name: "Updated page",
       slug: "updated-page",
-      blocks: [...baselineBlocks].reverse()
+      blocks: [...baselineBlocks].reverse(),
+      version: created.version
     };
 
     await request(app.getHttpServer())
@@ -132,8 +135,61 @@ describe("project API", () => {
       .send(replacement)
       .expect(200)
       .expect(({ body }: { body: ProjectResponse }) => {
-        expect(body).toMatchObject(replacement);
+        expect(body).toMatchObject({
+          name: replacement.name,
+          slug: replacement.slug,
+          blocks: replacement.blocks
+        });
         expect(body.id).toBe(created.id);
+        expect(body.version).toBe(created.version + 1);
+      });
+  });
+
+  it("rejects a stale project version without overwriting newer data", async () => {
+    const created = await createProject();
+    const current = {
+      name: "Current version",
+      slug: created.slug,
+      blocks: created.blocks,
+      version: created.version
+    };
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send(current)
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.version).toBe(created.version + 1);
+      });
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({ ...current, name: "Stale version" })
+      .expect(409, {
+        statusCode: 409,
+        code: "PROJECT_VERSION_CONFLICT",
+        message: "Project has been modified"
+      });
+
+    await request(app.getHttpServer())
+      .get(`/api/projects/${created.id}`)
+      .expect(200)
+      .expect(({ body }: { body: ProjectResponse }) => {
+        expect(body.name).toBe("Current version");
+        expect(body.version).toBe(created.version + 1);
+      });
+  });
+
+  it("requires a current project version when saving", async () => {
+    const created = await createProject();
+
+    await request(app.getHttpServer())
+      .put(`/api/projects/${created.id}`)
+      .send({ name: created.name, slug: created.slug, blocks: created.blocks })
+      .expect(400, {
+        statusCode: 400,
+        code: "BAD_REQUEST",
+        message: "Project version is required"
       });
   });
 
@@ -245,7 +301,7 @@ describe("project API", () => {
 
     await request(app.getHttpServer())
       .put(`/api/projects/${created.id}`)
-      .send({ name: created.name, slug: created.slug, blocks: created.blocks })
+      .send({ name: created.name, slug: created.slug, blocks: created.blocks, version: created.version })
       .expect(200);
 
     await request(app.getHttpServer())
@@ -389,7 +445,7 @@ describe("project API", () => {
       .put(`/api/projects/${first.id}`)
       .send({ name: first.name, slug: first.slug, blocks: [
         { id: "replacement", type: "text", text: "Replacement body" }
-      ] })
+      ], version: first.version })
       .expect(200);
     await request(app.getHttpServer()).post(`/api/projects/${first.id}/publish`).expect(201);
 
@@ -430,7 +486,7 @@ describe("project API", () => {
 
     await request(app.getHttpServer())
       .put(`/api/projects/${project.id}`)
-      .send({ name: project.name, slug: "renamed-page", blocks: project.blocks })
+      .send({ name: project.name, slug: "renamed-page", blocks: project.blocks, version: project.version })
       .expect(200)
       .expect(({ body }: { body: ProjectResponse }) => {
         expect(body.publishedAt).toBeNull();
@@ -671,7 +727,7 @@ describe("project API", () => {
 
     const updateResponse = await request(app.getHttpServer())
       .put(`/api/projects/${project.id}`)
-      .send({ name: project.name, slug: project.slug, blocks: project.blocks })
+      .send({ name: project.name, slug: project.slug, blocks: project.blocks, version: project.version })
       .expect(200);
     const updated = updateResponse.body as ProjectResponse;
 

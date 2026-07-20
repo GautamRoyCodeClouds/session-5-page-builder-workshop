@@ -17,6 +17,7 @@ type ProjectRow = {
   blocks: unknown;
   textColor: string | null;
   buttonColor: string | null;
+  version: number;
   publishedAt: Date | null;
   lastSuccessfulPublishAt: Date | null;
   createdAt: Date;
@@ -36,12 +37,17 @@ type ProjectData = {
 
 type ProjectOrderBy = Array<{ createdAt: "desc" } | { id: "desc" }>;
 
+type ProjectUpdateData = Omit<ProjectData, "version"> & {
+  version: { increment: number };
+};
+
 type ProjectDelegate = {
   create(args: { data: ProjectData }): Promise<ProjectRow>;
   findUnique(args: { where: { id: string } | { slug: string } }): Promise<ProjectRow | null>;
   findMany(args: { orderBy: ProjectOrderBy; skip: number; take: number }): Promise<ProjectRow[]>;
   count(): Promise<number>;
   update(args: { where: { id: string }; data: Partial<ProjectData> }): Promise<ProjectRow>;
+  updateMany(args: { where: { id: string; version: number }; data: ProjectUpdateData }): Promise<{ count: number }>;
   delete(args: { where: { id: string } }): Promise<ProjectRow>;
 };
 
@@ -54,6 +60,7 @@ function toEntity(row: ProjectRow): ProjectEntity {
     blocks: validateBlocks(row.blocks),
     textColor: row.textColor,
     buttonColor: row.buttonColor,
+    version: row.version,
     publishedAt: row.publishedAt,
     lastSuccessfulPublishAt: row.lastSuccessfulPublishAt,
     createdAt: row.createdAt,
@@ -105,9 +112,9 @@ export class ProjectsRepository {
     return { rows: rows.map(toEntity), total };
   }
 
-  async update(id: string, input: EditableProject): Promise<ProjectEntity> {
-    const row = await this.projects.update({
-      where: { id },
+  async update(id: string, input: EditableProject, version: number): Promise<ProjectEntity | null> {
+    const result = await this.projects.updateMany({
+      where: { id, version },
       data: {
         name: input.name,
         slug: input.slug,
@@ -115,10 +122,14 @@ export class ProjectsRepository {
         blocks: input.blocks,
         textColor: input.textColor,
         buttonColor: input.buttonColor,
-        publishedAt: null
+        publishedAt: null,
+        version: { increment: 1 }
       }
     });
-    return toEntity(row);
+    if (result.count === 0) {
+      return null;
+    }
+    return this.findById(id);
   }
 
   async delete(id: string): Promise<void> {
