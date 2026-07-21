@@ -25,7 +25,7 @@ import { ApiException } from "../common/errors/api-exception";
 
 const publishProjectIdPipe = new ParseUUIDPipe({
   version: "4",
-  exceptionFactory: (message) => new ApiException(
+  exceptionFactory: (message): ApiException => new ApiException(
     HttpStatus.BAD_REQUEST,
     "BAD_REQUEST",
     "Request validation failed",
