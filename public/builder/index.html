@@ -64,7 +64,10 @@
             <h2 id="canvas-title">Canvas</h2>
           </div>
           <div id="canvas" class="canvas" aria-describedby="canvas-help">
-            <p id="canvas-help" class="canvas-placeholder">No blocks yet.</p>
+            <div id="canvas-help" class="canvas-placeholder" role="note" aria-label="Empty canvas">
+              <p class="canvas-empty-text">Your page has no blocks yet. Add one from the palette to get started.</p>
+              <button id="add-first-block" class="button button-secondary" type="button">Add your first block</button>
+            </div>
           </div>
         </main>
 
