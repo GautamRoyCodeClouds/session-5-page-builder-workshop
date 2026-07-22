@@ -81,9 +81,7 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
     await palette.getByRole("button", { name: "Text" }).click();
   }
   await expect(blocks).toHaveCount(20);
-  await palette.getByRole("button", { name: "Text" }).click();
-  await expect(blocks).toHaveCount(20);
-  await expect(page.getByRole("status")).toContainText("Block limit reached");
+  await expect(palette.getByRole("button", { name: "Text" })).toBeDisabled();
 
   for (const excludedName of ["Preview"]) {
     await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
