@@ -35,6 +35,7 @@ const elements = {
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
   addFirstBlock: document.querySelector("#add-first-block"),
+  blockCount: document.querySelector("#block-count"),
   projectName: document.querySelector("#project-name"),
   projectTitle: document.querySelector("#project-title-input"),
   projectSlug: document.querySelector("#project-slug"),
@@ -340,9 +341,18 @@ function renderCanvas() {
   }
 }
 
+function updateBlockCount() {
+  elements.blockCount.textContent = `${state.blocks.length} / ${MAX_BLOCKS} blocks`;
+  const atLimit = state.blocks.length >= MAX_BLOCKS;
+  for (const button of elements.palette.querySelectorAll("button")) {
+    button.disabled = atLimit;
+  }
+}
+
 function render() {
   renderCanvas();
   renderInspector();
+  updateBlockCount();
 }
 
 function insertionIndex(targetBlock) {
