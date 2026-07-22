@@ -39,6 +39,7 @@ const elements = {
   projectSlug: document.querySelector("#project-slug"),
   publishProject: document.querySelector("#publish-project"),
   removeSelected: document.querySelector("#remove-selected"),
+  duplicateSelected: document.querySelector("#duplicate-selected"),
   saveProject: document.querySelector("#save-project"),
   status: document.querySelector("#status")
 };
@@ -296,6 +297,7 @@ function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
   elements.removeSelected.disabled = block === null;
+  elements.duplicateSelected.disabled = block === null;
   const selectedIndex = state.blocks.findIndex((candidate) => candidate.id === state.selectedBlockId);
   elements.moveSelectedUp.disabled = selectedIndex <= 0;
   elements.moveSelectedDown.disabled = selectedIndex < 0 || selectedIndex === state.blocks.length - 1;
@@ -397,6 +399,20 @@ function moveSelectedBlock(offset) {
   ];
   render();
   setStatus("Block moved.");
+}
+
+function duplicateSelectedBlock() {
+  const index = state.blocks.findIndex((block) => block.id === state.selectedBlockId);
+  if (index < 0) return;
+  if (state.blocks.length >= MAX_BLOCKS) {
+    setStatus("Block limit reached. Remove a block before adding another.");
+    return;
+  }
+  const copy = { ...state.blocks[index], id: crypto.randomUUID() };
+  state.blocks.splice(index + 1, 0, copy);
+  state.selectedBlockId = copy.id;
+  render();
+  setStatus("Block duplicated.");
 }
 
 function removeSelectedBlock() {
@@ -674,6 +690,7 @@ elements.canvas.addEventListener("drop", (event) => {
 });
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
+elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
 elements.moveSelectedUp.addEventListener("click", () => moveSelectedBlock(-1));
 elements.moveSelectedDown.addEventListener("click", () => moveSelectedBlock(1));
 elements.projectTitle.addEventListener("input", () => {
