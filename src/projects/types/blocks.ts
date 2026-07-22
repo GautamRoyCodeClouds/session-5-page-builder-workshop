@@ -43,6 +43,14 @@ export type ImageBlock = {
   alt: string;
 };
 
+export type SpacerSize = "small" | "medium" | "large";
+
+export type SpacerBlock = {
+  id: string;
+  type: "spacer";
+  size: SpacerSize;
+};
+
 export type Block =
   | HeadingBlock
   | TextBlock
@@ -50,4 +58,5 @@ export type Block =
   | SectionBlock
   | DividerBlock
   | QuoteBlock
-  | ImageBlock;
+  | ImageBlock
+  | SpacerBlock;

@@ -9,8 +9,11 @@ const allowedKeys: Record<Block["type"], readonly string[]> = {
   section: ["id", "type", "title"],
   divider: ["id", "type"],
   quote: ["id", "type", "quote", "attribution"],
-  image: ["id", "type", "url", "alt"]
+  image: ["id", "type", "url", "alt"],
+  spacer: ["id", "type", "size"]
 };
+
+const SPACER_SIZES = ["small", "medium", "large"];
 
 export class BlockValidationError extends Error {
   constructor(message: string) {
@@ -90,6 +93,15 @@ function validateBlock(value: unknown, index: number): Block {
         throw new BlockValidationError(`blocks[${index}] is not a valid image block`);
       }
       return value as ImageBlockShape;
+    case "spacer":
+      if (
+        !hasExactKeys(value, allowedKeys.spacer)
+        || typeof value.size !== "string"
+        || !SPACER_SIZES.includes(value.size)
+      ) {
+        throw new BlockValidationError(`blocks[${index}] is not a valid spacer block`);
+      }
+      return value as SpacerBlockShape;
     default:
       throw new BlockValidationError(`blocks[${index}] has an unknown block type`);
   }
@@ -102,6 +114,7 @@ type SectionBlockShape = Extract<Block, { type: "section" }>;
 type DividerBlockShape = Extract<Block, { type: "divider" }>;
 type QuoteBlockShape = Extract<Block, { type: "quote" }>;
 type ImageBlockShape = Extract<Block, { type: "image" }>;
+type SpacerBlockShape = Extract<Block, { type: "spacer" }>;
 
 export function validateBlocks(value: unknown): Block[] {
   if (!Array.isArray(value)) {

@@ -19,8 +19,11 @@ const blockDefaults = {
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
   divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
   quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" }),
-  image: () => ({ id: crypto.randomUUID(), type: "image", url: IMAGE_PLACEHOLDER, alt: "" })
+  image: () => ({ id: crypto.randomUUID(), type: "image", url: IMAGE_PLACEHOLDER, alt: "" }),
+  spacer: () => ({ id: crypto.randomUUID(), type: "spacer", size: "medium" })
 };
+
+const SPACER_HEIGHTS = { small: 16, medium: 40, large: 80 };
 
 const elements = {
   canvas: document.querySelector("#canvas"),
@@ -94,6 +97,14 @@ function previewElement(block) {
     image.alt = block.alt;
     image.className = "preview-image";
     return image;
+  }
+
+  if (block.type === "spacer") {
+    const spacer = document.createElement("div");
+    spacer.className = "preview-spacer";
+    spacer.style.height = `${SPACER_HEIGHTS[block.size]}px`;
+    spacer.setAttribute("aria-hidden", "true");
+    return spacer;
   }
 
   const section = document.createElement("section");
@@ -248,6 +259,23 @@ function appendImageFields(block) {
   );
 }
 
+function appendSpacerFields(block) {
+  const sizeSelect = document.createElement("select");
+  sizeSelect.id = "block-spacer-size";
+  for (const size of ["small", "medium", "large"]) {
+    const option = document.createElement("option");
+    option.value = size;
+    option.textContent = `${size[0].toUpperCase()}${size.slice(1)}`;
+    option.selected = block.size === size;
+    sizeSelect.append(option);
+  }
+  sizeSelect.addEventListener("change", () => {
+    block.size = sizeSelect.value;
+    updateBlockPreview(block);
+  });
+  elements.inspectorFields.append(createField("Size", sizeSelect));
+}
+
 function renderInspector() {
   elements.inspectorFields.replaceChildren();
   const block = selectedBlock();
@@ -270,6 +298,7 @@ function renderInspector() {
   if (block.type === "section") appendSectionFields(block);
   if (block.type === "quote") appendQuoteFields(block);
   if (block.type === "image") appendImageFields(block);
+  if (block.type === "spacer") appendSpacerFields(block);
 }
 
 function renderCanvas() {
