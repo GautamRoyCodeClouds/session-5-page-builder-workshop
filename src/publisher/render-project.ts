@@ -41,6 +41,10 @@ function renderBlock(block: Block): string {
       return "<hr>";
     case "image":
       return `<img src="${escapeHtml(block.url)}" alt="${escapeHtml(block.alt)}">`;
+    case "spacer": {
+      const heights = { small: "16px", medium: "40px", large: "80px" };
+      return `<div class="spacer" style="height: ${heights[block.size]}" aria-hidden="true"></div>`;
+    }
     case "quote": {
       const attribution = block.attribution.trim();
       const cite = attribution ? `\n  <cite>${escapeHtml(attribution)}</cite>` : "";

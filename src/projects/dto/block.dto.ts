@@ -88,12 +88,23 @@ export class ImageBlockDto {
   alt!: string;
 }
 
+export class SpacerBlockDto {
+  @ApiProperty({ example: "spacer-1" })
+  id!: string;
+
+  @ApiProperty({ enum: ["spacer"] })
+  type!: "spacer";
+
+  @ApiProperty({ enum: ["small", "medium", "large"] })
+  size!: "small" | "medium" | "large";
+}
+
 export type BlockDto = Block;
 
 export function blocksApiProperty(): ApiPropertyOptions {
   return {
     type: "array",
-    description: "Ordered heading, text, button, section, divider, quote, and image blocks",
+    description: "Ordered heading, text, button, section, divider, quote, image, and spacer blocks",
     items: {
       discriminator: {
         propertyName: "type",
@@ -104,7 +115,8 @@ export function blocksApiProperty(): ApiPropertyOptions {
           section: getSchemaPath(SectionBlockDto),
           divider: getSchemaPath(DividerBlockDto),
           quote: getSchemaPath(QuoteBlockDto),
-          image: getSchemaPath(ImageBlockDto)
+          image: getSchemaPath(ImageBlockDto),
+          spacer: getSchemaPath(SpacerBlockDto)
         }
       },
       oneOf: [
@@ -114,7 +126,8 @@ export function blocksApiProperty(): ApiPropertyOptions {
         { $ref: getSchemaPath(SectionBlockDto) },
         { $ref: getSchemaPath(DividerBlockDto) },
         { $ref: getSchemaPath(QuoteBlockDto) },
-        { $ref: getSchemaPath(ImageBlockDto) }
+        { $ref: getSchemaPath(ImageBlockDto) },
+        { $ref: getSchemaPath(SpacerBlockDto) }
       ]
     }
   };

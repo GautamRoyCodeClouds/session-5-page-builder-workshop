@@ -61,7 +61,8 @@ describe("OpenAPI document", () => {
             section: "#/components/schemas/SectionBlockDto",
             divider: "#/components/schemas/DividerBlockDto",
             quote: "#/components/schemas/QuoteBlockDto",
-            image: "#/components/schemas/ImageBlockDto"
+            image: "#/components/schemas/ImageBlockDto",
+            spacer: "#/components/schemas/SpacerBlockDto"
           }
         },
         oneOf: [
@@ -71,7 +72,8 @@ describe("OpenAPI document", () => {
           { $ref: "#/components/schemas/SectionBlockDto" },
           { $ref: "#/components/schemas/DividerBlockDto" },
           { $ref: "#/components/schemas/QuoteBlockDto" },
-          { $ref: "#/components/schemas/ImageBlockDto" }
+          { $ref: "#/components/schemas/ImageBlockDto" },
+          { $ref: "#/components/schemas/SpacerBlockDto" }
         ]
       }
     });

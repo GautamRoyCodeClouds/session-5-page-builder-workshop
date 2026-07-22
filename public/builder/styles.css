@@ -452,6 +452,12 @@ textarea:focus-visible,
   border-radius: 4px;
 }
 
+.preview-spacer {
+  border: 1px dashed var(--line-strong);
+  border-radius: 4px;
+  background: repeating-linear-gradient(45deg, transparent, transparent 6px, var(--surface) 6px, var(--surface) 12px);
+}
+
 .inspector-heading {
   flex: 0 0 auto;
 }
