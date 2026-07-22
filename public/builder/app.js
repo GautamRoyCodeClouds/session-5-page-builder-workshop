@@ -631,6 +631,36 @@ async function publishProject() {
   }
 }
 
+function paletteButtons() {
+  return [...elements.palette.querySelectorAll("button")];
+}
+
+function focusPaletteItem(index) {
+  const buttons = paletteButtons();
+  buttons.forEach((button, position) => {
+    button.tabIndex = position === index ? 0 : -1;
+  });
+  buttons[index]?.focus();
+}
+
+paletteButtons().forEach((button, position) => {
+  button.tabIndex = position === 0 ? 0 : -1;
+});
+
+elements.palette.addEventListener("keydown", (event) => {
+  const buttons = paletteButtons();
+  const current = buttons.indexOf(document.activeElement);
+  if (current < 0) return;
+  let next = null;
+  if (event.key === "ArrowRight" || event.key === "ArrowDown") next = (current + 1) % buttons.length;
+  else if (event.key === "ArrowLeft" || event.key === "ArrowUp") next = (current - 1 + buttons.length) % buttons.length;
+  else if (event.key === "Home") next = 0;
+  else if (event.key === "End") next = buttons.length - 1;
+  if (next === null) return;
+  event.preventDefault();
+  focusPaletteItem(next);
+});
+
 elements.palette.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-palette-type]");
   if (!button) return;
