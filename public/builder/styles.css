@@ -536,6 +536,13 @@ textarea:focus-visible,
   flex: 0 0 auto;
 }
 
+.inspector-toggle {
+  margin-left: auto;
+  min-height: 28px;
+  padding: 4px 10px;
+  font-size: 0.76rem;
+}
+
 .inspector-fields {
   flex: 1 1 auto;
 }
