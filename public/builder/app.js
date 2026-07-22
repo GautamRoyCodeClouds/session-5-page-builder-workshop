@@ -34,6 +34,7 @@ const elements = {
   moveSelectedUp: document.querySelector("#move-selected-up"),
   openPublished: document.querySelector("#open-published"),
   palette: document.querySelector("#palette"),
+  addFirstBlock: document.querySelector("#add-first-block"),
   projectName: document.querySelector("#project-name"),
   projectTitle: document.querySelector("#project-title-input"),
   projectSlug: document.querySelector("#project-slug"),
@@ -691,6 +692,10 @@ elements.canvas.addEventListener("drop", (event) => {
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
+elements.addFirstBlock.addEventListener("click", () => {
+  const firstPaletteButton = elements.palette.querySelector("button:not([disabled])");
+  if (firstPaletteButton) firstPaletteButton.focus();
+});
 document.addEventListener("keydown", (event) => {
   if (event.key !== "Delete") return;
   if (!state.selectedBlockId) return;

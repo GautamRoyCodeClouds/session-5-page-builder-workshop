@@ -363,9 +363,18 @@ textarea:focus-visible,
 }
 
 .canvas-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
   margin: 0;
   color: var(--muted);
   font-size: 0.84rem;
+}
+
+.canvas-empty-text {
+  margin: 0;
+  max-width: 42ch;
 }
 
 .canvas-block {
