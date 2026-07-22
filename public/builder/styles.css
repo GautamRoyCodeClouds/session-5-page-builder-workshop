@@ -445,6 +445,12 @@ textarea:focus-visible,
   font-weight: 700;
 }
 
+.preview-link-secondary {
+  color: var(--accent);
+  background: transparent;
+  border: 1px solid var(--accent);
+}
+
 .preview-image {
   max-width: 100%;
   height: auto;

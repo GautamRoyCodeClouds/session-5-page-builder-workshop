@@ -25,7 +25,7 @@ describe("renderProject", () => {
     expect(html).toContain('<meta name="viewport" content="width=device-width, initial-scale=1">');
     expect(html).toContain("<h1>First &lt;heading&gt;</h1>");
     expect(html).toContain("<p>Second &amp; body</p>");
-    expect(html).toContain('<a class="button" href="https://example.com/?q=&quot;value&quot;&amp;x=1">Third &quot;link&quot;</a>');
+    expect(html).toContain('<a class="button button-primary" href="https://example.com/?q=&quot;value&quot;&amp;x=1">Third &quot;link&quot;</a>');
     expect(html).toContain("<section><h2>Fourth &gt; section</h2></section>");
     expect(html).toContain("<hr>");
     expect(html).toContain("<blockquote>");
@@ -59,7 +59,7 @@ describe("renderProject", () => {
       blocks: [{ id: "unsafe", type: "button", label: "Unsafe", url }]
     });
 
-    expect(html).toContain('<span class="button" aria-disabled="true">Unsafe</span>');
+    expect(html).toContain('<span class="button button-primary" aria-disabled="true">Unsafe</span>');
     expect(html).not.toContain("href=");
   });
 

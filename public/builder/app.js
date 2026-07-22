@@ -15,7 +15,7 @@ const IMAGE_PLACEHOLDER = `data:image/svg+xml,${encodeURIComponent(
 const blockDefaults = {
   heading: () => ({ id: crypto.randomUUID(), type: "heading", text: "New heading", level: 2 }),
   text: () => ({ id: crypto.randomUUID(), type: "text", text: "Write your text here." }),
-  button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com" }),
+  button: () => ({ id: crypto.randomUUID(), type: "button", label: "Learn more", url: "https://example.com", style: "primary" }),
   section: () => ({ id: crypto.randomUUID(), type: "section", title: "New section" }),
   divider: () => ({ id: crypto.randomUUID(), type: "divider" }),
   quote: () => ({ id: crypto.randomUUID(), type: "quote", quote: "New quote", attribution: "" }),
@@ -69,7 +69,8 @@ function previewElement(block) {
 
   if (block.type === "button") {
     const buttonPreview = document.createElement("span");
-    buttonPreview.className = "preview-link";
+    const style = block.style === "secondary" ? "secondary" : "primary";
+    buttonPreview.className = `preview-link preview-link-${style}`;
     buttonPreview.textContent = block.label;
     return buttonPreview;
   }
@@ -200,9 +201,24 @@ function appendButtonFields(block) {
     block.url = urlInput.value;
   });
 
+  const styleSelect = document.createElement("select");
+  styleSelect.id = "block-button-style";
+  for (const style of ["primary", "secondary"]) {
+    const option = document.createElement("option");
+    option.value = style;
+    option.textContent = `${style[0].toUpperCase()}${style.slice(1)}`;
+    option.selected = (block.style ?? "primary") === style;
+    styleSelect.append(option);
+  }
+  styleSelect.addEventListener("change", () => {
+    block.style = styleSelect.value;
+    updateBlockPreview(block);
+  });
+
   elements.inspectorFields.append(
     createField("Label", labelInput),
-    createField("URL", urlInput)
+    createField("URL", urlInput),
+    createField("Style", styleSelect)
   );
 }
 

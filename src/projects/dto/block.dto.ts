@@ -39,6 +39,9 @@ export class ButtonBlockDto {
 
   @ApiProperty({ example: "https://example.com" })
   url!: string;
+
+  @ApiProperty({ enum: ["primary", "secondary"], required: false, default: "primary" })
+  style?: "primary" | "secondary";
 }
 
 export class SectionBlockDto {

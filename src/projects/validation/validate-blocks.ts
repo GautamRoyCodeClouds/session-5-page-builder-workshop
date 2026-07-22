@@ -55,15 +55,25 @@ function validateBlock(value: unknown, index: number): Block {
         throw new BlockValidationError(`blocks[${index}] is not a valid text block`);
       }
       return value as TextBlockShape;
-    case "button":
+    case "button": {
+      const keys = Object.keys(value);
+      const allowedButtonKeys = [...allowedKeys.button, "style"];
+      const hasRequired = allowedKeys.button.every((key) => keys.includes(key));
+      const noUnknown = keys.every((key) => allowedButtonKeys.includes(key));
+      const styleValid = value.style === undefined
+        || value.style === "primary"
+        || value.style === "secondary";
       if (
-        !hasExactKeys(value, allowedKeys.button)
+        !hasRequired
+        || !noUnknown
         || typeof value.label !== "string"
         || typeof value.url !== "string"
+        || !styleValid
       ) {
         throw new BlockValidationError(`blocks[${index}] is not a valid button block`);
       }
       return value as ButtonBlockShape;
+    }
     case "section":
       if (!hasExactKeys(value, allowedKeys.section) || typeof value.title !== "string") {
         throw new BlockValidationError(`blocks[${index}] is not a valid section block`);

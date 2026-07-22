@@ -30,11 +30,14 @@ function renderBlock(block: Block): string {
       return `<h${block.level}>${escapeHtml(block.text)}</h${block.level}>`;
     case "text":
       return `<p>${escapeHtml(block.text)}</p>`;
-    case "button":
+    case "button": {
+      const style = block.style === "secondary" ? "secondary" : "primary";
+      const className = `button button-${style}`;
       if (!isSafeUrl(block.url)) {
-        return `<span class="button" aria-disabled="true">${escapeHtml(block.label)}</span>`;
+        return `<span class="${className}" aria-disabled="true">${escapeHtml(block.label)}</span>`;
       }
-      return `<a class="button" href="${escapeHtml(block.url.trim())}">${escapeHtml(block.label)}</a>`;
+      return `<a class="${className}" href="${escapeHtml(block.url.trim())}">${escapeHtml(block.label)}</a>`;
+    }
     case "section":
       return `<section><h2>${escapeHtml(block.title)}</h2></section>`;
     case "divider":
@@ -71,6 +74,7 @@ export function renderProject(project: ProjectDocument, language = "en"): string
   <style>
     body { box-sizing: border-box; color: ${escapeHtml(textColor)}; font-family: system-ui, sans-serif; line-height: 1.6; margin: 0 auto; max-width: 72rem; padding: 3rem 1.25rem; }
     .button { background: ${escapeHtml(buttonColor)}; color: #fff; display: inline-block; padding: .65rem 1rem; text-decoration: none; }
+    .button-secondary { background: transparent; color: ${escapeHtml(buttonColor)}; border: 1px solid ${escapeHtml(buttonColor)}; }
     [aria-disabled="true"] { cursor: not-allowed; opacity: .65; }
     section { border-top: 1px solid #d8dee4; margin-top: 2rem; padding-top: 1rem; }
   </style>
