@@ -691,6 +691,23 @@ elements.canvas.addEventListener("drop", (event) => {
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "Delete") return;
+  if (!state.selectedBlockId) return;
+  const active = document.activeElement;
+  if (active && active.closest("input, textarea, select, [contenteditable='true']")) return;
+  const index = state.blocks.findIndex((block) => block.id === state.selectedBlockId);
+  if (index < 0) return;
+  event.preventDefault();
+  const focusId = state.blocks[index + 1]?.id ?? state.blocks[index - 1]?.id ?? null;
+  removeSelectedBlock();
+  if (focusId) {
+    blockElement(focusId)?.focus();
+  } else {
+    elements.canvas.tabIndex = -1;
+    elements.canvas.focus();
+  }
+});
 elements.moveSelectedUp.addEventListener("click", () => moveSelectedBlock(-1));
 elements.moveSelectedDown.addEventListener("click", () => moveSelectedBlock(1));
 elements.projectTitle.addEventListener("input", () => {
