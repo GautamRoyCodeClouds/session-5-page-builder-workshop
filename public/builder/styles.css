@@ -140,6 +140,17 @@ textarea:focus-visible,
   white-space: nowrap;
 }
 
+.save-state {
+  flex: 0 0 auto;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--muted);
+}
+
+.save-state[data-state="unsaved"] {
+  color: var(--button-mark);
+}
+
 .actions {
   display: flex;
   align-items: center;

@@ -48,7 +48,8 @@ const elements = {
   removeSelected: document.querySelector("#remove-selected"),
   duplicateSelected: document.querySelector("#duplicate-selected"),
   saveProject: document.querySelector("#save-project"),
-  status: document.querySelector("#status")
+  status: document.querySelector("#status"),
+  saveState: document.querySelector("#save-state")
 };
 
 const state = {
@@ -60,6 +61,21 @@ const state = {
 
 function setStatus(message) {
   elements.status.textContent = message;
+}
+
+function markUnsaved() {
+  elements.saveState.textContent = "Unsaved";
+  elements.saveState.dataset.state = "unsaved";
+}
+
+function markSaved() {
+  elements.saveState.textContent = "Saved";
+  elements.saveState.dataset.state = "saved";
+}
+
+function isEditableField(target) {
+  return target instanceof Element
+    && target.closest("#inspector-fields, .control-rail, #project-title-input") !== null;
 }
 
 function previewElement(block) {
@@ -377,6 +393,7 @@ function addBlock(type, index = state.blocks.length) {
   state.blocks.splice(Math.max(0, index), 0, block);
   state.selectedBlockId = block.id;
   render();
+  markUnsaved();
   setStatus(`${type[0].toUpperCase()}${type.slice(1)} added.`);
 }
 
@@ -401,6 +418,7 @@ function reorderBlock(sourceId, targetId) {
   if (before === after) return;
   state.selectedBlockId = null;
   render();
+  markUnsaved();
   setStatus("Block moved.");
 }
 
@@ -414,6 +432,7 @@ function moveSelectedBlock(offset) {
     state.blocks[sourceIndex]
   ];
   render();
+  markUnsaved();
   setStatus("Block moved.");
 }
 
@@ -428,6 +447,7 @@ function duplicateSelectedBlock() {
   state.blocks.splice(index + 1, 0, copy);
   state.selectedBlockId = copy.id;
   render();
+  markUnsaved();
   setStatus("Block duplicated.");
 }
 
@@ -437,6 +457,7 @@ function removeSelectedBlock() {
   state.blocks.splice(index, 1);
   state.selectedBlockId = null;
   render();
+  markUnsaved();
   setStatus("Block removed.");
 }
 
@@ -561,6 +582,7 @@ async function saveProject() {
       body: JSON.stringify(payload)
     });
     applyProject(project, true);
+    markSaved();
     setStatus("Project saved.");
   } catch (error) {
     requestError("Save", error);
@@ -603,6 +625,7 @@ async function loadProject() {
   try {
     const project = await requestJson(`/api/projects/${state.projectId}`);
     applyProject(project);
+    markSaved();
     setStatus("Project loaded.");
   } catch (error) {
     requestError("Load", error);
@@ -806,8 +829,16 @@ elements.publishProject.addEventListener("click", () => {
   void publishProject();
 });
 
+document.addEventListener("input", (event) => {
+  if (isEditableField(event.target)) markUnsaved();
+});
+document.addEventListener("change", (event) => {
+  if (isEditableField(event.target)) markUnsaved();
+});
+
 render();
 state.savedName = elements.projectName.value;
+markSaved();
 
 const queryProjectId = new URL(window.location.href).searchParams.get("project");
 const initialProjectId = queryProjectId || storedProjectId();
