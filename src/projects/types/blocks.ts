@@ -11,11 +11,14 @@ export type TextBlock = {
   text: string;
 };
 
+export type ButtonStyle = "primary" | "secondary";
+
 export type ButtonBlock = {
   id: string;
   type: "button";
   label: string;
   url: string;
+  style?: ButtonStyle;
 };
 
 export type SectionBlock = {
