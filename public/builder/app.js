@@ -29,6 +29,7 @@ const elements = {
   canvas: document.querySelector("#canvas"),
   canvasHelp: document.querySelector("#canvas-help"),
   inspectorFields: document.querySelector("#inspector-fields"),
+  inspectorToggle: document.querySelector("#inspector-toggle"),
   loadProject: document.querySelector("#load-project"),
   moveSelectedDown: document.querySelector("#move-selected-down"),
   moveSelectedUp: document.querySelector("#move-selected-up"),
@@ -758,6 +759,12 @@ elements.canvas.addEventListener("drop", (event) => {
   if (sourceId) reorderBlock(sourceId, targetBlock ? targetBlock.dataset.blockId : null);
 });
 
+elements.inspectorToggle.addEventListener("click", () => {
+  const expanded = elements.inspectorToggle.getAttribute("aria-expanded") === "true";
+  elements.inspectorToggle.setAttribute("aria-expanded", String(!expanded));
+  elements.inspectorFields.hidden = expanded;
+  elements.inspectorToggle.textContent = expanded ? "Expand" : "Collapse";
+});
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
 function setEditorMode(mode) {
