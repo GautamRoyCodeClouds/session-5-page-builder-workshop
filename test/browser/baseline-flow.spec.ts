@@ -82,10 +82,6 @@ test("baseline-flow: block lifecycle", async ({ page }) => {
   }
   await expect(blocks).toHaveCount(20);
   await expect(palette.getByRole("button", { name: "Text" })).toBeDisabled();
-
-  for (const excludedName of ["Preview"]) {
-    await expect(page.getByRole("button", { name: excludedName, exact: true })).toHaveCount(0);
-  }
 });
 
 test("baseline-flow: divider block renders a rule and has no inspector fields", async ({ page }) => {

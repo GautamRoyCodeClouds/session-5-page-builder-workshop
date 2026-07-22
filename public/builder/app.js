@@ -38,6 +38,9 @@ const elements = {
   blockCount: document.querySelector("#block-count"),
   previewDesktop: document.querySelector("#preview-desktop"),
   previewMobile: document.querySelector("#preview-mobile"),
+  appShell: document.querySelector(".app-shell"),
+  modeEdit: document.querySelector("#mode-edit"),
+  modePreview: document.querySelector("#mode-preview"),
   projectName: document.querySelector("#project-name"),
   projectTitle: document.querySelector("#project-title-input"),
   projectSlug: document.querySelector("#project-slug"),
@@ -734,6 +737,15 @@ elements.canvas.addEventListener("drop", (event) => {
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
+function setEditorMode(mode) {
+  const isPreview = mode === "preview";
+  elements.modePreview.setAttribute("aria-pressed", String(isPreview));
+  elements.modeEdit.setAttribute("aria-pressed", String(!isPreview));
+  elements.appShell.classList.toggle("is-preview", isPreview);
+}
+elements.modeEdit.addEventListener("click", () => setEditorMode("edit"));
+elements.modePreview.addEventListener("click", () => setEditorMode("preview"));
+
 function setPreviewMode(mode) {
   const isMobile = mode === "mobile";
   elements.previewMobile.setAttribute("aria-pressed", String(isMobile));

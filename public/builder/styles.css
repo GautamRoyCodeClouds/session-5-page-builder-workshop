@@ -359,6 +359,31 @@ textarea:focus-visible,
   margin-inline: auto;
 }
 
+.editor-modes {
+  display: flex;
+  gap: 6px;
+}
+
+.editor-mode[aria-pressed="true"] {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.app-shell.is-preview .control-rail,
+.app-shell.is-preview .inspector {
+  display: none;
+}
+
+.app-shell.is-preview .workbench {
+  grid-template-columns: 1fr;
+}
+
+.app-shell.is-preview .canvas-block[aria-current="true"] {
+  border-color: var(--line);
+  box-shadow: none;
+}
+
 .preview-modes {
   display: flex;
   gap: 6px;
