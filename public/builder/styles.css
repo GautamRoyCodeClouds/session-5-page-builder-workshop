@@ -359,6 +359,22 @@ textarea:focus-visible,
   margin-inline: auto;
 }
 
+.preview-modes {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.preview-mode[aria-pressed="true"] {
+  color: #ffffff;
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.canvas.is-mobile-preview {
+  width: min(100%, 24rem);
+}
+
 .canvas {
   width: min(100%, 760px);
   min-height: calc(100vh - var(--topbar-height) - 96px);

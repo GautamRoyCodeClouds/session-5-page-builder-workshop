@@ -36,6 +36,8 @@ const elements = {
   palette: document.querySelector("#palette"),
   addFirstBlock: document.querySelector("#add-first-block"),
   blockCount: document.querySelector("#block-count"),
+  previewDesktop: document.querySelector("#preview-desktop"),
+  previewMobile: document.querySelector("#preview-mobile"),
   projectName: document.querySelector("#project-name"),
   projectTitle: document.querySelector("#project-title-input"),
   projectSlug: document.querySelector("#project-slug"),
@@ -732,6 +734,14 @@ elements.canvas.addEventListener("drop", (event) => {
 
 elements.removeSelected.addEventListener("click", removeSelectedBlock);
 elements.duplicateSelected.addEventListener("click", duplicateSelectedBlock);
+function setPreviewMode(mode) {
+  const isMobile = mode === "mobile";
+  elements.previewMobile.setAttribute("aria-pressed", String(isMobile));
+  elements.previewDesktop.setAttribute("aria-pressed", String(!isMobile));
+  elements.canvas.classList.toggle("is-mobile-preview", isMobile);
+}
+elements.previewDesktop.addEventListener("click", () => setPreviewMode("desktop"));
+elements.previewMobile.addEventListener("click", () => setPreviewMode("mobile"));
 elements.addFirstBlock.addEventListener("click", () => {
   const firstPaletteButton = elements.palette.querySelector("button:not([disabled])");
   if (firstPaletteButton) firstPaletteButton.focus();
