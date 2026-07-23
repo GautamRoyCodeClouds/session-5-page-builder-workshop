@@ -18,6 +18,7 @@ interface ProjectInput {
 
 interface Project extends ProjectInput {
   id: string;
+  version: number;
   publishedAt: string | null;
   createdAt: string;
   updatedAt: string;
@@ -95,6 +96,7 @@ export async function installBaselineRoutes(context: BrowserContext): Promise<vo
       const project: Project = {
         ...input,
         id: randomUUID(),
+        version: 1,
         publishedAt: null,
         createdAt: now,
         updatedAt: now
@@ -153,8 +155,12 @@ export async function installBaselineRoutes(context: BrowserContext): Promise<vo
         await json(route, 404, { statusCode: 404, code: "PROJECT_NOT_FOUND", message: "Project not found" });
         return;
       }
-      const input = request.postDataJSON() as ProjectInput;
-      Object.assign(project, input, { updatedAt: new Date().toISOString() });
+      const input = request.postDataJSON() as ProjectInput & { version?: number };
+      if (input.version === undefined) {
+        await json(route, 400, { statusCode: 400, code: "BAD_REQUEST", message: "Project version is required" });
+        return;
+      }
+      Object.assign(project, input, { version: project.version + 1, updatedAt: new Date().toISOString() });
       await json(route, 200, structuredClone(project));
       return;
     }
