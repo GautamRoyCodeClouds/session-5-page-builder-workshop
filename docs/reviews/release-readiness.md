@@ -77,5 +77,20 @@ If a defect is discovered after the baseline has been shared:
     correcting the affected task cards' `allowedFiles` in `workshop/tasks.json`
     before the next session, or documenting the exception in
     `docs/LOCAL_REVIEW.md` for presenters running the harness.
+  - **Resolved:** `workshop/tasks.json` shipped with 68 task cards (frontend 16)
+    because the presenter-demonstration card `UI-16` ("Rename a saved project
+    inline via the dedicated rename endpoint") leaked into the machine-readable
+    attendee catalogue, even though `README.md`, `workshop/TASKS.md`, and
+    `docs/design.md` all describe it as intentionally absent. Its unique verify
+    command (`npm run test:browser -- rename`) also raised the distinct-command
+    count to 41. Because `scripts/policy.mjs` hardcodes the intended invariant
+    (exactly 67 tasks, frontend 15, 40 distinct commands), the baseline failed
+    its own `npm run policy` check — item 9 above. The policy counts match the
+    catalogue precisely once `UI-16` is removed, confirming the card leaked in
+    rather than the guard being stale. Fixed by removing the `UI-16` object from
+    `workshop/tasks.json` (restores `POLICY PASS`, 67 tasks / 40 commands, with
+    no other change). If a future session intends `UI-16` to be a real attendee
+    task instead, update the expected counts in `scripts/policy.mjs`
+    (67→68, frontend 15→16, 40→41) rather than removing the card.
 - **Fallback reference:** [Rollback Plan](#rollback-plan) above; trusted review
   harness setup in [docs/LOCAL_REVIEW.md](../LOCAL_REVIEW.md).
