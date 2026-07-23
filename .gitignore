@@ -11,3 +11,6 @@ src/generated/prisma/
 review-output/
 .superpowers/
 *.log
+
+# Local planning scratch (not part of the app)
+builder-tasks-plan.md
