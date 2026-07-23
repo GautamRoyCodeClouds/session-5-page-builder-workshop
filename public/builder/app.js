@@ -57,7 +57,8 @@ const state = {
   blocks: [],
   projectId: null,
   selectedBlockId: null,
-  savedName: null
+  savedName: null,
+  version: null
 };
 
 function setStatus(message) {
@@ -503,6 +504,7 @@ function applyProject(project, preserveSelection = false) {
   const selectedId = preserveSelection ? state.selectedBlockId : null;
   state.projectId = project.id;
   state.savedName = project.name;
+  state.version = typeof project.version === "number" ? project.version : null;
   state.blocks = project.blocks.map((block) => ({ ...block }));
   state.selectedBlockId = state.blocks.some((block) => block.id === selectedId) ? selectedId : null;
   elements.projectName.value = project.name;
@@ -549,11 +551,16 @@ function projectPayload() {
     return null;
   }
 
-  return {
+  const payload = {
     name: elements.projectName.value,
     slug: elements.projectSlug.value,
     blocks: state.blocks
   };
+  // An existing project uses optimistic concurrency: send its current version.
+  if (state.projectId !== null && typeof state.version === "number") {
+    payload.version = state.version;
+  }
+  return payload;
 }
 
 function requestError(action, error) {
